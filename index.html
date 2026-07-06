@@ -1,0 +1,3331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<title>Daily Work Log</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Work Log">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1c2b2d">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 680 680'%3E%3Crect x='40' y='40' width='600' height='600' rx='120' fill='%231c2b2d'/%3E%3Crect x='180' y='160' width='320' height='380' rx='18' fill='%23f6f4ee' stroke='%23d8d2c2' stroke-width='4'/%3E%3Crect x='290' y='138' width='100' height='44' rx='10' fill='%2346624f'/%3E%3Crect x='310' y='148' width='60' height='24' rx='6' fill='%231c2b2d'/%3E%3Crect x='220' y='260' width='160' height='14' rx='4' fill='%23d8d2c2'/%3E%3Crect x='220' y='292' width='200' height='14' rx='4' fill='%23d8d2c2'/%3E%3Crect x='220' y='324' width='130' height='14' rx='4' fill='%23d8d2c2'/%3E%3Crect x='220' y='356' width='180' height='14' rx='4' fill='%23d8d2c2'/%3E%3Crect x='220' y='388' width='110' height='14' rx='4' fill='%23d8d2c2'/%3E%3Crect x='220' y='258' width='18' height='18' rx='4' fill='%2346624f'/%3E%3Crect x='220' y='290' width='18' height='18' rx='4' fill='%23b5502f'/%3E%3Crect x='220' y='322' width='18' height='18' rx='4' fill='%2346624f'/%3E%3Crect x='220' y='354' width='18' height='18' rx='4' fill='%23b5502f'/%3E%3Crect x='220' y='386' width='18' height='18' rx='4' fill='%2346624f'/%3E%3Cg transform='translate(320,370)'%3E%3Crect x='90' y='20' width='90' height='80' rx='10' fill='%23b5502f'/%3E%3Crect x='98' y='28' width='52' height='36' rx='5' fill='%231c2b2d' opacity='0.7'/%3E%3Crect x='0' y='30' width='96' height='70' rx='6' fill='%2346624f'/%3E%3Crect x='10' y='42' width='76' height='8' rx='2' fill='%231c2b2d' opacity='0.3'/%3E%3Crect x='10' y='58' width='76' height='8' rx='2' fill='%231c2b2d' opacity='0.3'/%3E%3Crect x='10' y='74' width='76' height='8' rx='2' fill='%231c2b2d' opacity='0.3'/%3E%3Crect x='0' y='100' width='180' height='4' rx='2' fill='%23c98a2c' opacity='0.7'/%3E%3Ccircle cx='30' cy='104' r='18' fill='%231c2b2d'/%3E%3Ccircle cx='30' cy='104' r='9' fill='%23d8d2c2'/%3E%3Ccircle cx='82' cy='104' r='18' fill='%231c2b2d'/%3E%3Ccircle cx='82' cy='104' r='9' fill='%23d8d2c2'/%3E%3Ccircle cx='140' cy='104' r='18' fill='%231c2b2d'/%3E%3Ccircle cx='140' cy='104' r='9' fill='%23d8d2c2'/%3E%3Crect x='174' y='0' width='10' height='38' rx='4' fill='%23c98a2c'/%3E%3Crect x='175' y='52' width='12' height='8' rx='2' fill='%23c98a2c'/%3E%3C/g%3E%3C/svg%3E">
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+const firebaseConfig = {
+  apiKey: "AIzaSyA2CV_nQQvX7ntqiBHeTLprOPmTcfOpjy8",
+  authDomain: "worklog-tmw.firebaseapp.com",
+  projectId: "worklog-tmw",
+  storageBucket: "worklog-tmw.firebasestorage.app",
+  messagingSenderId: "168188334810",
+  appId: "1:168188334810:web:2ebfa17073b489bf4a4be3"
+};
+try {
+  const fbApp = initializeApp(firebaseConfig);
+  const db = getFirestore(fbApp);
+  window.__wlDB = db;
+  window.__wlFire = { doc, getDoc, setDoc, collection, getDocs, writeBatch };
+  console.log('Firebase: ready');
+} catch(e) {
+  console.error('Firebase init failed:', e);
+}
+</script>
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAABmJLR0QA/wD/AP+gvaeTAAAgAElEQVR4nO3deZhcVYH//8+5VdX73uklSWclhCSd7rDvICA7iCgi7ju4jes4+p2fMz9Hx/mqM47jgjqgoo7MKOIuqCCjgEBACAlJOhuBhKSzdHfSnV6ru6vqnu8fISFAV6/VfW7Vfb+eh+fppKru/dCdrvupc889VwIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYKqM6wCYmLnLllV70egi33oLJTtPstWe9aqt8WskUy2pVJKsVGSkfLdpAWQ/0yPZlIz6JfVZq3bP2r3W89qt7+/zPD0bTyS2Hti6tdd1UkwMBSCgFjY21vvGNFlplayarEyTpCV6/gAPAAGzR9JWSZtk7GM2Gfnrni1PbXMdCulRAILg+usjczdtavLknWOlsyVzjmQXuI4FAFN0UEaPGd/+yUbMva0bNmxwHQgvoAA4smjlyrph610m+VcYmUskVbvOBADTbJ+V7jEyd6ms+Hetq1fHXQcKMwrADJq9fPmCSCT2ell7vaRTxfcfQHj1Sfqt8fXTSLz3Dzt37hx0HShsOABNszlLT5llYom3GGNvkNUZ4nsOAC91SEY/ktF3OE0wczgYTQ8zd0XzRTL+e4zMa8RsfAAYr9VGujV/KP7j7du3D7kOk8soABlU19xcHEv675IxH9bhGfsAgMnZK+nreQV5//nsmjXdrsPkIgpABixYvny2H4l9yFr7XklVrvMAQA7pkewtybzYv+1fu7bDdZhcQgGYgrrm5tpYyn5c0kckFbjOAwA5rF/SzdFY5Is716075DpMLqAATEJdc3NtNGU/ZaT3Syp0nQcAQqRT0r9G+3u/xpUDU0MBmIDGxsa8bhN5v6z9nKQy13kAIMR2W5l/2NOy/r9cB8lWFIBxmtvY/Doj+6+SFrnOAgA4wt7jR7yP7F2/fqvrJNmGAjCGhsbGJZJ3i6SLXGcBAIxoyEifry3I+9KaNWsSrsNkCwpAOhdcEG040PlBWfsvkopdxwEAjGmDkf/u3S0tj7sOkg0oACNoaGpqMlY/sFYnu84CAJiQpJX90p6aWf+k++9Pug4TZBSAFzMNjU03SvoPSUWuwwAAJu1xyX9Ta0vLdtdBgooC8Lznr+m/TdJVrrMAADKi1xr7wT0bN/7IdZAgogBImtvYeKGR9xNJta6zAAAy7jsFQ/EPcW+BFwt9AWhobLpJ0s2SYq6zAACmhzF6MplKvnbf5s3Puc4SFKEtAHXNzcV5SXubNXq96ywAgOlnpTbj6YbWDRsecJ0lCCKuA7iwsLGx3lhzr4wucZ0FADAzjFQiq7eU1da19XS0r3Gdx7XQFYD5K1Y1poz5s6QVrrMAAGacJ+lVZTX1VT0dbfe4DuNSqE4BPD/Z75eSyl1nAQC4ZWT/q7Yg/z1hXT0wNAWgYUXTFTL6ubh7HwDgCKPfqbTkda2rV8ddR5lpoSgAcxqbX+XJ3ikp33UWAEDAGD1YMBh/1fbt23tcR5lJOV8AGhqb3iTph5KirrMAAILK/lWyV7S2tHS6TjJTcroAzFvedK31dKc4+AMAxmTWSalXhqUE5GwBmLdy5aXWmt+IYX8AwDgZoycj0cgrd65bd8h1lumWkwXg+dn+d4sJfwCACbKyDyUj3uVt69f3u84ynXKuAMxfsarRN/7D4lI/AMAkWemPFfKvbmlpGXadZbp4rgNk0sLGxnrf2LvFwR8AMAVGuuSQzA+VY8fJY+XMSoANZ51V6A8l/iCp0XUWAED2MzIry2pri3o62v/oOst0yJUCYMrLKm+X0WWugwAAcok5p6ymtrOno/2vrpNkWk4UgHkrV37CynzMdQ4AQA4y5tKyWXVP9Bxof9p1lEzK+kmAz8/4v1dc6w8AmD5d8iNntG5elzMlIKsLwILly2envOg6SbWuswAAct6WvIK8M59ds6bbdZBMyObZjSYViX5XHPwBADNjWWJw6EfK8g/PR2TtHIC5jc0fNdKHXOcAAISJOaG0tv5Qb0fbo66TTFVWtpiGpqYm+fqrpALXWQAAoZOQNee1blr/mOsgU5F9pwAuuCAqX98XB38AgBsxGd2x8MQTK1wHmYqsKwANHQc/LukU1zkAAGFmFySTqZtdp5iKrJoDsKC5eZG1ukNSnussAIDQay6vq93S097e4jrIZGTVCEAqZb8jqdh1DgAAJMla8815J5w0x3WOyciaAtDQ2HydpFe6zgEAwDGq/Wjy265DTEZWnAJYsmRJfjIa/YWkKtdZAAA4lpFOKK2tb+ntaNvkOstEZMUIQLyg6G8lLXGdAwCAkRjZb8xvaqp0nWMiAj8CUNfcXBvx7U8l5bvOAgBAGiWSKnra2+9yHWS8Aj8CEE3ZT0kqdZ0DAIDRWKsb5zU2nuY6x3gFugAsWL58tpHe5zoHAADj4Fl5X1OWrLIb6AKQ8qKfllTkOgcAAON01rzG5htchxiPwLaUeSecNMdGk8+Kc/8AgOyyS2Uly1pXr467DjKawI4A2GjyQ+LgDwDIPvNNT9/7XYcYSyBHAOqam4tjKfucpGrXWQAAmDh7YDCZWHxg69Ze10nSCeQIQMz33y0O/gCArGVmFUbzPuI6xWiCWACMrPmQ6xAAAEyFlT6x+JRTyl3nSCdwBWDuiuaLxKp/AIDsVz4UH/qA6xDpBK4AyOhG1xEAAMgEY8xHG846q9B1jpEEqgDMXbas2she6zoHAAAZUmt7e9/uOsRIAlUATDTvLeLSPwBADjFWH1fAjrdS0AJZ+0bXEQAAyCxz/LzGVZe4TvFSgSkAcxob50s63XUOAAAyzcoP3MJAgSkAnrw3KKALEwEAMEVXL1x24kLXIY4VmAIg6XWuAwAAME0iyaj/DtchjhWIArCwsbFe0qmucwAAMG2sfYsCNNIdiAKQUOQyBeibAgDANDhublPTma5DHBGIAiDpCtcBAACYdr59q+sIR7gvANdfHzGyF7uOAQDAdDPS9br++ojrHFIACsCclm3N4s5/AIBQMLPmbdxyjusUUgAKgGf8QHwjAACYCb6nV7vOIAWgAEg623UAAABmihEF4AhGAAAAYXJcw/ITj3cdwmkBeP76//kuMwAAMNOsSV3kOkPU5c5Tiq6SfJcRAOciES90q2BY38r3resYgDvGXCjpFpcRnBYAmVSTbMje+QBJJeWFqqgtU3F54eECEELJZEo9nf3q3HdIw4NJ13GAGWVkL9Th6u+sCTt957HWa3a5f2CmeZ7R3CW1mr9stsqqikN78JekaDSiqtoyHdc0T1X15a7jADOtdu6yVU7nATh+97Er3e4fmEHGaN4J9SqvLnGdJFCMZ1S/oFqz5la6jgLMKC9iT3G6f5c7l7TE8f6BGVM7t1LFZYWuYwRWbUOlSiqKXMcAZowv6/QmeM4KwNxly6ollbraPzCTItGIqmYzzD2W+vnVMkwLQkgY4/YuuM4KgBeNLnK1b2CmlVYWyvM4so0lrzCmIkZJEBbWrnC5e2cFwPcNBQChkV+U7zpC1uA0CcLDzGpobKxytXd3lwEaM9fh1Q/AjIrGpt61rZX6uvoV7x/KQKIMM0bFpQUqLp/6wTuWH4gbpQEzwvqRpZIedbFvh+sA+LNCt/oJwmuK610MDyW0e2ubhuLDGQqUeQcklVYUac6S2qld3sjaIAgTT84KgLs5AMbMcrVvIKtYq93bgn3wP6L30ID2PtPuOgaQPaw/19WunRUAay0FABiHnq4BDQ0E/+B/RG/XgPp74q5jAFnBGNW52rfDdQA8ZxMfgGwS7wvgOf8x9HdTAIDxsAplAbCs+AGMg5/KvhtmpZLZlxlwwcjUutq3wwJguC4KABBuRs4+DDu8CsDmuds3plNJMYM7LxWNcmnbeEWjEf4NjaCvf8B1BEwHK2cLX7i8HTAjAFku4nlqWr5EZ5+6SsuOW6BZVRWqKi9VNOr2LtNB9MPf3601W7e4jpEVzj/jJL39n65yHSOQunv79VzrPq3ZsFn3PfS42joOuo6EqStwtWOH79QmykJA2Sk/FtNrr7xQ1191scpKi13HAUKjvLRYzcuXqHn5Er39dVdpw5btuu2O36pl27Ouo2GSrMMPwy5PAbDaRxY67/QT9YG3X6+aqgrXUYBQ8zxPq1Ys1Vf/6eP63Z8f0Xd//Gv19vW7joUJMg5vf8VYLcbFGKN3XH+13nTtZTLH/HuNRGMqKipTYVGporE8RSIxGW568zLFJQ+7jpA1iksqNH/xStcxAimZTGh4cEB9fYc0FO+TtVbGGF110Tk6eeUJ+tQXbtbe/R2uYyJLOLwKANnCGKP/72/eoTe/5vKjB/9INKqqWXM1Z95SVc6arYKiEkVjeRz8gWkUjcZUVFKu2voFmj1vqQqLy44+Nrt2lr722b/V8YvmO0yIbEIBwJjedt2VuvDsF25bXVBUojkNx6ukrPJFowEAZk40GlNN3XzNqpt/9FbTlWWl+uLf/43qaqodp0M2oABgVOectkpvee0VR/9cUlap2roFMh6Xtc2USDT7fk2zMXO2KiouU039Inne4TO65aXF+qePvUd5eTHHyRB0/JYirVgsqg+89XVHP+UXFJWoqnqOHM5ZCaWSiuy7Jr6wlKt8Z1J+QZFq6ucf/V09ftF8vev6VzlOhaCjACCtV19yvupqDt+ywYtEVVM7j4O/A0WlBSqrKnEdY9yKSgpUUp59pSXb5RcUqbJ69tE/v/qyV6ieUwEYBQUAIzLG6PqrLz765/LKGob9HZq7pEbls4JfAopKCzVvaR1zQxwpKatSfv7h8hWLRfWuG65xnAhBxmWAGNGy4xaourJc0uFP/yWl3LxxKjxval3bGKO5x9Wqur5c/T3xwN1sJxKNqLAkT0WlU1/VdKrfq7CrqK5X297DCwOdf8aJ+vptheob4O6MeDkKAEZ09qmrjn5dVFTKJ7opqq6ozMh2CorzVVCc2+fXK0rLxn4S0sovKFJefqGGh+KKRqM6+9Rm3fvgY65jIYCo2hjR0kXzjn5dUBz8oeegaz5hhesIWWPJ/EWuI2S9opLyo1+ffiKLKmFkFACMaNYxS/3Gorn9iXMmNC1Zpnn1c13HCLyigkKdvKLJdYysl5//wj065tQxERAjowBgREfO/0tSJMKZoqnyPE83vu5NnN8ew/WXvUpFBc7ujpozorEX1gCo5UoApMG7EUZUWPDCp35jmP2fCc1LV+gdr76B+RRpnLbyRF170eWuY+QE75jf2dIiChVGxkc7YAZdc+GlKi4q0nd/9t+KDw26jhMIxhhdfs6Fevdr30g5AmYQBQCYYa8841ydeEKj7n7wj3r0qbVq7+xQMpVyHWtGeZ6n6vJKnbhshS4/9yIdN2+h60hA6FAAAAeqKyr1tmter7dd83r5vq/4ULiu0y7ML2Q+BOAYBQBwzPM8FRcWj/1EAMggKjgAACFEAQAAIIQoAAAAhBAFAACAEKIAAAAQQhQAAABCiAIAAEAIUQAAAAghCgAAACFEAQAAIIQoAAAAhBAFAACAEKIAAAAQQhQAAABCiAIAAEAIUQAAAAghCgAAACFEAQAAIIQoAAAAhBAFAACAEKIAAAAQQhQAAABCiAIAAEAIUQAAAAghCgAAACFEAQAAIIQoAAAAhBAFAACAEKIAAAAQQhQAAABCiAIAAEAIUQAAAAghCgAAACFEAQAAIIQoAAAAhBAFAACAEKIAAAAQQhQAAABCiAIAAEAIUQAAAAghCgAAACFEAQAAIIQoAAAAhBAFAACAEKIAAAAQQhQAAABCiAIAAEAIUQAAAAghCgAAACFEAQAAIIQoAAAAhBAFAACAEKIAAAAQQhQAAABCiAIAAEAIRV0HAEaSTCZ114P3adMz2zQ0PJT2eSVFxTr35DN01qpTZjAdAGQ/CgACx1qrL3zvG1rTsn5cz3947eN685XX6lWvuHiak2EqIrGoYtF81zEAPI8CgMDZ0frcuA/+R9xxz2910qL5yovFpikVMiE/v0iz6ucrEuGtB3CNOQAInNa2fRN+TTKVUntX5zSkQSYNDQ3oYMce1zEAiAKAAEqMcs5/NL61GU6C6TA40Cvf+q5jAKFHAUDgcHDIfX4q5ToCEHoUAAAAQogCAABACFEAAAAIIQoAAscz/LPMdZ7Hzxhwjd9CBE4sb3KLxRhjMpwE0yEvv1CeF3EdAwg9CgACZ1793Am/xhij6vKKaUiDTIrG8lRdM/GfL4DMYzkuBM6ihvk658TT9PC6x8f9mgtPO0vz5x8/jakwVZFIVHn5BTKc4gECgQKAQPr4O96rxf+7QE9u2qDBURYGKioo1KkrV+nqV1ysCMPKADBuFAAEUsSL6LpLrtJ1l1zlOgoA5CTG4gAACCEKAAAAIUQBAAAghCgAAACEEAUAAIAQogAAABBCFAAAAEKIAgAAQAhRAAAACCFWAkQwWav9j9yn7s3rlBzoT/u0vIpq1Zx+viqWrZrBcACQ/SgACKTNt35J+/9yz7ieu+ePv9Lx7/yo6s67bJpTIRt5kQi3HwZGQAFA4PS37hj3wV+SrPX19O3fVLKhQSYam8ZkyFYFhSWqrmlQJMpbHnAEcwAQOH2tOyb8Gjs8pOGOtmlIg1wwGO/TgbZdrmMAgUIBQOAMD8Yn90Lfz2wQ5JShoQElEsOuYwCBQQFA4FgO5JgmfirhOgIQGBQAAABCiAIAAEAIUQAAAAghCgACxxjjOgJylDG85QFH8NuAwInl5bmOgBzkeRHF8gpcxwACgwKAwCmqnz+p10UrqzOcBLnC8zxV18xldAk4BstiIXDKFp+gqpUnq3Pjk+N+TdXJZ6tm/tJpTIVs5UU85RcUKxLh7Q44Fr8RCB5jtPKj/6Jn7/yeDq5drUR/T9qn5pdVqvrks7Twte9UJD9/BkMCQHajACCQIgUFOv6tH9Txb/2g6ygAkJOYAwAAQAhRAAAACCEKAAAAIUQBAAAghCgAAACEEAUAAIAQogAAABBCFAAAAEKIAgAAQAixEiAC66mtm7Tp2W1KJBJpn1NUUKgzmk/WvPo5M5gMALIfBQCB9P1f/US//tM943ruHX/4tT72tpt0ZvPJ05wqDDx5HnfMA8KAAoDA2duxX7/5873jfn4imdQ3f3ybZpfkK+JxVmuq8goKVT1rrmJ5Ba6jAJhGvFsicHbs3i1r7YRe0x8fVFvnwWlKFC7Dg3G17dspP5V0HQXANKIAIHAGh/on9bpkKpXhJOHlp5Lq7+92HQPANKIAIHB833cdAZJSSUYAgFxGAQAAIIQoAAAAhBAFAACAEKIAIHAMl6EHguEHAeQ0CgACJxrNdx0BkvLzC11HADCNKAAInNpZtZN6XUVJaYaThFdRSbkKivh+ArmMlQAROMsWHqfjFyzS08/tGPdrmpYs1fx5x01jqpAwUiyvQIWFJa6TAJhmFAAEjud5+sf3fky3/ux2rWlZr/jQYNrnFhcW6/SmE/Wu17xBpcUctABgvCgACKSyklJ94h3vdx0DAHIWcwAAAAghCgAAACFEAQAAIIQoAAAAhBAFAACAEKIAAAAQQhQAAABCiAIAAEAIUQAAAAghVgJEYPXvekaHtm1UMj6Q9jl5ZRWqaj5d+ZXVM5gMALIfBQCBtOvuO/TsT26Vtf6Yz40UFqvpY/+syhUnzUAyAMgNFAAEzuCBNj370++M6+AvSal4vzbe/M9a+HeflzFmmtPBBS8SUXFJucoqavkZAxlCAUDg9OzYKptKTeg1yZ4uDbftUax29jSlgku+n1J3V4dSqZSqZs1xHQfICUwCROAkBvom9To/kchwEgRNX0+nrD+xcghgZBQABE5qgp/+ES7JJEUPyAQKAAAAIUQBAAAghCgAAACEEAUAgcNlXhgV/z6AjKAAIHCi0ZjrCAgoz3iKRvNcxwByAgUAgVNQXTOp10WKSzOcBEFTUT2bESIgQ1gICIFTfvxKFc9doP49z437NUULlqhi/uJpTAWXIpGoCgrLlF9Q6DpK4PnDferd/aSGWzfJeFGpbIHrSAgoCgACx4vlqelvv6Att35J3Vs3jLoksPE8Va44Sctu/KTyq2tnMCUQPIMHtmnHXZ9UcqDz6N8ZGV29wuquTYyc4MUoAAikwtrZOukfvqrU0JBscjjt80wsX5E8zgkDkrTnga+86OAvSVZWbz9VWr9X2nXIUTAEEgUAgRbJz5fy813HAALPphKKt28Z8THPSKvmWO06xCgAXsAkQADIAb6fHPV0WT4f9/ASFAAAAEKIAgAAQAhRAAAACCEKAAAAIUQBAAAghCgAAACEEAUAAIAQ4spQBFZn9yFtf+5ZJfxU2ucU5Rdq2eIlKswvmMFkAJD9KAAIpPse/Ytu+emPlEgmxnxuVXmFPn3TR3TcvIXTHwwAcgQFAIHT1dOtW+8c38FfOjxS8KXvfkOfefdN3CpWkjGeCgqKVVFVK+NFXMcBEFAUAATO0zuf0XBifAf/I9q7OrWvo021lVXTlCq7JIYHNTQ0oLo5iylFkgY79mtg73NKDg26jpJx0fwCFc6er7zKCtdRkGUoAAicvoG+Sb1ucDj9XQPDaHgorsGBXhUWl7mO4oa1av/rA9r569vVv+sZ12mmXdnxJyivxnUKZBMKAAInlUq6jpAzEokhFboO4YCfGNaW7/yb2h65z3WUGdPzzFbNogBgArgMEMhh1nUAR7Z+799DdfAHJoMCACCnHFjzsPY/dK/rGEDgUQAA5JTnfvvfriMAWYE5AAgcJq1njlG4vpnD3Z3qeWbLqM85kLDqTkm+w/MjecZoTr4UC9ePBwFDAUDgRKJ5riPkjLy8fNcRZlS8bY9kRz6yD/rSnw5ZPTsYhJkRVgWedEml0YJ8WgDcoAAgcCrKKif1uqKCMM53P8xaqye2bNbabdvU3X/4MkrP8xSN5UkhGgVIDvTJlNZq2XC/lg71v+j//IHuoBz8Dxv0pbs7pdfNsqplKAAOUAAQOCsWH6+aqmp1dB4c92vm1tRq3uyGUC56k7K+/vNnd2jtttGHvkMjVqSdsSI9EyvS5f0d8qzUnbR6Oh6cg/8RvrVa22d02eQ6LzAlFAAETn5enj5940f0b7d9U3s62sZ8/oI5DfrEOz+gmrrZM5AueO689y4O/iN4Oq9YVamEzowfUm/6+0k51z6xRS+BjKEAIJAWzp2nb/7jF7W3Y7/ig+mXby0tKlFt9awZTBY89z58v+sIgfVkQZlOjXfLlxTUVRF83yojp2msZH3JpLm2q29o6rtAbqEAINDm1NS7jhBoQ8PD6uga/6mSsEkYT53RmDQUgmWirTR8wCi/9uVFJ5GSntrnIBMCjXUAgCyWZNnkMfkhmgTZt8PTcOeL/39NtEDfeFja1xOe7wPGhwIAADnCpqSeLZ46H4/o0PqIbMErVXzBF/XwDg7+eDlOAQBAjvETh/+TVyqZiOs4CChGAAAACCFGAIAcZq3V4EBCvh/g6+CmwDOe8ovy5HkMcQMTRQEAclhiKKnkcO5eaO7LlxmUCorCteQxkAmcAgByWJpl8XOK9V0nALITBQAAgBCiAAAAEEIUACCHRWNezt8gKRLjbQyYDCYBAjksEo2ouKxQfio3T5Qbz8iLUACAyaAAADnOeEYRj8VgwsKLSpFiyRgr43co1blVq+Ycfqw7Lu3scpsPwUEBAIAc4eVZVZzoyzvyzj74sOJrHtb/f8kLz7ntr9Ldm3P7tBDGh7EzAMgRkWK9cPBP45SGmcmC4KMAAECOGM/nei/HJ4Vi/CgAAACEEHMAgFxmrQYHhnN2tTzjSfmFeTLcC0CSZJNjP6c/YTW+sQLkOgoAkMOGh5NKDI/jqJDlCopHvxdASYAvgsiLZO5gnOg1GtjtKVZpZWQVLatQpLhUT+/cLUnqikv/8yQHfxxGAQByWK5+8j/WeO53UBmVqqJGncng3RxhYX5mP5EP7DbS7sPbq774AhWe+Ur93c0fztj2kTuYAwAg5xlJl1QaFQbsVMGsmHRaKW/DcIMRAABZbbyH9JqYdEON9ESfdGBYSjk8D55vrOblG51YYpTBMwDAhFAAgBwWjXoalpEUvKHvTIlEx3+CvyRidEF5EI64QciAsKMAADksEououLxQNlfvBWCMvChD6MBkUACAHOd5RuJeAABeguoMAEAIUQAAAAghCgAAACFEAQAAIISYBAjkMGul4fiwfD83LwM0xii/MMa9AIBJoAAAOSwxlNDwUMJ1jGlXUJznOgKQdTgFAOSw8ayTn+1sGP4ngWlAAQAAIIQoAAAAhBAFAMhhkainXF93PhLjbQyYDCYBAjksGouoqKwgd+8F4JkJ3QwIwAsoAECOi0Q8KcKnZAAvxrsCAAAhxAgAAEmS9a36euIajg8rOZxSKunLixrF8qLKL8hTUXnh4TsLusgmKd4bV7z/+WyJlLyop2gsolh+VCXlRc/PdwiGuC9t6rdqSxr1JK3iKak0KlVEpYY8o+OLJE5cwDUKABBy8f5hHdzXpb6ugVFXDDTGqKSySLPqK1RYmj8j2RJDSXXs6VJv14BSydQo2aSiskJV1ZWrtLJoRrKNZGO/dN8hq21xq5SVDleXl7Iqjkirio2uqJJqY7k9SRPBRQEAQiqZSKlt10F1H+gb1/Ottert7FdvZ7/KqopVt6BasbzpeQvxfauO3Z3qbOsZ10I/1kr93XH1d8dVVFag+gWzVFA0c6sD7h2WftJutTU+vkWJ+lPSIz1Wj/VK55dL11YbFQRnAAMhQQEAQmhwYEit29onvUxwT2e/+nvjmrekXkVlBRnNlkyktGvrfg32D03q9QM9g9rZskdzjqtVWVVxRrONZGO/9N39vuKTuNAiZaU/H7LaNmD1wbmeqjP8jmwivMUjPTonEDIDvYPa2bJ3yvcISCV8Pbd1n/q74xlKJg0PJfTshpuc5SIAABimSURBVNZJH/yP8H2r1qfb1Nnek6FkI3ukx+rmfZM7+B9rz7D0hV2+9mf4tg2R0vLMbhA5hQIAhMjwUEKt29oydndA61vtfrpNQwNTP3KlUr52b2tTMpH+XP9Ete08oGf7p2cNhO1xq/9utxm730JvSvrWXl8DGYxbMH9R5jaGnEMBALJYdAJDvNZatT7druQok+kmw0/5an1m/5QPhPt3HtDQwHBmQj3PWunOPcPqT2X2hkFxX7pln1Uyw/chahuWftSWmQZQuOh4RSuqMrIt5CZOEAFZLD8vT3Nr67Wnff+Yz+3p7BtzaH3+nDpdfuHZWnnCcaooK1F3T59ant6he+5frR2796Z93dBAQofae1RZVzbh/wdJivcPjTkZsaqyXFdddI5Oalyq6soKDcTj2rZjt+77y2PasOWZtK8bSFn9rtPo+ppJRRvR7zutesboUY1LF+uS887Q0sXzVFxUpINd3VrXslW///Mj6ug8lPZ1T/ZJ2+PSksLJ5zORqKovvXbyG0AoUACALPeai6/Uzf9z26jPsZLad3elfdzzPL3z+qv1+msuUcR7YWBwTl2Nlh+/SK+9/AL98p4HdOvtv1DKH/kTasfeQ6qoKZWZxFoB7bs7R3386ovP1fvfep3y8148s//4RfN11UXn6MHH1urLt9yugfjgiK+/v9vq4kqjygy84/UkpT8dSv/RvyA/T39705t14dmnvujv59bXqHn5Et3w6kt163//Ur++54G02/jVQV+faJjcAK0xnpa+/SNKzp0/qdcjPDgFAGS5i888T5efe+Goz4n3DioxlEz7+IffeYPeeO1lLzr4H8vzPF13xYX65PvfJmNGPsAnh5Pq75n4hMBUIqWBnpEP3JJ03RUX6qPvfuPLDv7HOv+Mk/SF//NBxWIjH+GTVlrTl5nx+rX9Vok0m4pEIvqXT77/ZQf/Y+XHYvrQO16vN1xzadrnbI9Lnel/XGnlVVRp5Uc/p9kXXDXxFyN0GAEAcsB7rrlGqxY16P6/PqKOroMve3zTgT1pX3v2qc26+uJzx7WfV557mh5/apPue+ivIz5uBpNaXFsxvtDP2/XcgbTX+i9omK2b3nrduLbTuHSx3vKaK/T9n/52xMdbUoW6ZvbUZ8WvP9ApaeRTKW+45hKtWrF0XNt51w2v0hPrN2v7zt0ve8xK2hIp1cWzx17UyOTlqbCmXpXLT1bN6ecrkl+g5ECnZH3J8BkP6VEAgCzX9vgPFG/frNmS3rhQ0sKXf1L+yNr+tK9/07WXT2h/b7z2srQFQAP9+vBJE1uA58u74lqf5rEbrrlEkTQjDiN57RUX6n9+dY+Ghl8+mXBbd1w1r2iSN4HtjWT76rYR/z4Wi+r6qy8e93Y8z9MbrrlUn//690Z8fGd+VHUXLBj39pLJtdr3yNrDf7DSYCKhwmXXSdGScW8D4UI9BLKY9VOKd2wd83kHekaeXV9ZVqoTFk/sXPGCufWaXTtr5P30TnwW/2ivOfPElRPaVmFBvlatOH7Ex5Ipq56BSYyrH6N/MKXBxMhzIFYuXaySoonN3Dv9xBXy0px2OTiJ7+WxbHJQqZ6Xjy4ARzACAGQx40VUtexK9e56VNaOfGCyVurqH/nAV1tTlfac/mhm11ZrX/uBl/19/2BKyVi5CmLjv9VNZ//I0+mLigpVVjrxlfzqa6rTPtaVKNSsosldqSBJ3f3pr1Soqxm5FI2mqLBA5SXF6urpfdljnf0pRYsmeRmflSLRckUqj9P0rIKAXEABALJc2eLzVLb4vFGfE4v9r5Kpl5+3nuyaAInkyIXCGKMFF/6dYrHYuLdVeNvTUtvTI2Sb3Kf10V4376wb1bB44aS2K0n+nj3Svz844f2OJt33srC0Rg0XfmpS27S+1e6dLYf/kMrsug/IHZwCAEKgpnrkT6f72g9M+MDl+75272sf8bGqiooJHfwlqTbNJ/bh4YTaOka/PHAku/aOfI5ekurSnLoYr9pZ6RcT2L0v/X7T6TrUo76Bka+cmMyIAjARFAAgBGbX1Y749wPxQT2xfvOEtrVx6zM61P3yIWtJqk+zn8lkk6QHH3tyQts60HVIm7c9O+JjJUVFKi2Z2oS4gvw8VVaMfCXBtmd3aX/Hy6/AGM2Dj61N+9hkvpfARFAAgBA4+4z016X/8Gd3p13c56V839dtd4x8mZ0knX/maRPOds7p6V/z09/ep77+gXFv67Y7fqtUmksKzxnlezAR55w+8nastbrtjt+MezsDA3H9z6/vSfv4uWdM/HsJTAQFAAiBS16R/jr/p3fs1je+f0faa/GPdeuPf6WNW9Mvu/vK80efizCS8848Xfn5I1862NXTq8997XsaHh77ZkN3/+9DuveBR9NnG+V7MBEXj7KdPz38hH71h/vH3EYymdT/vfkHOtjVPeLj0WhUrzj7jMlGBMaFAgCEwJJFC3VSU2Pax++67yF95iu3pl2jvutQjz7/9dv0s7v+N+02TlhynFYuH98iOMcqKizQVZe8Mu3jT27Yor/956/qudZ9Iz4+EB/Uf97+C331ez9Ju43KinJdfH5mCsAF55ytWdXpZ+ff/MM79c0f/kz9aZYlfm7Pfn3i81/Xo2s3pt3G5Re9YsqnK4CxcBUAEBKf/ND79cab/ibt4488sV5PrN+sM09aqcYTjlNVeakO9fSqZdsOPfrkBg0OjX5d+if/5n1pr2kfy8fe9x79/r4/KT448gp7m7fv1E2f/Bed1LRMJzct06zKCvUNDGj7jt166Imn1NObfqEjSfrAu96mkuKJX1I4kqLCAn3oPe/QZ770lbTP+eUf/qw//uUxnXPaKi1dNF+lxUU62HVIa1u2ac36zaOeconFYvro+96dkazAaCgAQEicsqpJV11yke7+45/SPmd4OKEHH1s76uS0kVx47tk676zTJ52trmaW3vOWN+ob3/1B2uekrNUT6zdPeNLiksUL9abXvnrS2UZy/TVX6Se//K02b3v55YtH9PUP6J77V+ue+1dPaNvvfvMNmj937lQjAmPiFAAQIl/4x79X47ITMrrNxfPn6cuf/fSUt/PBd79dF51/TgYSvaC8rEzf/rd/mfCliWOJRqP61r9+XtWVlRnd7jmnn6oP3/SujG4TSIcCAIRIQX6ebv7i5zL2CXN2Xa2+/e9fzMj5as/z9OXP/oNObprY8r/plBQX61v/+nktaGjIyPZeau7sen3zXz+vstLSjGyvacUyff0Ln1U0Mv5VFIGpoAAAITN3dr1+/oP/1NmnnTKl7ZzU1Kiff/8WLZqfuQNsSVGR/utb/6HrXnXllLazoKFBP/3et3TaSasylGxkJzev1M9/8J9asmjhlLZz5cUX6fZvf52Jf5hRzqpmWW3dxyRN/d6cmBZvfe0VRyd0lVfUTmq9eARXQX6+rr7sYlVXVmjDpq2KD448Y30k5WVl+th7363Pfurj03LAikQiuvj8c3XcogXatHW7untHXnRoJAX5eXrXm2/Qlz/7adXXzsxCOhVlZXr1lZfJM0YtW7ZOaHnluXPq9ZlPfFQfvumdisUyOCXLSj2HOg5/aa1u/8XvM7dtZJjp7ulo+6qTPbvYqSQ1NDY9J2lityHDjLnn9q8r8vxQ5LyFjTIeBSBX9Q0M6M5f3aV7739Q6za0jDhD3fM8NTcu0yWvOF83XHt1xoa9x5JIJPTrP/xRf/jT/Xr0ibUaHuE2v5J0/HGLdPH55+oNr7lm1JUFp1t7x0H95Fe/0X0PPKQtT28f8TmxWExnnHyiLr/oAl175aXKy5vY7ZPH49h7AaRSKV32lg9nfB/IFPNca8v6hU727GKnEgUg6CgA4dR56JB2PLdbbR0dOtTdo7LSUtXX1mjR/HmqrsrshLeJ6hsY0NPP7FDHwQM6cLBLRUWFqq+t0bw5czR3dr3TbCPZu79Nu/fu1f72DvX3D6i6qko11VVaetyijF2SmA4FIJu4KwBcBgjgqKqKClVVVLiOMaKSoqJRFzMKmjn1dZpTX+c6BpAWkwABAAghCgAAACFEAQAAIIQoAAAAhBAFAACAEKIAAAAQQhQAAABCiAIAAEAIUQAAAAghCgAAACFEAQAAIIQoAAAAhBAFAACAEKIAAAAQQhQAAABCiAIAAEAIUQAAAAghCgAAACFEAQAAIIQcFgBj3e0bAAD3rKyzY6HDAuAPu9s3AADuGcnZsdBdATBmyNm+Mab+gcGjX/s25TAJgImyx/zOxgd5qw00E8YCYDU49pPgStvBrqNfp5IJh0kATFQqlTz69YHObodJMCYrZw3N5STAfof7xhjaOg4c/XpoaMBhEgATlUy88KHyYNchh0kwDuEbATBG7a72jbE9vm7T0a8HevkEAWSTgXjv0a+f3rnbYRKMxRh3H4adFQBr1eZq3xjbQ4+vU8r3JR0eAUgMxR0nAjAe1loN9vcc/fMjT6x3mAZj8a09MPazpoe7EQBRAIKsu7dfq4954+jq5McFZIP+3i6lUocnAXYd6tGWZ55znAijMTLhKwCSWh3uG+Nw2x2/OToKMBjvU38v5xKBIPOtr+6uF86u/ux3f5L//O8wAqvT1Y6dFYCU/Kdd7Rvjs2tvm+7+34eO/rnz4B5OBQABdrC99egVAO0Hu/TLe+53GwhjC+MpgFQkQgHIAt/5n19p5+59kiTrW7Xvf06JYa7gBIKm6+B+xY8593/L7b/Q8DCX8AadscbZLE1nBaBt/fp2SV1jPhFOxQeH9Jmv3KL++OGDfiqV1P69OxSP9zlOBkCSfN/XgbZd6u1+4YPkHb/9ox549EmHqTBevufvcLVvpzcDsrItLveP8dmzv0Of/tK31DdwePjf+il17Nupzo498o9ZcATAzOrvO6T9e7Zr4CWz/m/78a8dpsJE5BcU7HS174irHUtSRW1ds6QzXWbA+LQf7NJjazfq7FObVVRYIEkaHh5UX0+nkqlhGXmKRCIyhhtMAtPFTyU1PDyo/p5OdR3Yq77eLvn+C8v+/vz3f9ZXbrldKXf3l8HEdD731LrPudq5cbVjSWpYufItsuZHLjNgYqoqy/WBt16nC846ZcTHPc+T439WQE6y1srakWf0H+rt0y0/+oX++JfHZjgVpujx1pYNp7vaudN36jlNTcs8X5tdZsDknNq8XO97y3VaOG+26yhAaMUHh/SL3/9Zd9x1nwYGuEIn+9jvtrZsvNHV3l1/VDMNjSvbJTPLcQ5MUvPyJTrv9BO1ctnxWtRQr2g06joSkLP6+gd0sKtbm57eoUeeWK8nN2zRUIKZ/lnL2I+0btz4dVe7d/1ubSU9IOk6xzkwSes3b9f6zduP/rmkqFAyrnslkHsSwwkO9jnGWrvB5f5dFwAZeX+yshSAHNHHMCQAjItNFDgtAM6nbCeN/2fXGQAAmGHb925b42wVQCkABWDfxo2bJTlbCAEAgJlmpYfGftb0cl4ADrO/cZ0AAICZYmQedp0hEAXAyrJsFQAgNFLGpwBI0p6amr/I4S0RAQCYQfv3bdy4xXWIQBQA3X9/UtLPXccAAGC6GekeHb4M3qlgFABJhiWBAQBhYOzvXUeQAlQAdm9a/5C4GgAAkNtSfjJ5n+sQUoAKgCRrpf92HQIAgOliZVfv2bLloOscUrAKgKz870hKjflEAACykLH6qesMRwSqAOxtadllZH/nOgcAANPAN6lYYCa8B6oASJK15tuuMwAAMA0e3L117V7XIY4IXAFo3bThHknbx3wiAABZxBp7h+sMxwpcAZDkG2O+4joEAAAZFI8YQwEYS6Sv5/uS9rnOAQBAJhjZO3dt2NDlOsexAlkAdu7cOWiNudl1DgAAMsJ633Ud4aUCWQAkKRb1viWp23UOAACmaMvzi90FSmALwM516w7J2v9wnQMAgKmwVl9VANb+f6nAFgBJGjL23yW1u84BAMAkdZjykv9yHWIkgS4AHS0tfTLmy65zAAAwKdZ+s3X16rjrGCMJdAGQJJUW3yyp1XUMAAAmaCCZH/uW6xDpBL4APN+cPuU6BwAAE2LNt/avXdvhOkY6gS8AktTasuHHkv7iOgcAAOPUn4jq31yHGE1WFABJ1vfNRyX5roMAADAWY+3X2tavD/Qk9ojrAOPVe6BtX1ltXYOkU1xnAQBgFIdk7Bt6OjoCOfnviGwZAZAk5RXk/Z2kwNxJCQCAl7Iyn21tael0nWMsWVUAnl2zptsY+3HXOQAASGNLfUHsm65DjEfWnAI4oqe9vaWstv5USUtdZwEA4EV8vX3r+nVbXccYj6waATgqat4nKfDDKwCAMDF3tW7e8DvXKcYrKwtA61NP7ZGxN7rOAQDA8/ojEX3YdYiJyLpTAEf0tLdvLqutO0FSk+ssAICQs/YTuzduuMd1jInIyhGAIzxPH5S023UOAECorW7dtDErJv4dK6sLwK4NG7qspxskJVxnAQCEUr8fMe9UFi5Ul7WnAI7obW9vLa+pHZAxl7rOAgAInQ/t2bjhXtchJsO4DpAhpqGx6eeSXuM6CAAgNH7d2rLhWtchJiurTwEcw0ZjkXdJyoprLwEAWW+Pn8h7j+sQU5ErBUA71607ZFPeNZK6XGcBAOS0hCfvDXu3rTngOshU5EwBkKQ9W57a5hl7g6Sk6ywAgNxkjf3wrpanHnKdY6qyfhLgS3W3tz9bVlfbLZkrXGcBAOQWI/2wtWXjP7jOkQk5VwAkqae9/bGymvoSGZ3tOgsAIFfYv/oF+a/v3bcvJy49z8kCIEk9HW33ldfWLZR0oussAICs92wi4r1y/7p1h1wHyZScmgPwErZM/k3G6D7XQQAAWe2g/MjlbevXt7sOkkm5sg5AWnXNzcXRlP8HI3Ou6ywAgKzT7xt76d6NGx9xHSTTcnkEQJLUtn59f+HQ4FWSHnOdBQCQVYZldX0uHvylEBQASdq+fXtPXkHeZZKecJ0FAJAVEr7M61o3bfi96yDTJedPARyrobGxSjK/l8zprrMAAAIrYa3evGfThjtdB5lOoRgBOKK1paUzEfEuYmIgACCNIRl7Q64f/KUcvgwwnf62tkRtWdlPk7HYSknLXOcBAATGgGfsq3dv3Hi36yAzIXQFQJI6OztTx8+b94uBZGq+WCcAACAd9I29snXjxgdcB5kpoZoDMJKGlc0fkbX/Ib4XABBWz/oRc+Xe9etDdUfZUI4AHKunve2x0prazcaYV0mKus4DAJhBRo8mIubi/evX73IdZabxqfd581Y0n2eN/amketdZAADTz0g/jPT3vm/nzp2DrrO4QAE4xrwTTppjo8mfSTrLdRYAwLRJSvqH1pYNX3IdxKXQnwI4Vs/B/b215WW3J6OxWkmnuM4DAMi4PdbTlXs2bviJ6yCuMQKQxtzG5tcZ2VslVbrOAgDIAKNf+cN5N+7dtuaA6yhBQAEYxezlyxd4XuR2biQEAFktLmP+vnXj+q+5DhIknAIYRd+BA929jSt+VDoQN0Y6W3y/ACDbrPYPD/mHYnGfiWAEYJwaVq5sljXfk3Sq6ywAgDENSPpc64plX9add6ZchwkiCsAEnHLKKbH2ocQnrbX/KCnfdR4AwEjMXb5SH9zb0hK6a/snggIwCXOXrVpqIv5XJV3hOgsA4Kit8vXx1s0bfuc6SDagAEzBnOVNFxtPXzfSctdZACDEDkn6YsFQ/Kvbt28fch0mW1AApmjJkiX5gwVFH5a1n5JU7ToPAIRInzHmG9amvtza0tLpOky2oQBkyOJTTikfHhz+uKSPSSp1nQcActiANebbqVjkS/vXru1wHSZbUQAyrP6kk2qiw8lPSHqfpDLXeQAgh3TImG8lY5FvcuCfOgrANFmyZEnZYEHRe2XtRyTNdZ0HALLYFmvs10xp6Q9bV6+Ouw6TKygA06yxsTHvkDE3eNZ7r5U9x3UeAMgSccn8zFh9Z/em9Q9Jsq4D5RoKwAyav2JVo29SN0rmrZKqXOcBgIDxJf3FGHNHJOr9eOe6dYdcB8plFAAHlixZkj+UX3SZtfZ6GV0j5goACK+UlV1tjO40idjPdm9du9d1oLCgADi2cOHCglRh6eXWM1dL9jJJDa4zAcB0slKbJ/1BMn+wSt3LJXxuUAACZv6KVY0p419qZC6S7BmSalxnAoAp2m5kH7EyD3nyH97V0rJZnNN3jgIQcPObmhZb35wh2dN9qdFIJ0iaJ352AIKnS9J2yayX0QZrtcEmYuv3bltzwHUwvBwHkSxU19xcHEmapZ6xi2X9OdaYGiMzR1KdZAslVTz/1ArxMwYwNX2SEpJNWZluyR40MgclHZSxB03K7PI9f2d+QcGOZ9es6XYdFgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzKT/B6Ua2XWUCHz+AAAAAElFTkSuQmCC">
+</head>
+<body>
+<div id="app"></div>
+<style>
+:root{
+  --ink:#1c2b2d;
+  --paper:#f6f4ee;
+  --line:#d8d2c2;
+  --rust:#b5502f;
+  --moss:#46624f;
+  --amber:#c98a2c;
+  --panel:#ffffff;
+  --muted:#7a766a;
+  font-family:'IBM Plex Sans',system-ui,sans-serif;
+}
+*{box-sizing:border-box;}
+body,#app{margin:0;padding:0;background:transparent;color:var(--ink);-webkit-text-size-adjust:100%;}
+#app{max-width:880px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top)) 16px calc(80px + env(safe-area-inset-bottom));}
+
+.hdr{display:flex;align-items:baseline;justify-content:space-between;border-bottom:3px solid var(--ink);padding-bottom:10px;margin-bottom:18px;}
+.hdr h1{font-size:22px;letter-spacing:.04em;text-transform:uppercase;margin:0;font-weight:800;}
+.hdr .sub{font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
+
+.tabs{display:flex;gap:8px;margin-bottom:18px;}
+.tab{flex:1;padding:13px 10px;text-align:center;border:2px solid var(--ink);background:var(--panel);font-weight:700;letter-spacing:.03em;text-transform:uppercase;font-size:13px;cursor:pointer;min-height:44px;}
+.tab.active{background:var(--ink);color:var(--paper);}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:18px;margin-bottom:14px;}
+.card h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 14px;border-bottom:1px solid var(--line);padding-bottom:8px;}
+.card h2.datehdr{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;color:var(--ink);font-weight:800;}
+.daycount{font-size:10px;color:var(--muted);font-weight:600;text-transform:none;letter-spacing:0;}
+
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.row.single{grid-template-columns:1fr;}
+.field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px;}
+.field input,.field select,.field textarea{width:100%;padding:12px 10px;border:1px solid var(--line);border-radius:3px;font-size:16px;background:var(--paper);color:var(--ink);font-family:inherit;min-height:44px;-webkit-appearance:none;appearance:none;}
+.field textarea{resize:vertical;min-height:60px;}
+.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--moss);outline-offset:1px;}
+
+.typepick{display:flex;gap:10px;margin-bottom:14px;}
+.typebtn{flex:1;padding:14px;border:2px solid var(--line);border-radius:4px;background:var(--paper);font-weight:700;text-transform:uppercase;font-size:13px;letter-spacing:.04em;cursor:pointer;color:var(--muted);}
+.typebtn.dh.active{border-color:var(--rust);color:var(--rust);background:#fbeee8;}
+.typebtn.tmw.active{border-color:var(--moss);color:var(--moss);background:#eaf1ea;}
+
+.waitbox{border:1px dashed var(--amber);border-radius:4px;padding:14px;margin-top:10px;background:#fdf6e9;position:relative;}
+.waitbox .wnum{position:absolute;top:-10px;left:10px;background:var(--amber);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;}
+.removewait{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--rust);font-size:12px;cursor:pointer;text-decoration:underline;}
+
+.yn{display:flex;gap:10px;}
+.yn button{flex:1;padding:12px;border:1px solid var(--line);background:var(--paper);border-radius:3px;cursor:pointer;font-weight:600;font-size:14px;min-height:44px;}
+.yn button.sel{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+
+.btnrow{display:flex;gap:10px;margin-top:16px;}
+.btn{padding:13px 18px;border-radius:3px;border:none;font-weight:700;text-transform:uppercase;font-size:13px;letter-spacing:.04em;cursor:pointer;min-height:44px;}
+.btn.primary{background:var(--ink);color:var(--paper);flex:1;}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--muted);}
+.btn.add{background:var(--amber);color:#fff;}
+
+.import-label{display:flex;align-items:center;justify-content:center;cursor:pointer;}
+
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;padding:8px 6px;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:2px solid var(--ink);}
+td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;text-transform:uppercase;}
+.badge.dh{background:#fbeee8;color:var(--rust);}
+.badge.tmw{background:#eaf1ea;color:var(--moss);}
+.empty{text-align:center;padding:40px 10px;color:var(--muted);font-size:14px;}
+.delbtn{
+  background:#fbeee8;
+  border:1px solid #e3c4b5;
+  color:var(--rust);
+  cursor:pointer;
+  font-size:13px;
+  font-weight:700;
+  text-decoration:none;
+  padding:9px 16px;
+  border-radius:6px;
+  min-height:38px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
+.delbtn:active{ background:#f3ddd0; }
+.editbtn{
+  background:#eaf1ea;
+  border:1px solid #c7d8c9;
+  color:var(--moss);
+}
+.editbtn:active{ background:#dbe9dc; }
+
+.statusbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.statcard{flex:1;min-width:100px;background:var(--panel);border:2px solid var(--line);border-radius:4px;padding:12px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;user-select:none;}
+.statcard *{pointer-events:none;}
+.statcard:hover{border-color:var(--ink);}
+.statcard.active-filter{border-color:var(--ink);background:#f0ede4;}
+.stat-num{font-size:22px;font-weight:800;color:var(--ink);}
+.stat-num.stat-warn{color:var(--rust);}
+.stat-lab{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:2px;}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 20px;border-radius:4px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .25s;}
+.toast.show{opacity:1;}
+.undotoast{display:flex;align-items:center;gap:14px;pointer-events:auto;}
+.undobtn{background:none;border:none;color:var(--amber);font-weight:700;font-size:13px;cursor:pointer;text-transform:uppercase;letter-spacing:.03em;padding:2px 4px;}
+
+.confirm-overlay{position:fixed;inset:0;background:rgba(28,43,45,0);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;transition:background-color .2s;pointer-events:none;}
+.confirm-overlay.show{background:rgba(28,43,45,.55);pointer-events:auto;}
+.confirm-box{background:var(--panel);border-radius:8px;padding:22px;max-width:340px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,.3);transform:translateY(10px);opacity:0;transition:transform .2s,opacity .2s;}
+.confirm-overlay.show .confirm-box{transform:translateY(0);opacity:1;}
+.confirm-msg{font-size:15px;color:var(--ink);margin-bottom:18px;line-height:1.4;}
+.confirm-btns{display:flex;gap:10px;}
+.confirm-btns .btn{flex:1;}
+.confirm-danger{background:var(--rust);}
+
+.datehdr{display:flex;align-items:baseline;justify-content:space-between;}
+.daycount{font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:12px;}
+
+
+.logrow{padding:14px 0;border-bottom:1px solid var(--line);transition:background-color .2s;}
+.logrow-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.logrow-actions{display:flex;gap:8px;margin-bottom:10px;}
+.logrow-actions .delbtn{flex:1;}
+.logrow.paid-real{background:#A8D9DC;border-radius:4px;padding-left:10px;padding-right:10px;margin:0 -10px 0;border-bottom-color:#8fc4c7;}
+.logrow.paid-final{background:#DCA8D9;border-radius:4px;padding-left:10px;padding-right:10px;margin:0 -10px 0;border-bottom-color:#c491c1;}
+.autodel{font-size:11px;color:var(--rust);font-weight:600;margin-left:auto;}
+@keyframes conn-pulse{ 0%,100%{opacity:1;} 50%{opacity:.5;} }
+.conn-online{ animation:conn-pulse 2s ease-in-out infinite; }
+.logrow:last-child{border-bottom:none;}
+.lognum{font-weight:700;font-size:14px;}
+.logsite{font-size:13px;color:var(--moss);font-weight:600;text-transform:uppercase;}
+.logtruck{font-size:12px;color:var(--muted);}
+
+.claimrow{padding:12px;margin:8px 0;background:var(--paper);border-left:3px solid var(--amber);border-radius:0 4px 4px 0;font-size:13px;transition:background-color .2s;}
+.claimrow.paid-real{background:#A8D9DC;border-left-color:#8fc4c7;}
+.claimrow.paid-final{background:#DCA8D9;border-left-color:#c491c1;}
+.claimrow-top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+.claimrow .claimtime{font-weight:700;color:var(--amber);font-size:15px;}
+.claimrow .claimkind{flex:1;color:var(--ink);font-weight:600;min-width:80px;}
+.claimrow .claimref{color:var(--muted);font-size:13px;font-weight:700;}
+
+.refpay{display:flex;gap:8px;margin-bottom:8px;}
+.refpay .paystat-field{flex:1;}
+.refpay-actions{display:flex;gap:8px;}
+.refpay-actions .delbtn{flex:1;}
+.comment-btn{width:100%;background:var(--paper);border:1px dashed var(--line);color:var(--muted);font-weight:600;text-align:left;justify-content:flex-start;padding:9px 12px;}
+.comment-btn.has-comment{background:#fdf6e3;border:1px solid #e8d8a8;color:var(--ink);}
+
+.paystatus{display:flex;gap:10px;margin:0 0 4px;}
+.paystat-field{flex:1;display:flex;flex-direction:column;gap:4px;}
+.paystat-field label{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;}
+.paystat-field select{width:100%;padding:11px 10px;border:1px solid var(--line);border-radius:4px;font-size:14px;background:var(--paper);color:var(--ink);font-weight:600;min-height:44px;-webkit-appearance:none;appearance:none;}
+.refpay select{padding:10px 10px;border:1px solid var(--line);border-radius:4px;font-size:13px;background:#fff;color:var(--muted);font-weight:600;min-height:42px;-webkit-appearance:none;appearance:none;}
+
+.ratehint{font-size:11px;color:var(--moss);margin:-6px 0 12px;padding:4px 8px;background:#eaf1ea;border-left:2px solid var(--moss);border-radius:0 3px 3px 0;}
+.num-flag{font-size:11px;color:var(--rust);margin:-6px 0 12px;padding:4px 8px;background:#fbeee8;border-left:2px solid var(--rust);border-radius:0 3px 3px 0;font-weight:600;}
+.claimed-auto{padding:12px 10px;background:var(--paper);border:1px solid var(--line);border-radius:3px;font-size:18px;font-weight:700;color:var(--ink);min-height:44px;}
+
+.fuel-pin-row{position:relative;}
+.pin-remove{position:absolute;right:4px;bottom:4px;width:38px;height:38px;background:#fbeee8;border:1px solid #e3c4b5;border-radius:6px;color:var(--rust);font-size:20px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;}
+.fuel-pin-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);min-width:36px;}
+
+.trash-info{font-size:12px;color:var(--muted);text-align:center;margin-bottom:12px;padding:8px;background:var(--paper);border-radius:4px;border:1px solid var(--line);}
+.trash-countdown{font-size:11px;color:var(--rust);margin:4px 0 6px;font-weight:600;}
+.trash-countdown.urgent{color:var(--rust);}
+.trash-actions{display:flex;align-items:center;gap:12px;margin-top:8px;}
+
+@media (max-width: 480px){
+  #app{padding-left:12px;padding-right:12px;}
+  .hdr h1{font-size:19px;}
+  .row{grid-template-columns:1fr;gap:10px;}
+  .typepick{flex-direction:column;}
+  .logtruck{margin-left:0;margin-right:0;}
+  .delbtn{margin-left:auto;}
+
+  .claimrow{flex-wrap:wrap;row-gap:6px;}
+  .refpay{margin-left:0;width:100%;flex-direction:column;gap:8px;}
+  .refpay .delbtn{width:100%;}
+  .refpay select{width:100%;min-height:38px;font-size:12px;}
+  .statusbar{gap:8px;}
+  .statcard{min-width:calc(33% - 6px);padding:10px;}
+  table{font-size:12px;}
+  .tabs{flex-wrap:wrap;row-gap:8px;}
+  .tab{font-size:11px;padding:10px 4px;letter-spacing:.02em;}
+  .tab:nth-child(-n+3){flex:1 1 31%;}
+  .tab:nth-child(n+4){flex:1 1 22%;}
+}
+</style>
+
+<script>
+(function(){
+  const app = document.getElementById('app');
+
+  // Permanent baked-in fuel pins. Click "Bake Pins into File" to update and re-download.
+  const BAKED_FUEL_PINS = [{"id": "fp_baked_1280", "truck": "1280", "pins": ["2017"]}, {"id": "fp_baked_2401972", "truck": "240-1972", "pins": ["6428"]}, {"id": "fp_baked_2401973", "truck": "240-1973", "pins": ["5685"]}, {"id": "fp_baked_2401980", "truck": "240-1980", "pins": ["8122"]}, {"id": "fp_baked_2401981", "truck": "240-1981", "pins": ["9582"]}, {"id": "fp_baked_1285", "truck": "1285", "pins": ["8805"]}, {"id": "fp_baked_1289", "truck": "1289", "pins": ["3170"]}, {"id": "fp_baked_1291", "truck": "1291", "pins": ["1962"]}, {"id": "fp_baked_1292", "truck": "1292", "pins": ["7261"]}, {"id": "fp_baked_1299", "truck": "1299", "pins": ["5917"]}, {"id": "fp_baked_1300", "truck": "1300", "pins": ["8007"]}, {"id": "fp_baked_130122", "truck": "130122", "pins": ["5957", "3205"]}, {"id": "fp_baked_1302", "truck": "1302", "pins": ["9520"]}, {"id": "fp_baked_1308", "truck": "1308", "pins": ["7711"]}, {"id": "fp_baked_1311", "truck": "1311", "pins": ["6377"]}, {"id": "fp_baked_1313", "truck": "1313", "pins": ["8415"]}, {"id": "fp_baked_1314", "truck": "1314", "pins": ["3224"]}, {"id": "fp_baked_1320", "truck": "1320", "pins": ["0852"]}, {"id": "fp_baked_1324", "truck": "1324", "pins": ["3173"]}, {"id": "fp_baked_1326", "truck": "1326", "pins": ["3903"]}, {"id": "fp_baked_1327", "truck": "1327", "pins": ["2024"]}]; // DO NOT EDIT THIS LINE MANUALLY
+
+  // Permanent baked-in site rates. localStorage wins on conflict.
+  const BAKED_RATES = [{"id":"r_baked_12611893","site":"12611893","rate":"127"},{"id":"r_baked_Bentley","site":"BENTLEY","rate":"189"},{"id":"r_baked_cos164","site":"COS164","rate":"194"},{"id":"r_baked_cos656","site":"COS656","rate":"127"},{"id":"r_baked_cosnis","site":"COSNIS","rate":"132"},{"id":"r_baked_Devon","site":"DEVON","rate":"137"},{"id":"r_baked_Dovercourt","site":"DOVERCOURT","rate":"110"},{"id":"r_baked_Drayton","site":"DRAYTON","rate":"189"},{"id":"r_baked_FtSaskFasGas","site":"FTSASK FASGAS","rate":"132"},{"id":"r_baked_Gibbons","site":"GIBBONS","rate":"132"},{"id":"r_baked_Jasper","site":"JASPER","rate":"103"},{"id":"r_baked_Olds","site":"OLDS","rate":"234"},{"id":"r_baked_SEAPETR","site":"SEAPETR","rate":"86"},{"id":"r_baked_shbeaumo","site":"SHBEAUMO","rate":"100"},{"id":"r_baked_Shbonny","site":"SHBONNY","rate":"246"},{"id":"r_baked_SHCALLI","site":"SHCALLI","rate":"99"},{"id":"r_baked_Shcentu","site":"SHCENTU","rate":"77"},{"id":"r_baked_Shcoldle","site":"SHCOLDLE","rate":"274"},{"id":"r_baked_Shcryst","site":"SHCRYST","rate":"103"},{"id":"r_baked_shcstone","site":"SHCSTONE","rate":"127"},{"id":"r_baked_shenochsplit","site":"SHENOCH SPLIT","rate":"160"},{"id":"r_baked_Shhawth","site":"SHHAWTH","rate":"127"},{"id":"r_baked_Shhighw","site":"SHHIGHW","rate":"137"},{"id":"r_baked_shleduc","site":"SHLEDUC","rate":"132"},{"id":"r_baked_SHLEWIS","site":"SHLEWIS","rate":"127"},{"id":"r_baked_Shmanncr","site":"SHMANNCR","rate":"90"},{"id":"r_baked_SHMISTED","site":"SHMISTED","rate":"97"},{"id":"r_baked_shpalis","site":"SHPALIS","rate":"87"},{"id":"r_baked_Shparso","site":"SHPARSO","rate":"111"},{"id":"r_baked_Shsouthp","site":"SHSOUTHP","rate":"96"},{"id":"r_baked_shvegre","site":"SHVEGRE","rate":"162"},{"id":"r_baked_shwedgew","site":"SHWEDGEW","rate":"152"},{"id":"r_baked_shwestl","site":"SHWESTL","rate":"137"},{"id":"r_baked_Shwinte","site":"SHWINTE","rate":"127"},{"id":"r_baked_Shwwind","site":"SHWWIND","rate":"137"},{"id":"r_baked_Shyellow","site":"SHYELLOW","rate":"107"},{"id":"r_baked_Sundre","site":"SUNDRE","rate":"255"},{"id":"r_baked_Sylvan","site":"SYLVAN","rate":"183"},{"id":"r_baked_Wabasca","site":"WABASCA","rate":"336"}];
+
+  let view = 'entry';
+  let entries = [];
+  let rates = [];
+  let loaded = false;
+  let editingId = null;
+  let editingRateId = null;
+  let rateForm = { site:'', rate:'' };
+  let logDateFilter = '';
+  let payFilter = 'all';
+  let payCutoffDate = '';
+  let payViewMode = 'detail'; // 'detail' | 'list'
+  let trashSubTab = 'auto';
+  let commentModal = null;
+  let fuelPins = [];
+  let editingFuelId = null;
+  let fuelForm = { truck:'', pins:[''] };
+  let deletedEntries = [];
+  let _focusId = null, _focusCursor = null;
+  let demurrageForm = null;
+  let pendingLoads = [];
+  const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+  let lastExportTs = null;
+  let lastImportTs = null;
+
+  // ── Auth state ────────────────────────────────────────────────────────────
+  let currentUser = null; // { userId, displayName }
+  let authScreen = 'login'; // 'login' | 'register'
+  let authError = '';
+  let authLoading = false;
+  let firebaseReady = false;
+
+  async function hashPIN(userId, pin){
+    const data = new TextEncoder().encode(userId.toLowerCase() + ':' + pin);
+    const buf = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }
+
+  async function fbGetDoc(path){
+    const db = window.__wlDB;
+    const f = window.__wlFire;
+    const ref = f.doc(db, ...path.split('/'));
+    const snap = await f.getDoc(ref);
+    return snap.exists() ? snap.data() : null;
+  }
+
+  async function fbSetDoc(path, data){
+    const db = window.__wlDB;
+    const f = window.__wlFire;
+    const ref = f.doc(db, ...path.split('/'));
+    await f.setDoc(ref, data, { merge: true });
+  }
+
+  const ADMIN_USER_ID  = 'admin';
+  const ADMIN_PIN_HASH = '97cdecb2ac28e75196d8a4e5d352889f3b54d88a9ae168fcdf3845ed5fcb754a';
+
+  function isAdmin(){
+    return !!currentUser && !currentUser.isGuest && String(currentUser.userId||'').toLowerCase() === ADMIN_USER_ID;
+  }
+
+  async function fbLoadGlobalDefaults(){
+    try {
+      const data = await fbGetDoc('globals/defaults');
+      if(data){
+        if(data.rates) return { rates: JSON.parse(data.rates), fuelPins: JSON.parse(data.fuelPins||'[]') };
+      }
+    } catch(e){ console.error('Failed to load global defaults', e); }
+    return null;
+  }
+
+  // Publishes the ADMIN's current rates/fuel pins as the global defaults every
+  // user's app merges in on load. Only ever called when the signed-in user is admin.
+  async function fbSaveGlobalDefaults(){
+    try {
+      await fbSetDoc('globals/defaults', {
+        rates: JSON.stringify(rates),
+        fuelPins: JSON.stringify(fuelPins),
+        updatedAt: Date.now(),
+        updatedBy: currentUser ? currentUser.userId : ADMIN_USER_ID
+      });
+    } catch(e){
+      console.error('Failed to publish global defaults', e);
+      toast('Saved locally, but publishing to all users failed');
+    }
+  }
+
+  async function fbSyncToCloud(){
+    if(!currentUser || currentUser.isGuest) return;
+    try {
+      const uid = currentUser.userId;
+      await fbSetDoc(`users/${uid}/data/worklog`, {
+        entries: JSON.stringify(entries),
+        rates: JSON.stringify(rates),
+        fuelPins: JSON.stringify(fuelPins),
+        deletedEntries: JSON.stringify(deletedEntries),
+        updatedAt: Date.now()
+      });
+      localStorage.setItem('worklog:last_fb_sync', new Date().toISOString());
+    } catch(e){ console.error('Firebase sync failed', e); }
+  }
+
+  async function fbLoadFromCloud(){
+    if(!currentUser) return false;
+    try {
+      const uid = currentUser.userId;
+      const data = await fbGetDoc(`users/${uid}/data/worklog`);
+      if(data){
+        if(data.entries) entries = JSON.parse(data.entries);
+        if(data.rates) rates = JSON.parse(data.rates);
+        if(data.fuelPins) fuelPins = JSON.parse(data.fuelPins);
+        if(data.deletedEntries) deletedEntries = JSON.parse(data.deletedEntries);
+        return true;
+      }
+    } catch(e){ console.error('Firebase load failed', e); }
+    return false;
+  }
+
+  function saveSession(userId, displayName){
+    localStorage.setItem('worklog:session', JSON.stringify({ userId, displayName, ts: Date.now() }));
+  }
+
+  function loadSession(){
+    try {
+      const s = localStorage.getItem('worklog:session');
+      if(s) return JSON.parse(s);
+    } catch(e){}
+    return null;
+  }
+
+  function clearSession(){
+    localStorage.removeItem('worklog:session');
+  }
+
+  async function doRegister(userId, displayName, pin){
+    if(!userId || !displayName || !pin) return 'All fields are required';
+    if(!/^\d{4}$/.test(pin)) return 'PIN must be exactly 4 digits';
+    if(!/^[a-zA-Z0-9_-]{3,20}$/.test(userId)) return 'User ID must be 3-20 characters (letters, numbers, _ -)';
+    try {
+      if(firebaseReady){
+        // Online: check if userId already taken in Firestore
+        const existing = await fbGetDoc(`users/${userId}`);
+        if(existing) return 'That User ID is already taken — choose another';
+        const pinHash = await hashPIN(userId, pin);
+        await fbSetDoc(`users/${userId}`, {
+          userId, displayName, pinHash, createdAt: Date.now()
+        });
+        currentUser = { userId, displayName };
+        saveSession(userId, displayName);
+        await fbSyncToCloud();
+      } else {
+        // Offline: register locally, sync when connected
+        const pinHash = await hashPIN(userId, pin);
+        localStorage.setItem('worklog:pending_reg', JSON.stringify({ userId, displayName, pinHash, createdAt: Date.now() }));
+        currentUser = { userId, displayName };
+        saveSession(userId, displayName);
+      }
+      return null; // success
+    } catch(e){ return 'Registration failed: ' + e.message; }
+  }
+
+  async function doLogin(userId, pin){
+    if(!userId || !pin) return 'Enter your User ID and PIN';
+    try {
+      if(firebaseReady){
+        let user = await fbGetDoc(`users/${userId}`);
+        // Admin fallback: use hardcoded credentials if not yet in Firestore
+        if(!user && userId === ADMIN_USER_ID){
+          user = { userId: ADMIN_USER_ID, displayName: 'Admin', pinHash: ADMIN_PIN_HASH };
+        }
+        if(!user) return 'User ID not found';
+        const pinHash = await hashPIN(userId, pin);
+        if(pinHash !== user.pinHash) return 'Incorrect PIN';
+        currentUser = { userId, displayName: user.displayName };
+        saveSession(userId, user.displayName);
+        const hasCloud = await fbLoadFromCloud();
+        if(hasCloud){
+          const localEntries = (() => { try{ return JSON.parse(localStorage.getItem('worklog:entries')||'[]'); }catch(e){ return []; } })();
+          localEntries.forEach(le => {
+            if(!entries.some(e=>e.id===le.id)) entries.push(le);
+          });
+          saveEntries();
+        }
+      } else {
+        // Offline: check against locally cached PIN if available
+        const cachedSession = loadSession();
+        if(cachedSession && cachedSession.userId === userId){
+          // Already had a session for this user — allow in
+          currentUser = { userId, displayName: cachedSession.displayName };
+          saveSession(userId, cachedSession.displayName);
+        } else {
+          return 'Cannot login while offline — no cached session for this User ID';
+        }
+      }
+      return null;
+    } catch(e){ return 'Login failed: ' + e.message; }
+  }
+
+  function renderAuthScreen(){
+    const isReg = authScreen === 'register';
+    return `<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--ink);">
+      <div style="background:var(--paper);border-radius:16px;padding:28px 24px;width:100%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.35);">
+        <div style="text-align:center;margin-bottom:24px;">
+          <div style="font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--ink);">Daily Work Log</div>
+          <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:4px;">TMW / Deadhead Tracker</div>
+        </div>
+
+        <div style="display:flex;gap:0;margin-bottom:20px;border:2px solid var(--ink);border-radius:6px;overflow:hidden;">
+          <button id="auth_tab_login" style="flex:1;padding:10px;border:none;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;background:${!isReg?'var(--ink)':'var(--paper)'};color:${!isReg?'var(--paper)':'var(--muted)'};">Login</button>
+          <button id="auth_tab_reg" style="flex:1;padding:10px;border:none;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;background:${isReg?'var(--ink)':'var(--paper)'};color:${isReg?'var(--paper)':'var(--muted)'};">Register</button>
+        </div>
+
+        ${authError ? `<div style="background:#fbeee8;border:1px solid #e3c4b5;border-radius:4px;padding:10px 12px;font-size:13px;color:var(--rust);font-weight:600;margin-bottom:14px;">${esc(authError)}</div>` : ''}
+
+        ${isReg ? `
+          <div class="field" style="margin-bottom:12px;"><label>User ID <span style="color:var(--muted);font-weight:400;">(letters, numbers, _ -)</span></label><input type="text" id="auth_userid" placeholder="e.g. john_doe" autocomplete="off" autocapitalize="none" spellcheck="false" style="text-transform:lowercase;"></div>
+          <div class="field" style="margin-bottom:12px;"><label>Display Name</label><input type="text" id="auth_name" placeholder="e.g. John" autocomplete="off"></div>
+          <div class="field" style="margin-bottom:20px;"><label>4-Digit PIN</label><input type="password" id="auth_pin" placeholder="••••" maxlength="4" inputmode="numeric" autocomplete="new-password"></div>
+          <button id="auth_submit" style="width:100%;padding:14px;background:var(--moss);color:var(--paper);border:none;border-radius:6px;font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;min-height:50px;">${authLoading?'Creating Account…':'Create Account'}</button>
+        ` : `
+          <div class="field" style="margin-bottom:12px;"><label>User ID</label><input type="text" id="auth_userid" placeholder="Your User ID" autocomplete="off" autocapitalize="none" spellcheck="false" style="text-transform:lowercase;"></div>
+          <div class="field" style="margin-bottom:20px;"><label>4-Digit PIN</label><input type="password" id="auth_pin" placeholder="••••" maxlength="4" inputmode="numeric" autocomplete="current-password"></div>
+          <button id="auth_submit" style="width:100%;padding:14px;background:var(--ink);color:var(--paper);border:none;border-radius:6px;font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;min-height:50px;">${authLoading?'Signing In…':'Sign In'}</button>
+          <div style="text-align:center;margin-top:14px;font-size:12px;color:var(--muted);line-height:1.5;">Forgot your PIN? Contact your admin to reset it.</div>
+        `}
+
+        ${!firebaseReady ? `<div style="text-align:center;font-size:12px;color:var(--rust);background:#fbeee8;border:1px solid #e3c4b5;border-radius:4px;padding:8px 12px;margin-top:14px;">⚠ Offline — data will sync when connected</div>` : ''}
+
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--line);text-align:center;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em;">Just browsing?</div>
+          <button id="auth_guest" style="width:100%;padding:12px;background:transparent;color:var(--muted);border:1px dashed var(--line);border-radius:6px;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;">Continue as Guest</button>
+          <div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.4;">Guest data is stored on this device only.<br>No sync or backup.</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function bindAuthScreen(){
+    const app = document.getElementById('app');
+    app.querySelector('#auth_tab_login')?.addEventListener('click',()=>{ authScreen='login'; authError=''; renderApp(); });
+    app.querySelector('#auth_tab_reg')?.addEventListener('click',()=>{ authScreen='register'; authError=''; renderApp(); });
+
+    app.querySelector('#auth_guest')?.addEventListener('click',()=>{
+      currentUser = { userId: 'guest', displayName: 'Guest', isGuest: true };
+      localStorage.setItem('worklog:session', JSON.stringify(currentUser));
+      migrateLocalData();
+      loadEntries();
+      renderApp();
+    });
+    const submitBtn = app.querySelector('#auth_submit');
+    if(submitBtn) submitBtn.addEventListener('click', async ()=>{
+      if(authLoading) return;
+      // Read values BEFORE renderApp() wipes the DOM
+      const userId = (app.querySelector('#auth_userid')?.value||'').trim().toLowerCase();
+      const pin = (app.querySelector('#auth_pin')?.value||'').trim();
+      const name = (app.querySelector('#auth_name')?.value||'').trim();
+      authLoading = true; authError = ''; renderApp();
+      let err;
+      if(authScreen === 'register'){
+        err = await doRegister(userId, name, pin);
+      } else {
+        err = await doLogin(userId, pin);
+      }
+      authLoading = false;
+      if(err){ authError = err; renderApp(); }
+      else { migrateLocalData(); loadEntries(); renderApp(); }
+    });
+    // Allow Enter key to submit
+    ['auth_userid','auth_pin','auth_name'].forEach(id=>{
+      app.querySelector('#'+id)?.addEventListener('keydown', e=>{ if(e.key==='Enter') app.querySelector('#auth_submit')?.click(); });
+    });
+  }
+
+  async function syncPendingReg(){
+    try {
+      const pending = localStorage.getItem('worklog:pending_reg');
+      if(!pending) return;
+      const reg = JSON.parse(pending);
+      const existing = await fbGetDoc(`users/${reg.userId}`);
+      if(!existing){
+        await fbSetDoc(`users/${reg.userId}`, reg);
+        await fbSyncToCloud();
+      }
+      localStorage.removeItem('worklog:pending_reg');
+    } catch(e){ /* silent fail, will retry next time */ }
+  }
+
+  function migrateLocalData(){
+    // On first login, any baked-in localStorage data gets saved to cloud
+    // (loadEntries handles the actual data migration, fbSyncToCloud does the upload)
+  }
+
+  // ---- MST/MDT-aware date helper ----
+  // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
+  // Build timestamp — update this string whenever the file is regenerated
+  const BUILD_TIME_MST = '2026-07-06 01:21';
+
+  function todayMST(){
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Edmonton',
+      year: 'numeric', month: '2-digit', day: '2-digit'
+    }).format(new Date()); // en-CA formats as YYYY-MM-DD
+  }
+
+  function nowMSTTime(){
+    return new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'America/Edmonton',
+      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+    }).format(new Date()); // en-GB formats as HH:MM:SS (24hr)
+  }
+  payCutoffDate = todayMST();
+
+  // ---- form state ----
+  let form = blankForm();
+  function lastTruckForDate(date){
+    const sameDate = entries.filter(e=>e.date === date).sort((a,b)=> b.created - a.created);
+    if(sameDate.length) return sameDate[0].truck;
+    const sorted = [...entries].sort((a,b)=> b.created - a.created);
+    return sorted.length ? sorted[0].truck : '';
+  }
+  function blankForm(){
+    const date = todayMST();
+    return {
+      date,
+      truck: lastTruckForDate(date),
+      type: '', // 'DH' or 'TMW'
+      dh: { number:'', start:'', end:'', reason:'', ref:'', claimed:'', demurrages:[] },
+      tmw: { number:'', site:'', anyWaiting:null, waitings:[] }
+    };
+  }
+  function blankWaiting(){
+    return { kind:'', comments:'', start:'', end:'', claimed:'', ref:'', realPay:'No', finalPaid:'No' };
+  }
+
+  function loadIntoForm(entry){
+    editingId = entry.id;
+    form = {
+      date: entry.date,
+      truck: entry.truck,
+      type: entry.type,
+      dh: entry.type === 'DH'
+        ? { ...entry.dh, demurrages: (entry.dh.demurrages||[]).map(d=>({...d})) }
+        : { number:'', start:'', end:'', reason:'', ref:'', claimed:'' },
+      tmw: entry.type === 'TMW'
+        ? {
+            number: entry.tmw.number,
+            site: entry.tmw.site.toUpperCase(),
+            anyWaiting: entry.tmw.waitings.length > 0,
+            waitings: entry.tmw.waitings.map(w=>({...w}))
+          }
+        : { number:'', site:'', anyWaiting:null, waitings:[] }
+    };
+    view = 'entry';
+    render();
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function toast(msg){
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    requestAnimationFrame(()=>t.classList.add('show'));
+    setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.remove(),300); }, 1800);
+  }
+
+  function undoToast(msg, onUndo){
+    const t = document.createElement('div');
+    t.className = 'toast undotoast';
+    t.innerHTML = `<span>${esc(msg)}</span><button class="undobtn">Undo</button>`;
+    document.body.appendChild(t);
+    requestAnimationFrame(()=>t.classList.add('show'));
+    let dismissed = false;
+    const dismiss = ()=>{
+      if(dismissed) return;
+      dismissed = true;
+      t.classList.remove('show');
+      setTimeout(()=>t.remove(), 300);
+    };
+    const timer = setTimeout(dismiss, 5000);
+    t.querySelector('.undobtn').onclick = ()=>{
+      clearTimeout(timer);
+      onUndo();
+      dismiss();
+    };
+  }
+
+  function showDemurrageModal(){
+    const existing = document.getElementById('demurrage-overlay');
+    if(existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'demurrage-overlay';
+    overlay.className = 'confirm-overlay';
+
+    const autoClaimed = calcClaimedDecimal(demurrageForm.start, demurrageForm.end);
+    if(autoClaimed) demurrageForm.claimed = autoClaimed;
+
+    overlay.innerHTML = `
+      <div class="confirm-box" style="max-width:400px;">
+        <h2 style="font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 14px;border-bottom:1px solid var(--line);padding-bottom:8px;">${demurrageForm.editIdx!==null?'Edit Demurrage':'Add Demurrage'}</h2>
+        <div class="row single field"><label>Reason</label><input id="dm_reason" type="text" placeholder="e.g. Waiting at dock" value="${esc(demurrageForm.reason||'')}"></div>
+        <div class="row"><div class="field"><label>Start Time (24hr)</label><input id="dm_start" type="text" value="${esc(demurrageForm.start||'')}" placeholder="HH:MM" maxlength="5" inputmode="numeric" autocomplete="off" style="letter-spacing:.08em;"></div>
+        <div class="field"><label>End Time (24hr)</label><input id="dm_end" type="text" value="${esc(demurrageForm.end||'')}" placeholder="HH:MM" maxlength="5" inputmode="numeric" autocomplete="off" style="letter-spacing:.08em;"></div></div>
+        <div class="field" style="margin-bottom:12px;"><label>Claimed Time (auto-calculated)</label><div class="claimed-auto" id="dm_claimed_display">${autoClaimed||'Enter times above'}</div></div>
+        <div class="row single field"><label>Reference Number</label><input id="dm_ref" type="text" value="${esc(demurrageForm.ref||'')}"></div>
+        <div class="confirm-btns" style="margin-top:14px;">
+          <button class="btn ghost" id="dm_cancel">Cancel</button>
+          <button class="btn primary" id="dm_save">Save</button>
+        </div>
+      </div>`;
+
+    document.body.appendChild(overlay);
+    requestAnimationFrame(()=>overlay.classList.add('show'));
+
+    const updateCalc = ()=>{
+      const s = overlay.querySelector('#dm_start').value;
+      const e2 = overlay.querySelector('#dm_end').value;
+      demurrageForm.start = s;
+      demurrageForm.end = e2;
+      const calc = calcClaimedDecimal(s, e2);
+      demurrageForm.claimed = calc;
+      const disp = overlay.querySelector('#dm_claimed_display');
+      if(disp) disp.textContent = calc || 'Enter times above';
+    };
+
+    attach24hrInputs(overlay);
+    overlay.querySelector('#dm_start').oninput = updateCalc;
+    overlay.querySelector('#dm_end').oninput = updateCalc;
+    overlay.querySelector('#dm_reason').oninput = e2=> demurrageForm.reason = e2.target.value;
+    overlay.querySelector('#dm_ref').oninput = e2=> demurrageForm.ref = e2.target.value;
+
+    overlay.querySelector('#dm_cancel').onclick = ()=>{ overlay.classList.remove('show'); setTimeout(()=>overlay.remove(),200); demurrageForm=null; };
+
+    overlay.querySelector('#dm_save').onclick = ()=>{
+      if(!demurrageForm.ref && !demurrageForm.reason){ toast('Enter at least a reason or reference'); return; }
+      const entry = entries.find(en=>en.id===demurrageForm.entryId);
+      if(!entry) return;
+      if(!entry.dh.demurrages) entry.dh.demurrages = [];
+      const d = { ref: demurrageForm.ref, start: demurrageForm.start, end: demurrageForm.end, claimed: demurrageForm.claimed, reason: demurrageForm.reason, realPay:'No', finalPaid:'No' };
+      const wasEdit = demurrageForm.editIdx !== null;
+      if(demurrageForm.editIdx !== null) entry.dh.demurrages[demurrageForm.editIdx] = d;
+      else entry.dh.demurrages.push(d);
+      saveEntries();
+      overlay.classList.remove('show');
+      setTimeout(()=>overlay.remove(),200);
+      demurrageForm = null;
+      render();
+      toast(wasEdit ? 'Demurrage updated' : 'Demurrage saved');
+    };
+  }
+
+  function showCommentModal(){
+    const existing = document.getElementById('comment-overlay');
+    if(existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'comment-overlay';
+    overlay.className = 'confirm-overlay';
+    overlay.innerHTML = `
+      <div class="confirm-box" style="max-width:400px;">
+        <h2 style="font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 14px;border-bottom:1px solid var(--line);padding-bottom:8px;">Pay Comment</h2>
+        <div class="row single field"><label>Comment</label><textarea id="comment_text" rows="3" style="min-height:80px;resize:vertical;" placeholder="e.g. Called dispatch, waiting on approval&hellip;">${esc(commentModal.text||'')}</textarea></div>
+        <div class="confirm-btns" style="margin-top:14px;">
+          <button class="btn ghost" id="comment_cancel">Cancel</button>
+          <button class="btn primary" id="comment_save">Save</button>
+        </div>
+      </div>`;
+
+    document.body.appendChild(overlay);
+    requestAnimationFrame(()=>overlay.classList.add('show'));
+
+    const closeModal = ()=>{
+      overlay.classList.remove('show');
+      setTimeout(()=>overlay.remove(),200);
+      commentModal = null;
+    };
+
+    overlay.querySelector('#comment_cancel').onclick = ()=>{ closeModal(); render(); };
+    overlay.querySelector('#comment_text').oninput = e=>{ commentModal.text = e.target.value; };
+
+    overlay.querySelector('#comment_save').onclick = ()=>{
+      const entry = entries.find(en=>en.id===commentModal.id);
+      if(!entry){ closeModal(); render(); return; }
+      const text = commentModal.text || '';
+      if(commentModal.scope === 'entry') entry.comment = text;
+      else if(commentModal.scope === 'dh') entry.dh.comment = text;
+      else if(commentModal.scope === 'demurrage') entry.dh.demurrages[commentModal.idx].comment = text;
+      else if(commentModal.scope === 'waiting') entry.tmw.waitings[commentModal.idx].comment = text;
+      saveEntries();
+      closeModal();
+      render();
+      toast('Comment saved');
+    };
+
+    overlay.onclick = e=>{ if(e.target === overlay){ closeModal(); render(); } };
+  }
+
+  function confirmModal(message, onConfirm){
+    const overlay = document.createElement('div');
+    overlay.className = 'confirm-overlay';
+    overlay.innerHTML = `
+      <div class="confirm-box">
+        <div class="confirm-msg">${esc(message)}</div>
+        <div class="confirm-btns">
+          <button class="btn ghost" id="confirm_cancel">Cancel</button>
+          <button class="btn primary confirm-danger" id="confirm_ok">Delete</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(()=>overlay.classList.add('show'));
+    const close = ()=>{
+      overlay.classList.remove('show');
+      setTimeout(()=>overlay.remove(), 200);
+    };
+    overlay.querySelector('#confirm_cancel').onclick = close;
+    overlay.querySelector('#confirm_ok').onclick = ()=>{ close(); onConfirm(); };
+    overlay.onclick = e=>{ if(e.target === overlay) close(); };
+  }
+
+  const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+
+  function daysLeftLabel(finalPaidAt){
+    const elapsed = Date.now() - finalPaidAt;
+    const msLeft = SEVEN_DAYS_MS - elapsed;
+    if(msLeft <= 0) return 'soon';
+    const daysLeft = Math.ceil(msLeft / (24*60*60*1000));
+    return daysLeft <= 1 ? 'in 1 day' : `in ${daysLeft} days`;
+  }
+
+  // For a DH entry, true only when the DH claim itself (if any) AND every demurrage are Final Paid = Yes
+  function dhAllFinalPaid(e){
+    const hasClaim = !!(e.dh.claimed || calcClaimedValue(e.dh.start, e.dh.end));
+    if(hasClaim && (e.dh.finalPaid||'No') !== 'Yes') return false;
+    return (e.dh.demurrages||[]).every(d=>(d.finalPaid||'No') === 'Yes');
+  }
+
+  // For a TMW entry, true only when the top-level entry AND every waiting are Final Paid = Yes
+  function tmwAllFinalPaid(e){
+    if((e.finalPaid||'No') !== 'Yes') return false;
+    return (e.tmw.waitings||[]).every(w=>(w.finalPaid||'No') === 'Yes');
+  }
+
+  function purgeExpiredEntries(){
+    const before = entries.length;
+    const stillActive = [];
+    let movedToTrash = false;
+    entries.forEach(e=>{
+      let expired = false;
+      if(e.type === 'DH'){
+        expired = dhAllFinalPaid(e) && e.finalPaidAt && (Date.now() - e.finalPaidAt) >= SEVEN_DAYS_MS;
+      } else {
+        expired = tmwAllFinalPaid(e) && e.finalPaidAt && (Date.now() - e.finalPaidAt) >= SEVEN_DAYS_MS;
+      }
+      if(expired){
+        deletedEntries.unshift({...e, deletedAt: Date.now(), deleteReason: 'auto'});
+        movedToTrash = true;
+      } else {
+        stillActive.push(e);
+      }
+    });
+    entries = stillActive;
+    if(entries.length !== before) saveEntries();
+    if(movedToTrash) saveDeletedEntries();
+  }
+
+  async function loadEntries(){
+    try{
+      const raw = localStorage.getItem('worklog:entries');
+      entries = raw ? JSON.parse(raw) : [];
+      entries.forEach(e=>{
+        // Entry-level pay (top-level Real Pay / Final Paid dropdowns)
+        if(e.realPay === undefined) e.realPay = 'No';
+        if(e.finalPaid === undefined) e.finalPaid = 'No';
+
+        // TMW waiting pay fields (must run before finalPaidAt calc below)
+        if(e.type === 'TMW' && e.tmw && e.tmw.waitings){
+          e.tmw.waitings.forEach(w=>{
+            if(w.realPay === undefined) w.realPay = 'No';
+            if(w.finalPaid === undefined) w.finalPaid = 'No';
+          });
+        }
+
+        // DH-specific migrations
+        if(e.type === 'DH' && e.dh){
+          // DH claim row own pay status - carry over from entry-level if not set
+          if(e.dh.realPay === undefined) e.dh.realPay = e.realPay || 'No';
+          if(e.dh.finalPaid === undefined) e.dh.finalPaid = e.finalPaid || 'No';
+          // Demurrages array
+          if(!e.dh.demurrages) e.dh.demurrages = [];
+          // Backfill pay fields on existing demurrages
+          e.dh.demurrages.forEach(d=>{
+            if(d.realPay === undefined) d.realPay = 'No';
+            if(d.finalPaid === undefined) d.finalPaid = 'No';
+          });
+          // finalPaidAt only counts down once the DH claim AND every demurrage are Final Paid
+          if(e.finalPaidAt === undefined){
+            e.finalPaidAt = dhAllFinalPaid(e) ? Date.now() : null;
+          }
+        } else if(e.type === 'TMW'){
+          // finalPaidAt only counts down once the entry AND every waiting are Final Paid
+          if(e.finalPaidAt === undefined){
+            e.finalPaidAt = tmwAllFinalPaid(e) ? Date.now() : null;
+          }
+        } else {
+          if(e.finalPaidAt === undefined) e.finalPaidAt = e.finalPaid === 'Yes' ? Date.now() : null;
+        }
+      });
+      purgeExpiredEntries();
+    }catch(e){ entries = []; }
+    // Admin-published global defaults (Firestore: globals/defaults) take priority over
+    // the baked-in constants when available/online; each user's local edits still layer on top.
+    let baseRates = BAKED_RATES;
+    let baseFuelPins = BAKED_FUEL_PINS;
+    if(firebaseReady){
+      const globalDefaults = await fbLoadGlobalDefaults();
+      if(globalDefaults){
+        if(globalDefaults.rates) baseRates = globalDefaults.rates;
+        if(globalDefaults.fuelPins) baseFuelPins = globalDefaults.fuelPins;
+      }
+    }
+    // The admin's own published global doc is already their full, authoritative list
+    // (it's exactly what fbSaveGlobalDefaults last sent). Re-overlaying local storage on
+    // top of it would resurrect anything admin deleted, so admin uses it as-is.
+    if(isAdmin() && firebaseReady){
+      rates = baseRates.map(r=>({...r}));
+      fuelPins = baseFuelPins.map(p=>({...p}));
+    } else {
+      try{
+        const rraw = localStorage.getItem('worklog:rates');
+        const storedRates = rraw ? JSON.parse(rraw) : [];
+        // Merge: global/baked-in rates are the base; localStorage wins on same site name
+        const mergedRates = baseRates.map(r=>({...r}));
+        storedRates.forEach(sr => {
+          const idx = mergedRates.findIndex(mr => mr.site.trim().toLowerCase() === sr.site.trim().toLowerCase());
+          if(idx > -1) mergedRates[idx] = sr;
+          else mergedRates.push(sr);
+        });
+        rates = mergedRates;
+      }catch(e){ rates = baseRates.map(r=>({...r})); }
+      try{
+        const fraw = localStorage.getItem('worklog:fuelpins');
+        const stored = fraw ? JSON.parse(fraw) : [];
+        // Merge: global/baked-in pins are the base; localStorage wins on same truck number
+        const merged = baseFuelPins.map(p=>({...p}));
+        stored.forEach(sp => {
+          const idx = merged.findIndex(mp => mp.truck.trim().toLowerCase() === sp.truck.trim().toLowerCase());
+          if(idx > -1) merged[idx] = sp;
+          else merged.push(sp);
+        });
+        fuelPins = merged;
+      }catch(e){ fuelPins = baseFuelPins.map(p=>({...p})); }
+    }
+    try{
+      const draw = localStorage.getItem('worklog:deleted');
+      deletedEntries = draw ? JSON.parse(draw) : [];
+      purgeOldDeleted();
+    }catch(e){ deletedEntries = []; }
+    try{
+      lastExportTs = localStorage.getItem('worklog:lastExport') ? +localStorage.getItem('worklog:lastExport') : null;
+      lastImportTs = localStorage.getItem('worklog:lastImport') ? +localStorage.getItem('worklog:lastImport') : null;
+    }catch(e){}
+    if(!editingId && !form.truck) form.truck = lastTruckForDate(form.date);
+    loaded = true;
+    renderApp();
+    setInterval(()=>{ purgeExpiredEntries(); purgeOldDeleted(); if(view==='log'||view==='deleted'||view==='paycheck') render(); }, 60*60*1000);
+    setInterval(()=>{
+      // Update connectivity dot without full re-render
+      const dot = document.getElementById('conn_indicator');
+      if(dot && currentUser){
+        const online = firebaseReady && !currentUser.isGuest;
+        const guest = currentUser.isGuest;
+        dot.style.background = online ? '#3cba54' : guest ? '#f4a400' : '#e53935';
+        dot.style.boxShadow = online ? '0 0 0 2px rgba(60,186,84,.25)' : guest ? '0 0 0 2px rgba(244,164,0,.25)' : '0 0 0 2px rgba(229,57,53,.25)';
+        dot.className = online ? 'conn-online' : '';
+        dot.title = online ? 'Connected to server' : guest ? 'Guest — local only' : 'Offline';
+      }
+    }, 3000);
+    setInterval(()=>{
+      const clockEl = document.getElementById('live_clock');
+      if(clockEl) clockEl.textContent = nowMSTTime();
+    }, 1000);
+  }
+  function saveEntries(){
+    try{
+      localStorage.setItem('worklog:entries', JSON.stringify(entries));
+      autoBackup();
+      fbSyncToCloud();
+    }catch(e){ console.error('save failed', e); toast('Save failed \u2014 storage may be full'); }
+  }
+  function saveRates(){
+    try{
+      localStorage.setItem('worklog:rates', JSON.stringify(rates));
+      autoBackup();
+      fbSyncToCloud();
+      if(isAdmin()) fbSaveGlobalDefaults();
+    }catch(e){ console.error('save failed', e); toast('Save failed \u2014 storage may be full'); }
+  }
+  function saveFuelPins(){
+    try{
+      localStorage.setItem('worklog:fuelpins', JSON.stringify(fuelPins));
+      autoBackup();
+      fbSyncToCloud();
+      if(isAdmin()) fbSaveGlobalDefaults();
+    }catch(e){ console.error('save failed', e); toast('Save failed \u2014 storage may be full'); }
+  }
+  function saveDeletedEntries(){
+    try{
+      localStorage.setItem('worklog:deleted', JSON.stringify(deletedEntries));
+    }catch(e){ console.error('save failed', e); }
+  }
+  function purgeOldDeleted(){
+    const before = deletedEntries.length;
+    deletedEntries = deletedEntries.filter(e=> (Date.now() - e.deletedAt) < THIRTY_DAYS_MS);
+    if(deletedEntries.length !== before) saveDeletedEntries();
+  }
+  function daysLeftDeleteLabel(deletedAt){
+    const msLeft = THIRTY_DAYS_MS - (Date.now() - deletedAt);
+    if(msLeft <= 0) return 'Deleting soon';
+    const days = Math.ceil(msLeft / (24*60*60*1000));
+    return days === 1 ? 'Deletes in 1 day' : `Deletes in ${days} days`;
+  }
+  function findRate(site){
+    if(!site) return null;
+    const match = rates.find(r => r.site.trim().toLowerCase() === site.trim().toLowerCase());
+    return match ? match.rate : null;
+  }
+
+  function esc(s){
+    return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function setType(t){
+    if(form.type !== t) pendingLoads = [];
+    form.type = t;
+    render();
+  }
+
+  function field(label, html){
+    return `<div class="field"><label>${label}</label>${html}</div>`;
+  }
+
+  function renderEntryForm(){
+    let html = `<div class="card"><h2>${editingId ? 'Edit Entry' : 'New Entry'}</h2>`;
+    html += `<div class="row">`;
+    html += field('Date', `<input type="date" id="f_date" value="${esc(form.date)}">`);
+    html += field('Truck Number', `<input type="text" id="f_truck" placeholder="e.g. 4521" value="${esc(form.truck)}">`);
+    html += `</div>`;
+
+    html += `<div class="typepick">
+      <button class="typebtn dh ${form.type==='DH'?'active':''}" id="pick_dh">Deadhead</button>
+      <button class="typebtn tmw ${form.type==='TMW'?'active':''}" id="pick_tmw">TMW</button>
+    </div>`;
+
+    if(form.type === 'DH'){
+      const dhNumWarn = form.dh.number && !/^\d{7}$/.test(form.dh.number.trim());
+      html += `<div class="row single">`;
+      html += field('Deadhead Number', `<input type="text" id="dh_number" value="${esc(form.dh.number)}" inputmode="numeric">`);
+      html += `</div>`;
+      if(dhNumWarn) html += `<div class="num-flag">⚠ Must be exactly 7 digits</div>`;
+      html += `<div class="row single">`;
+      html += field('Reason for Deadhead', `<textarea id="dh_reason" rows="1" style="min-height:44px;height:44px;resize:none;overflow:hidden;line-height:1.4;padding-top:12px;padding-bottom:12px;">${esc(form.dh.reason)}</textarea>`);
+      html += `</div>`;
+      html += `<div class="row">`;
+      html += field('Start Time (24hr)', `<input type="text" id="dh_start" value="${esc(form.dh.start)}" placeholder="HH:MM" maxlength="5" inputmode="numeric" autocomplete="off" style="letter-spacing:.08em;">`);
+      html += field('End Time (24hr)', `<input type="text" id="dh_end" value="${esc(form.dh.end)}" placeholder="HH:MM" maxlength="5" inputmode="numeric" autocomplete="off" style="letter-spacing:.08em;">`);
+      html += `</div>`;
+      const autoClaimed = calcClaimedDecimal(form.dh.start, form.dh.end);
+      html += `<div class="row single">`;
+      html += field('Claimed Time (auto-calculated)', `<div class="claimed-auto">${autoClaimed || 'Enter start &amp; end time above'}</div>`);
+      html += `</div>`;
+      html += `<div class="row single">`;
+      html += field('Reference Number', `<input type="text" id="dh_ref" value="${esc(form.dh.ref)}">`);
+      html += `</div>`;
+    }
+
+    if(form.type === 'TMW'){
+      const tmwNumWarn = form.tmw.number && !/^\d{7}$/.test(form.tmw.number.trim());
+      html += `<div class="row">`;
+      html += field('TMW Number', `<input type="text" id="tmw_number" value="${esc(form.tmw.number)}" inputmode="numeric">`);
+      const siteSuggestions = rates.map(r=>`<option value="${esc(r.site.toUpperCase())}"></option>`).join('');
+      html += field('Site Name', `<input type="text" id="tmw_site" value="${esc(form.tmw.site.toUpperCase())}" list="site_suggestions" autocomplete="off" style="text-transform:uppercase;"><datalist id="site_suggestions">${siteSuggestions}</datalist>`);
+      html += `</div>`;
+      if(tmwNumWarn) html += `<div class="num-flag">⚠ Must be exactly 7 digits</div>`;
+      const rateMatch = findRate(form.tmw.site);
+      if(form.tmw.site){
+        html += `<div class="ratehint">${rateMatch ? `Rate on file: $${esc(rateMatch)}` : 'No rate on file for this site \u2014 add one in the Trip Rates tab'}</div>`;
+      }
+
+      html += `<div class="field"><label>Any Waiting?</label>
+        <div class="yn">
+          <button id="wait_no" class="${form.tmw.anyWaiting===false?'sel':''}">No</button>
+          <button id="wait_yes" class="${form.tmw.anyWaiting===true?'sel':''}">Yes</button>
+        </div></div>`;
+
+      if(form.tmw.anyWaiting === true){
+        form.tmw.waitings.forEach((w, i)=>{
+          const auto = calcClaimedTMW(w.start, w.end);
+          if(auto && (!w.claimed || w.claimed === w._autoCalc)) {
+            w.claimed = auto;
+            w._autoCalc = auto;
+          }
+          const hint = auto ? `<div class="ratehint" style="margin-top:4px;">Auto: ${auto} hrs (end − start − 1hr)${w.claimed && w.claimed !== auto ? ' &mdash; overridden below' : ''}</div>` : '';
+          html += `<div class="waitbox">
+            <span class="wnum">Waiting ${i+1}</span>
+            <button class="removewait" data-idx="${i}">Remove</button>
+            <div class="row single">
+              ${field('Kind of Waiting', `<select data-w="${i}" data-k="kind">
+                <option value="" ${w.kind===''?'selected':''}>Select type&hellip;</option>
+                <option value="Loading Delay" ${w.kind==='Loading Delay'?'selected':''}>Loading Delay</option>
+                <option value="Offloading Delay" ${w.kind==='Offloading Delay'?'selected':''}>Offloading Delay</option>
+                <option value="Pumpoff" ${w.kind==='Pumpoff'?'selected':''}>Pumpoff</option>
+                <option value="Other" ${w.kind==='Other'?'selected':''}>Other</option>
+              </select>`)}
+            </div>
+            <div class="row">
+              ${field('Start Time (24hr)', `<input type="text" data-w="${i}" data-k="start" value="${esc(w.start)}" placeholder="HH:MM" maxlength="5" inputmode="numeric" autocomplete="off" style="letter-spacing:.08em;">`)}
+              ${field('End Time (24hr)', `<input type="text" data-w="${i}" data-k="end" value="${esc(w.end)}" placeholder="HH:MM" maxlength="5" inputmode="numeric" autocomplete="off" style="letter-spacing:.08em;">`)}
+            </div>
+            <div class="row single">
+              ${field('Claimed Waiting Time', hint + `<select data-w="${i}" data-k="claimed">${claimedTimeOptions(claimedDisplay(w.claimed))}</select>`)}
+            </div>
+            <div class="row">
+              ${field('Reference Number', `<input type="text" data-w="${i}" data-k="ref" value="${esc(w.ref)}">`)}
+              ${field('Comments', `<input type="text" data-w="${i}" data-k="comments" value="${esc(w.comments)}">`)}
+            </div>
+          </div>`;
+        });
+        html += `<button class="btn add" id="add_waiting" style="margin-top:10px;">+ Add Another Waiting</button>`;
+      }
+    }
+
+    html += `<div class="btnrow">
+      <button class="btn primary" id="save_entry">${editingId ? 'Update Entry' : (form.type ? 'Add to Queue' : 'Save Entry')}</button>
+      <button class="btn ghost" id="reset_entry">${editingId ? 'Cancel' : 'Reset'}</button>
+    </div>`;
+
+    // Pending queue
+    if(pendingLoads.length > 0){
+      html += `<div style="margin-top:18px;border-top:2px solid var(--line);padding-top:14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);">Queue — ${pendingLoads.length} entr${pendingLoads.length===1?'y':'ies'}</span>
+        </div>`;
+      pendingLoads.forEach((load, i) => {
+        const isDH = load.type === 'DH';
+        html += `<div style="background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:${isDH?'var(--amber)':'var(--moss)'};margin-bottom:3px;">${isDH?'DH':'TMW'}</div>
+            <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px;">
+              <span style="color:var(--rust);">#${esc(load.number)}</span>
+              ${isDH
+                ? (load.reason ? `<span style="margin:0 6px;color:var(--muted);">·</span><span style="font-weight:400;font-size:12px;">${esc(load.reason)}</span>` : '')
+                : `<span style="margin:0 6px;color:var(--muted);">·</span><span>${esc(load.site)}</span>`}
+            </div>
+            ${isDH
+              ? (load.start||load.end ? `<div style="font-size:11px;color:var(--muted);">${esc(load.start||'?')} → ${esc(load.end||'?')}${load.ref?' · Ref: '+esc(load.ref):''}</div>` : '')
+              : (load.waitings.length
+                  ? `<div style="font-size:11px;color:var(--moss);font-weight:600;">⏱ ${load.waitings.length} waiting${load.waitings.length>1?'s':''}</div>`
+                  : `<div style="font-size:11px;color:var(--muted);">No waiting</div>`)}
+          </div>
+          <button data-remove-pending="${i}" style="background:#fbeee8;border:1px solid #e3c4b5;border-radius:6px;color:var(--rust);font-size:18px;cursor:pointer;width:38px;height:38px;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-tap-highlight-color:transparent;">&times;</button>
+        </div>`;
+      });
+      html += `<button class="btn primary" id="save_all_loads" style="width:100%;margin-top:6px;padding:14px;font-size:14px;font-weight:800;letter-spacing:.03em;">
+        ✓ Save ${pendingLoads.length} Entr${pendingLoads.length===1?'y':'ies'}
+      </button>`;
+      html += `</div>`;
+    }
+
+    html += `</div>`;
+    return html;
+  }
+
+  function calcClaimedDecimal(start, end){
+    if(!start || !end) return '';
+    const sp = start.split(':').map(Number), ep = end.split(':').map(Number);
+    if(sp.length < 2 || ep.length < 2 || isNaN(sp[0]) || isNaN(ep[0])) return '';
+    const [sh,sm] = sp, [eh,em] = ep;
+    let mins = (eh*60+em) - (sh*60+sm);
+    const nextDay = mins < 0;
+    if(nextDay) mins += 24*60;
+    mins = Math.round(mins/15)*15;
+    const dec = mins/60;
+    const val = Number.isInteger(dec) ? String(dec) : dec.toFixed(2);
+    return val;
+  }
+  function calcClaimedValue(start, end){
+    // Returns just the numeric portion for saving
+    const full = calcClaimedDecimal(start, end);
+    return full || '';
+  }
+
+  function calcClaimedTMW(start, end){
+    // TMW waiting = (end - start) - 1 hour, rounded to nearest 15min
+    if(!start || !end) return '';
+    const sp = start.split(':').map(Number), ep = end.split(':').map(Number);
+    if(sp.length < 2 || ep.length < 2 || isNaN(sp[0]) || isNaN(ep[0])) return '';
+    const [sh,sm] = sp, [eh,em] = ep;
+    let mins = (eh*60+em) - (sh*60+sm);
+    if(mins < 0) mins += 24*60;
+    mins -= 60; // subtract 1 hour
+    if(mins <= 0) return '';
+    mins = Math.round(mins/15)*15;
+    const dec = mins/60;
+    return Number.isInteger(dec) ? String(dec) : dec.toFixed(2);
+  }
+
+  function claimedDisplay(val){
+    if(!val) return '';
+    const m = String(val).match(/^(\d+)h\s*(\d+)m$/i);
+    if(m){
+      const decimal = (+m[1]) + (+m[2])/60;
+      return Number.isInteger(decimal) ? String(decimal) : decimal.toFixed(2);
+    }
+    return String(val).replace(/\s*\(next day \+\)/g, '');
+  }
+
+  function claimedTimeOptions(selected){
+    let opts = `<option value="" ${selected===''?'selected':''}>Select claimed time&hellip;</option>`;
+    for(let mins=0; mins<=24*60; mins+=15){
+      const decimal = mins/60;
+      const label = Number.isInteger(decimal) ? String(decimal) : decimal.toFixed(2);
+      opts += `<option value="${label}" ${selected===label?'selected':''}>${label}</option>`;
+    }
+    return opts;
+  }
+
+  function minutesBetween(start, end){
+    if(!start || !end) return null;
+    const [sh,sm] = start.split(':').map(Number);
+    const [eh,em] = end.split(':').map(Number);
+    let mins = (eh*60+em) - (sh*60+sm);
+    if(mins < 0) mins += 24*60;
+    return mins;
+  }
+  function fmtDuration(mins){
+    if(mins===null) return '';
+    const h = Math.floor(mins/60), m = mins%60;
+    return `${h}h ${m}m`;
+  }
+
+  function renderLog(){
+    if(entries.length === 0){
+      return `<div class="card"><div class="empty">No entries yet. Switch to "New Entry" to log your first day.</div></div>`;
+    }
+
+    // filter entries by exact date
+    let filtered = entries;
+    if(logDateFilter) filtered = filtered.filter(e=> e.date === logDateFilter);
+
+    let html = `<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;">
+      <label style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);white-space:nowrap;">Date</label>
+      <input id="log_date_filter" type="date" value="${logDateFilter}" style="flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:3px;font-size:14px;background:var(--paper);color:var(--ink);font-family:inherit;min-height:38px;">
+      <button id="log_date_today" style="padding:8px 12px;border:1px solid var(--line);border-radius:3px;background:var(--paper);color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;white-space:nowrap;min-height:38px;">Today</button>
+      <button id="log_date_clear" style="padding:8px 12px;border:1px solid var(--line);border-radius:3px;background:var(--paper);color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;white-space:nowrap;min-height:38px;">Clear</button>
+    </div>`;
+
+
+    if(filtered.length === 0){
+      html += `<div class="card"><div class="empty">No entries match this filter.</div></div>`;
+      return html;
+    }
+
+    // group by date
+    const groups = {};
+    filtered.forEach(e=>{
+      if(!groups[e.date]) groups[e.date] = [];
+      groups[e.date].push(e);
+    });
+    const dates = Object.keys(groups).sort((a,b)=> b.localeCompare(a));
+
+    dates.forEach(date=>{
+      const dayEntries = groups[date].sort((a,b)=> b.created - a.created);
+      const dObj = new Date(date + 'T00:00:00');
+      const niceDate = dObj.toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+      html += `<div class="card">
+        <h2 class="datehdr">
+          <span>${esc(niceDate)} <span class="daycount">${dayEntries.length} ${dayEntries.length===1?'entry':'entries'}</span></span>
+        </h2>`;
+
+      // group DH entries on this day by deadhead number; TMW entries stay individual
+      const tmwEntries = dayEntries.filter(e=>e.type==='TMW');
+      const dhEntries = dayEntries.filter(e=>e.type==='DH');
+      const dhGroups = {};
+      const dhOrder = [];
+      dhEntries.forEach(e=>{
+        const num = e.dh.number;
+        if(!dhGroups[num]){ dhGroups[num]=[]; dhOrder.push(num); }
+        dhGroups[num].push(e);
+        });
+
+      dhOrder.forEach(num=>{
+        const group = dhGroups[num];
+        if(group.length === 1){
+          const e = group[0];
+          const statusClass = (()=>{
+            // Collect all claim rows: DH own claim + demurrages
+            const allClaims = [];
+            const hasClaim = !!(e.dh.claimed || calcClaimedValue(e.dh.start, e.dh.end));
+            if(hasClaim) allClaims.push({ realPay: e.dh.realPay||'No', finalPaid: e.dh.finalPaid||'No' });
+            (e.dh.demurrages||[]).forEach(d=> allClaims.push({ realPay: d.realPay||'No', finalPaid: d.finalPaid||'No' }));
+            if(!allClaims.length) return e.finalPaid==='Yes' ? 'paid-final' : (e.realPay==='Yes' ? 'paid-real' : '');
+            const allFinal = allClaims.every(c=> c.finalPaid==='Yes');
+            const allReal  = allClaims.every(c=> c.realPay==='Yes');
+            return allFinal ? 'paid-final' : (allReal ? 'paid-real' : '');
+          })();
+          html += `<div class="logrow ${statusClass}">
+            <div class="logrow-head">
+              <span class="badge dh">DH</span> <span class="lognum">${esc(num)}</span>
+              <span class="logtruck">Truck ${esc(e.truck)}</span>
+            </div>
+            ${dhAllFinalPaid(e) && e.finalPaidAt ? `<div class="paystatus"><span class="autodel">Auto-deletes ${esc(daysLeftLabel(e.finalPaidAt))}</span></div>` : ''}`;
+          const claimed = e.dh.claimed || calcClaimedValue(e.dh.start, e.dh.end);
+          const hasDemurrages = e.dh.demurrages && e.dh.demurrages.length;
+          if(!claimed && !hasDemurrages){
+            html += `<div class="logrow-actions">
+              <button class="delbtn editbtn" data-edit="${e.id}">Edit</button>
+              <button class="delbtn" data-del="${e.id}">Delete</button>
+            </div>`;
+          }
+          if(claimed){
+            const dhClaimReal = e.dh.realPay || 'No';
+            const dhClaimFinal = e.dh.finalPaid || 'No';
+            const dhStatus = dhClaimFinal==='Yes'?'paid-final':(dhClaimReal==='Yes'?'paid-real':'');
+            html += `<div class="claimrow ${dhStatus}">
+              <div class="claimrow-top">
+                <span class="claimtime">${esc(claimedDisplay(claimed))}</span>
+                <span class="claimkind">${esc(e.dh.reason)||'Deadhead'}</span>
+                <span class="claimref">Ref: ${esc(e.dh.ref)||'&mdash;'}</span>
+              </div>
+              <div class="refpay-actions">
+                <button class="delbtn editbtn" data-edit="${e.id}">Edit</button>
+                <button class="delbtn" data-del="${e.id}">Delete</button>
+              </div>
+            </div>`;
+          }
+          if(e.dh.demurrages && e.dh.demurrages.length){
+            e.dh.demurrages.forEach((d,di)=>{
+              const dStatus = (d.finalPaid||'No')==='Yes'?'paid-final':((d.realPay||'No')==='Yes'?'paid-real':'');
+              html += `<div class="claimrow ${dStatus}">
+                <div class="claimrow-top">
+                  <span class="claimtime">${esc(claimedDisplay(d.claimed))||'&mdash;'}</span>
+                  <span class="claimkind">${esc(d.reason)||'Demurrage'}</span>
+                  <span class="claimref">Ref: ${esc(d.ref)||'&mdash;'}</span>
+                </div>
+                <div class="refpay-actions">
+                  <button class="delbtn editbtn" data-edit-demurrage="${e.id}" data-edit-demurrage-idx="${di}">Edit</button>
+                  <button class="delbtn" data-del-demurrage="${e.id}" data-del-demurrage-idx="${di}">Delete</button>
+                </div>
+              </div>`;
+            });
+          }
+          html += `<button class="btn add" style="margin-top:8px;font-size:11px;padding:6px 10px;" data-add-demurrage="${e.id}">+ Add Demurrage</button>`;
+          html += `</div>`;
+        } else {
+          const groupAllFinal = group.every(e=> (e.dh.finalPaid||e.finalPaid||'No')==='Yes');
+          const groupAllReal  = group.every(e=> (e.dh.realPay||e.realPay||'No')==='Yes');
+          const groupStatus   = groupAllFinal ? 'paid-final' : (groupAllReal ? 'paid-real' : '');
+          const totalRefs = group.reduce((sum,e)=> sum + 1 + (e.dh.demurrages||[]).length, 0);
+          html += `<div class="logrow ${groupStatus}">
+            <div class="logrow-head">
+              <span class="badge dh">DH</span> <span class="lognum">${esc(num)}</span>
+              <span class="logsite">${totalRefs} ${totalRefs===1?'reference':'references'}</span>
+            </div>`;
+          const groupSoonest = group.filter(e=>dhAllFinalPaid(e) && e.finalPaidAt).sort((a,b)=>a.finalPaidAt-b.finalPaidAt)[0];
+          if(groupAllFinal && groupSoonest){
+            html += `<div class="paystatus"><span class="autodel">Auto-deletes ${esc(daysLeftLabel(groupSoonest.finalPaidAt))}</span></div>`;
+          }
+          group.forEach(e=>{
+            const dhR = e.dh.realPay||e.realPay||'No';
+            const dhF = e.dh.finalPaid||e.finalPaid||'No';
+            const rowStatus = dhF==='Yes' ? 'paid-final' : (dhR==='Yes' ? 'paid-real' : '');
+            html += `<div class="claimrow ${rowStatus}">
+              <div class="claimrow-top">
+                <span class="claimtime">${esc(claimedDisplay(e.dh.claimed))||'&mdash;'}</span>
+                <span class="claimkind">${esc(e.dh.reason)||'Deadhead'} &middot; Truck ${esc(e.truck)}</span>
+                <span class="claimref">Ref: ${esc(e.dh.ref)||'&mdash;'}</span>
+              </div>
+              <div class="refpay-actions">
+                <button class="delbtn editbtn" data-edit="${e.id}">Edit</button>
+                <button class="delbtn" data-del="${e.id}">Delete</button>
+              </div>
+            </div>`;
+            if(e.dh.demurrages && e.dh.demurrages.length){
+              e.dh.demurrages.forEach((d,di)=>{
+                const dStatus = (d.finalPaid||'No')==='Yes'?'paid-final':((d.realPay||'No')==='Yes'?'paid-real':'');
+                html += `<div class="claimrow ${dStatus}">
+                  <div class="claimrow-top">
+                    <span class="claimtime">${esc(claimedDisplay(d.claimed))||'&mdash;'}</span>
+                    <span class="claimkind">${esc(d.reason)||'Demurrage'}</span>
+                    <span class="claimref">Ref: ${esc(d.ref)||'&mdash;'}</span>
+                  </div>
+                  <div class="refpay-actions">
+                    <button class="delbtn editbtn" data-edit-demurrage="${e.id}" data-edit-demurrage-idx="${di}">Edit</button>
+                    <button class="delbtn" data-del-demurrage="${e.id}" data-del-demurrage-idx="${di}">Delete</button>
+                  </div>
+                </div>`;
+              });
+            }
+          });
+          html += `<button class="btn add" style="margin-top:8px;font-size:11px;padding:6px 10px;" data-add-demurrage="${group[group.length-1].id}">+ Add Demurrage</button>`;
+          html += `</div>`;
+        }
+      });
+
+      tmwEntries.forEach(e=>{
+        const badge = `<span class="badge tmw">TMW</span>`;
+        const number = e.tmw.number;
+        const siteRate = findRate(e.tmw.site);
+        const siteLabel = `<span class="logsite">${esc((e.tmw.site||'').toUpperCase())}${siteRate ? ` &middot; $${esc(siteRate)}` : ''}</span>`;
+        const allWaitFinal = e.tmw.waitings.every(w=>(w.finalPaid||'No')==='Yes');
+        const allWaitReal  = e.tmw.waitings.every(w=>(w.realPay||'No')==='Yes');
+        const statusClass = (e.finalPaid==='Yes' && allWaitFinal) ? 'paid-final' : ((e.realPay==='Yes' && allWaitReal) ? 'paid-real' : '');
+        html += `<div class="logrow ${statusClass}">
+          <div class="logrow-head">
+            ${badge} <span class="lognum">${esc(number)}</span>
+            ${siteLabel}
+            <span class="logtruck">Truck ${esc(e.truck)}</span>
+          </div>
+          <div class="logrow-actions">
+            <button class="delbtn editbtn" data-edit="${e.id}">Edit</button>
+            <button class="delbtn" data-del="${e.id}">Delete</button>
+          </div>
+          ${tmwAllFinalPaid(e) && e.finalPaidAt ? `<div class="paystatus"><span class="autodel">Auto-deletes ${esc(daysLeftLabel(e.finalPaidAt))}</span></div>` : ''}`;
+
+        if(e.tmw.waitings.length){
+          e.tmw.waitings.forEach((w,wi)=>{
+            if(w.realPay === undefined) w.realPay = 'No';
+            if(w.finalPaid === undefined) w.finalPaid = 'No';
+            const wStatus = w.finalPaid==='Yes' ? 'paid-final' : (w.realPay==='Yes' ? 'paid-real' : '');
+            html += `<div class="claimrow ${wStatus}">
+              <div class="claimrow-top">
+                <span class="claimtime">${esc(claimedDisplay(w.claimed))||'&mdash;'}</span>
+                <span class="claimkind">${esc(w.kind)||'&mdash;'}</span>
+                <span class="claimref">Ref: ${esc(w.ref)||'&mdash;'}</span>
+              </div>
+            </div>`;
+          });
+        }
+        html += `</div>`;
+      });
+
+      html += `</div>`;
+    });
+
+    return html;
+  }
+
+  function renderPayCheckList(filtered){
+    const groups = {};
+    filtered.forEach(e=>{ if(!groups[e.date]) groups[e.date]=[]; groups[e.date].push(e); });
+    const dates = Object.keys(groups).sort((a,b)=>b.localeCompare(a));
+
+    const sel = (val, attrs) => `<select ${attrs} style="padding:4px 2px;border:1px solid var(--line);border-radius:3px;font-size:11px;font-weight:700;background:#fff;color:var(--muted);min-width:54px;cursor:pointer;">
+      <option value="No" ${val==='No'?'selected':''}>No</option>
+      <option value="Yes" ${val==='Yes'?'selected':''}>Yes</option>
+    </select>`;
+
+    const payCell = (rp, fp, rpAttrs, fpAttrs) => `
+      <td style="padding:6px 10px;white-space:nowrap;text-align:right;">
+        <div style="display:flex;flex-direction:column;gap:3px;align-items:flex-end;">
+          <div style="display:flex;align-items:center;gap:4px;">
+            <span style="font-size:9px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;">R</span>${sel(rp, rpAttrs)}
+          </div>
+          <div style="display:flex;align-items:center;gap:4px;">
+            <span style="font-size:9px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;">F</span>${sel(fp, fpAttrs)}
+          </div>
+        </div>
+      </td>`;
+
+    let html = `<div class="card" style="padding:0;overflow:hidden;">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">`;
+
+    dates.forEach(date=>{
+      const dayEntries = groups[date].sort((a,b)=>a.created - b.created);
+      const dObj = new Date(date+'T00:00:00');
+      const niceDate = dObj.toLocaleDateString('en-CA',{month:'long',day:'numeric',timeZone:'America/Edmonton'});
+
+      html += `<tr>
+        <td colspan="3" style="padding:10px 14px 6px;font-weight:800;font-size:14px;color:var(--ink);background:var(--paper);border-bottom:2px solid var(--line);border-top:2px solid var(--line);letter-spacing:.02em;">${esc(niceDate)}</td>
+      </tr>`;
+
+      const dhEntries = dayEntries.filter(e=>e.type==='DH');
+      const tmwEntries = dayEntries.filter(e=>e.type==='TMW');
+
+      // ── DH claims — non-indented ──────────────────────────────────────────
+      dhEntries.forEach(e=>{
+        const claimed = e.dh.claimed || calcClaimedValue(e.dh.start, e.dh.end);
+        if(claimed){
+          const rp = e.dh.realPay||'No', fp = e.dh.finalPaid||'No';
+          const bg = fp==='Yes'?'#dca8d9':rp==='Yes'?'#a8d9dc':'';
+          html += `<tr style="border-bottom:1px solid var(--line);${bg?'background:'+bg+';':''}">
+            <td style="padding:8px 14px;color:var(--muted);font-weight:600;white-space:nowrap;">Ref: ${esc(e.dh.ref||'—')}</td>
+            <td style="padding:8px 14px;color:var(--ink);width:100%;">${esc(claimed)} - ${esc(e.dh.reason||'Deadhead')}</td>
+            ${payCell(rp, fp,
+              `data-dh-pay="${e.id}" data-dh-key="realPay"`,
+              `data-dh-pay="${e.id}" data-dh-key="finalPaid"`)}
+          </tr>`;
+        }
+        (e.dh.demurrages||[]).forEach((d,di)=>{
+          const rp = d.realPay||'No', fp = d.finalPaid||'No';
+          const bg = fp==='Yes'?'#dca8d9':rp==='Yes'?'#a8d9dc':'';
+          html += `<tr style="border-bottom:1px solid var(--line);${bg?'background:'+bg+';':''}">
+            <td style="padding:8px 14px;color:var(--muted);font-weight:600;white-space:nowrap;">Ref: ${esc(d.ref||'—')}</td>
+            <td style="padding:8px 14px;color:var(--ink);width:100%;">${esc(claimedDisplay(d.claimed)||'—')} - ${esc(d.reason||'Demurrage')}</td>
+            ${payCell(rp, fp,
+              `data-demurrage="${e.id}" data-didx="${di}" data-dkey="realPay"`,
+              `data-demurrage="${e.id}" data-didx="${di}" data-dkey="finalPaid"`)}
+          </tr>`;
+        });
+      });
+
+      // ── TMW loads + waitings ──────────────────────────────────────────────
+      tmwEntries.forEach(e=>{
+        const rp = e.realPay||'No', fp = e.finalPaid||'No';
+        const bg = fp==='Yes'?'#dca8d9':rp==='Yes'?'#a8d9dc':'';
+        html += `<tr style="border-bottom:${(e.tmw.waitings||[]).length?'none':'1px solid var(--line)'};${bg?'background:'+bg+';':''}">
+          <td style="padding:8px 14px;color:var(--moss);font-weight:700;white-space:nowrap;">Tmw: ${esc(e.tmw.number)}</td>
+          <td style="padding:8px 14px;color:var(--ink);font-weight:600;width:100%;">${esc((e.tmw.site||'').toUpperCase())}</td>
+          ${payCell(rp, fp,
+            `data-pay="${e.id}" data-paykey="realPay"`,
+            `data-pay="${e.id}" data-paykey="finalPaid"`)}
+        </tr>`;
+        (e.tmw.waitings||[]).forEach((w,wi)=>{
+          const wrp = w.realPay||'No', wfp = w.finalPaid||'No';
+          const wBg = wfp==='Yes'?'#dca8d9':wrp==='Yes'?'#a8d9dc':'';
+          const isLast = wi === (e.tmw.waitings||[]).length - 1;
+          html += `<tr style="border-bottom:${isLast?'1px solid var(--line)':'1px solid var(--line)'};${wBg?'background:'+wBg+';':''}">
+            <td style="padding:6px 14px 6px 28px;color:var(--muted);font-style:italic;white-space:nowrap;font-size:12px;">
+              <span style="color:var(--line);margin-right:4px;">└</span>Ref: ${esc(w.ref||'—')}
+            </td>
+            <td style="padding:6px 14px;color:var(--muted);font-style:italic;font-size:12px;width:100%;">${esc(claimedDisplay(w.claimed)||'—')} - ${esc(w.kind||'Waiting')}</td>
+            ${payCell(wrp, wfp,
+              `data-refpay="${e.id}" data-refscope="tmw" data-refidx="${wi}" data-refkey="realPay"`,
+              `data-refpay="${e.id}" data-refscope="tmw" data-refidx="${wi}" data-refkey="finalPaid"`)}
+          </tr>`;
+        });
+      });
+    });
+
+    html += `</table></div>`;
+    return html;
+  }
+
+  function renderPayCheck(){
+    if(entries.length === 0){
+      return `<div class="card"><div class="empty">No entries yet. Switch to "New Entry" to log your first day.</div></div>`;
+    }
+
+    function dhRealPending(e){
+      const hasClaim = !!(e.dh.claimed || calcClaimedValue(e.dh.start, e.dh.end));
+      if(hasClaim && (e.dh.realPay||'No') !== 'Yes') return true;
+      return (e.dh.demurrages||[]).some(d=>(d.realPay||'No') !== 'Yes');
+    }
+    function dhFinalPending(e){
+      const hasClaim = !!(e.dh.claimed || calcClaimedValue(e.dh.start, e.dh.end));
+      if(hasClaim && (e.dh.finalPaid||'No') !== 'Yes') return true;
+      return (e.dh.demurrages||[]).some(d=>(d.finalPaid||'No') !== 'Yes');
+    }
+
+    let realPending = 0, finalPending = 0;
+    entries.forEach(e=>{
+      if(e.type === 'DH'){
+        if(dhRealPending(e)) realPending++;
+        if(dhFinalPending(e)) finalPending++;
+      } else {
+        const topReal  = (e.realPay||'No') !== 'Yes';
+        const topFinal = (e.finalPaid||'No') !== 'Yes';
+        const waitReal  = e.tmw.waitings.some(w=>(w.realPay||'No') !== 'Yes');
+        const waitFinal = e.tmw.waitings.some(w=>(w.finalPaid||'No') !== 'Yes');
+        if(topReal || waitReal) realPending++;
+        if(topFinal || waitFinal) finalPending++;
+      }
+    });
+
+    let filtered = entries;
+    if(payFilter === 'real_pending'){
+      filtered = entries.filter(e=>{
+        if(e.type === 'DH') return dhRealPending(e);
+        return (e.realPay||'No') !== 'Yes' || e.tmw.waitings.some(w=>(w.realPay||'No') !== 'Yes');
+      });
+    } else if(payFilter === 'final_pending'){
+      filtered = entries.filter(e=>{
+        if(e.type === 'DH') return dhFinalPending(e);
+        return (e.finalPaid||'No') !== 'Yes' || e.tmw.waitings.some(w=>(w.finalPaid||'No') !== 'Yes');
+      });
+    }
+
+    if(payCutoffDate) filtered = filtered.filter(e=> e.date <= payCutoffDate);
+
+    let html = `<div class="statusbar">
+      <div class="statcard ${payFilter==='real_pending'?'active-filter':''}" id="pfilter_real">
+        <div class="stat-num ${realPending>0?'stat-warn':''}">${realPending}</div>
+        <div class="stat-lab">Real Pay Pending</div>
+      </div>
+      <div class="statcard ${payFilter==='final_pending'?'active-filter':''}" id="pfilter_final">
+        <div class="stat-num ${finalPending>0?'stat-warn':''}">${finalPending}</div>
+        <div class="stat-lab">Final Pay Pending</div>
+      </div>
+      <div class="statcard ${payFilter==='all'?'active-filter':''}" id="pfilter_all">
+        <div class="stat-num">${entries.length}</div>
+        <div class="stat-lab">All Entries</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;">
+      <label style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);white-space:nowrap;">Show up to</label>
+      <input id="pcutoff_date" type="date" value="${payCutoffDate}" style="flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:3px;font-size:14px;background:var(--paper);color:var(--ink);font-family:inherit;min-height:38px;">
+      <button id="pcutoff_today" style="padding:8px 12px;border:1px solid var(--line);border-radius:3px;background:var(--paper);color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;white-space:nowrap;min-height:38px;">Today</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <button id="pay_view_detail" style="flex:1;padding:9px;border:2px solid var(--ink);border-radius:4px;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;background:${payViewMode==='detail'?'var(--ink)':'var(--panel)'};color:${payViewMode==='detail'?'var(--paper)':'var(--ink)'};">Detail View</button>
+      <button id="pay_view_list" style="flex:1;padding:9px;border:2px solid var(--ink);border-radius:4px;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;background:${payViewMode==='list'?'var(--ink)':'var(--panel)'};color:${payViewMode==='list'?'var(--paper)':'var(--ink)'};">List View</button>
+    </div>`;
+
+    if(filtered.length === 0){
+      html += `<div class="card"><div class="empty">No entries match this filter.</div></div>`;
+      return html;
+    }
+
+    if(payViewMode === 'list'){
+      html += renderPayCheckList(filtered);
+      return html;
+    }
+
+    const groups = {};
+    filtered.forEach(e=>{
+      if(!groups[e.date]) groups[e.date] = [];
+      groups[e.date].push(e);
+    });
+    const dates = Object.keys(groups).sort((a,b)=> b.localeCompare(a));
+
+    dates.forEach(date=>{
+      const dayEntries = groups[date].sort((a,b)=> b.created - a.created);
+      const dObj = new Date(date + 'T00:00:00');
+      const niceDate = dObj.toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+      html += `<div class="card">
+        <h2 class="datehdr">
+          <span>${esc(niceDate)} <span class="daycount">${dayEntries.length} ${dayEntries.length===1?'entry':'entries'}</span></span>
+        </h2>`;
+
+      const tmwEntries = dayEntries.filter(e=>e.type==='TMW');
+      const dhEntries = dayEntries.filter(e=>e.type==='DH');
+
+      dhEntries.forEach(e=>{
+        html += `<div class="logrow">
+          <div class="logrow-head">
+            <span class="badge dh">DH</span> <span class="lognum">${esc(e.dh.number)}</span>
+            <span class="logtruck">Truck ${esc(e.truck)}</span>
+          </div>`;
+        const claimed = e.dh.claimed || calcClaimedValue(e.dh.start, e.dh.end);
+        if(claimed){
+          const dhClaimReal = e.dh.realPay || 'No';
+          const dhClaimFinal = e.dh.finalPaid || 'No';
+          const dhStatus = dhClaimFinal==='Yes'?'paid-final':(dhClaimReal==='Yes'?'paid-real':'');
+          html += `<div class="claimrow ${dhStatus}">
+            <div class="claimrow-top">
+              <span class="claimtime">${esc(claimedDisplay(claimed))}</span>
+              <span class="claimkind">${esc(e.dh.reason)||'Deadhead'}</span>
+              <span class="claimref">Ref: ${esc(e.dh.ref)||'&mdash;'}</span>
+            </div>
+            <div class="refpay">
+              <div class="paystat-field">
+                <label>Real Pay</label>
+                <select data-dh-pay="${e.id}" data-dh-key="realPay">
+                  <option value="No" ${dhClaimReal==='No'?'selected':''}>No</option>
+                  <option value="Yes" ${dhClaimReal==='Yes'?'selected':''}>Yes</option>
+                </select>
+              </div>
+              <div class="paystat-field">
+                <label>Final Paid</label>
+                <select data-dh-pay="${e.id}" data-dh-key="finalPaid">
+                  <option value="No" ${dhClaimFinal==='No'?'selected':''}>No</option>
+                  <option value="Yes" ${dhClaimFinal==='Yes'?'selected':''}>Yes</option>
+                </select>
+              </div>
+              ${dhAllFinalPaid(e) && e.finalPaidAt ? `<span class="autodel">Auto-deletes ${esc(daysLeftLabel(e.finalPaidAt))}</span>` : ''}
+            </div>
+            <button class="delbtn comment-btn ${e.dh.comment&&e.dh.comment.trim()?'has-comment':''}" data-comment-id="${e.id}" data-comment-scope="dh">${e.dh.comment&&e.dh.comment.trim() ? '💬 '+esc(e.dh.comment.length>40?e.dh.comment.slice(0,40)+'&hellip;':e.dh.comment) : '+ Add Comment'}</button>
+          </div>`;
+        }
+        if(e.dh.demurrages && e.dh.demurrages.length){
+          e.dh.demurrages.forEach((d,di)=>{
+            const dStatus = (d.finalPaid||'No')==='Yes'?'paid-final':((d.realPay||'No')==='Yes'?'paid-real':'');
+            html += `<div class="claimrow ${dStatus}">
+              <div class="claimrow-top">
+                <span class="claimtime">${esc(claimedDisplay(d.claimed))||'&mdash;'}</span>
+                <span class="claimkind">${esc(d.reason)||'Demurrage'}</span>
+                <span class="claimref">Ref: ${esc(d.ref)||'&mdash;'}</span>
+              </div>
+              <div class="refpay">
+                <div class="paystat-field">
+                  <label>Real Pay</label>
+                  <select data-demurrage="${e.id}" data-didx="${di}" data-dkey="realPay">
+                    <option value="No" ${(d.realPay||'No')==='No'?'selected':''}>No</option>
+                    <option value="Yes" ${(d.realPay||'No')==='Yes'?'selected':''}>Yes</option>
+                  </select>
+                </div>
+                <div class="paystat-field">
+                  <label>Final Paid</label>
+                  <select data-demurrage="${e.id}" data-didx="${di}" data-dkey="finalPaid">
+                    <option value="No" ${(d.finalPaid||'No')==='No'?'selected':''}>No</option>
+                    <option value="Yes" ${(d.finalPaid||'No')==='Yes'?'selected':''}>Yes</option>
+                  </select>
+                </div>
+              </div>
+              <button class="delbtn comment-btn ${d.comment&&d.comment.trim()?'has-comment':''}" data-comment-id="${e.id}" data-comment-scope="demurrage" data-comment-idx="${di}">${d.comment&&d.comment.trim() ? '💬 '+esc(d.comment.length>40?d.comment.slice(0,40)+'&hellip;':d.comment) : '+ Add Comment'}</button>
+            </div>`;
+          });
+        }
+        html += `</div>`;
+      });
+
+      tmwEntries.forEach(e=>{
+        const badge = `<span class="badge tmw">TMW</span>`;
+        const siteRate = findRate(e.tmw.site);
+        const siteLabel = `<span class="logsite">${esc((e.tmw.site||'').toUpperCase())}${siteRate ? ` &middot; $${esc(siteRate)}` : ''}</span>`;
+        const allWaitFinal = e.tmw.waitings.every(w=>(w.finalPaid||'No')==='Yes');
+        const allWaitReal  = e.tmw.waitings.every(w=>(w.realPay||'No')==='Yes');
+        const tmwAllFinal = e.finalPaid==='Yes' && allWaitFinal;
+        const tmwAllReal  = e.realPay==='Yes' && allWaitReal;
+        const tmwStatusClass = tmwAllFinal ? 'paid-final' : (tmwAllReal ? 'paid-real' : '');
+        html += `<div class="logrow ${tmwStatusClass}">
+          <div class="logrow-head">
+            ${badge} <span class="lognum">${esc(e.tmw.number)}</span>
+            ${siteLabel}
+            <span class="logtruck">Truck ${esc(e.truck)}</span>
+          </div>
+          <div class="paystatus">
+            <div class="paystat-field">
+              <label>Real Pay</label>
+              <select data-pay="${e.id}" data-paykey="realPay">
+                <option value="No" ${e.realPay==='No'?'selected':''}>No</option>
+                <option value="Yes" ${e.realPay==='Yes'?'selected':''}>Yes</option>
+              </select>
+            </div>
+            <div class="paystat-field">
+              <label>Final Paid</label>
+              <select data-pay="${e.id}" data-paykey="finalPaid">
+                <option value="No" ${e.finalPaid==='No'?'selected':''}>No</option>
+                <option value="Yes" ${e.finalPaid==='Yes'?'selected':''}>Yes</option>
+              </select>
+            </div>
+            ${tmwAllFinal && e.finalPaidAt ? `<span class="autodel">Auto-deletes ${esc(daysLeftLabel(e.finalPaidAt))}</span>` : ''}
+          </div>
+          <button class="delbtn comment-btn ${e.comment&&e.comment.trim()?'has-comment':''}" data-comment-id="${e.id}" data-comment-scope="entry">${e.comment&&e.comment.trim() ? '💬 '+esc(e.comment.length>40?e.comment.slice(0,40)+'&hellip;':e.comment) : '+ Add Comment'}</button>`;
+
+        if(e.tmw.waitings.length){
+          e.tmw.waitings.forEach((w,wi)=>{
+            if(w.realPay === undefined) w.realPay = 'No';
+            if(w.finalPaid === undefined) w.finalPaid = 'No';
+            const wStatus = w.finalPaid==='Yes' ? 'paid-final' : (w.realPay==='Yes' ? 'paid-real' : '');
+            html += `<div class="claimrow ${wStatus}">
+              <div class="claimrow-top">
+                <span class="claimtime">${esc(claimedDisplay(w.claimed))||'&mdash;'}</span>
+                <span class="claimkind">${esc(w.kind)||'&mdash;'}</span>
+                <span class="claimref">Ref: ${esc(w.ref)||'&mdash;'}</span>
+              </div>
+              <div class="refpay">
+                <div class="paystat-field">
+                  <label>Real Pay</label>
+                  <select data-refpay="${e.id}" data-refscope="tmw" data-refidx="${wi}" data-refkey="realPay">
+                    <option value="No" ${w.realPay==='No'?'selected':''}>No</option>
+                    <option value="Yes" ${w.realPay==='Yes'?'selected':''}>Yes</option>
+                  </select>
+                </div>
+                <div class="paystat-field">
+                  <label>Final Paid</label>
+                  <select data-refpay="${e.id}" data-refscope="tmw" data-refidx="${wi}" data-refkey="finalPaid">
+                    <option value="No" ${w.finalPaid==='No'?'selected':''}>No</option>
+                    <option value="Yes" ${w.finalPaid==='Yes'?'selected':''}>Yes</option>
+                  </select>
+                </div>
+              </div>
+              <button class="delbtn comment-btn ${w.comment&&w.comment.trim()?'has-comment':''}" data-comment-id="${e.id}" data-comment-scope="waiting" data-comment-idx="${wi}">${w.comment&&w.comment.trim() ? '💬 '+esc(w.comment.length>40?w.comment.slice(0,40)+'&hellip;':w.comment) : '+ Add Comment'}</button>
+            </div>`;
+          });
+        }
+        html += `</div>`;
+      });
+
+      html += `</div>`;
+    });
+
+    return html;
+  }
+
+  function renderSavingFocus(){
+    const active = document.activeElement;
+    if(active && active.id && app.contains(active)){
+      _focusId = active.id;
+      _focusCursor = (active.selectionStart !== undefined) ? active.selectionStart : null;
+    }
+    render();
+  }
+
+  function renderApp(){
+    const app = document.getElementById('app');
+    if(!currentUser){
+      app.innerHTML = renderAuthScreen();
+      bindAuthScreen();
+      return;
+    }
+    render();
+  }
+
+  function render(){
+    const app = document.getElementById('app');
+    if(!loaded){
+      app.innerHTML = `<div class="empty" style="padding:40px;text-align:center;">Loading&hellip;</div>`;
+      return;
+    }
+    app.innerHTML = `
+      <div class="hdr">
+        <h1>Daily Work Log</h1>
+        <div class="sub">TMW / Deadhead Tracker</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap;">
+          <span style="font-size:12px;color:var(--muted);font-weight:600;display:flex;align-items:center;gap:6px;">
+            <span id="conn_indicator" title="${firebaseReady && !currentUser?.isGuest ? 'Connected to server' : currentUser?.isGuest ? 'Guest — local only' : 'Offline'}" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${firebaseReady && !currentUser?.isGuest ? '#3cba54' : currentUser?.isGuest ? '#f4a400' : '#e53935'};box-shadow:0 0 0 2px ${firebaseReady && !currentUser?.isGuest ? 'rgba(60,186,84,.25)' : currentUser?.isGuest ? 'rgba(244,164,0,.25)' : 'rgba(229,57,53,.25)'};flex-shrink:0;" class="${firebaseReady && !currentUser?.isGuest ? 'conn-online' : ''}"></span>
+            ${currentUser.isGuest ? '👤 Guest' : '👤 '+esc(currentUser.displayName)}
+          </span>
+          <button id="btn_logout" style="font-size:11px;color:var(--muted);background:none;border:1px solid var(--line);border-radius:4px;padding:3px 8px;cursor:pointer;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">${currentUser.isGuest ? 'Sign In' : 'Sign Out'}</button>
+        </div>
+      </div>
+      <div class="tabs">
+        <div class="tab ${view==='entry'?'active':''}" id="tab_entry">New Entry</div>
+        <div class="tab ${view==='log'?'active':''}" id="tab_log">View Logs</div>
+        <div class="tab ${view==='fuel'?'active':''}" id="tab_fuel">Fuel Pins</div>
+        <div class="tab ${view==='paycheck'?'active':''}" id="tab_paycheck">Pay Check</div>
+        <div class="tab ${view==='rates'?'active':''}" id="tab_rates">Trip Rates</div>
+        <div class="tab ${view==='deleted'?'active':''}" id="tab_deleted">Trash${deletedEntries.length?` (${deletedEntries.length})`:''}</div>
+        <div class="tab ${view==='data'?'active':''}" id="tab_data">Data</div>
+      </div>
+
+      ${view==='entry' ? renderEntryForm() : view==='rates' ? renderRates() : view==='fuel' ? renderFuelPins() : view==='deleted' ? renderDeleted() : view==='data' ? renderData() : view==='paycheck' ? renderPayCheck() : renderLog()}
+    `;
+    bindEvents();
+    const appEl = document.getElementById('app');
+    attach24hrInputs(appEl);
+    document.getElementById('btn_logout')?.addEventListener('click', ()=>{
+      if(currentUser?.isGuest){
+        // Guest just goes to login screen
+        clearSession();
+        currentUser = null;
+        authScreen = 'login';
+        authError = '';
+        renderApp();
+        return;
+      }
+      if(!confirm('Sign out of this device?')) return;
+      clearSession();
+      currentUser = null;
+      authScreen = 'login';
+      authError = '';
+      renderApp();
+    });
+    if(_focusId){
+      const el = app.querySelector('#'+_focusId);
+      if(el){
+        el.focus();
+        if(_focusCursor !== null && el.setSelectionRange){
+          try{ el.setSelectionRange(_focusCursor, _focusCursor); }catch(e){}
+        }
+      }
+      _focusId = null; _focusCursor = null;
+    }
+    if(commentModal) showCommentModal();
+  }
+
+  function bindEvents(){
+    const app = document.getElementById('app');
+    const $ = sel => app.querySelector(sel);
+    const tabEntry = $('#tab_entry'), tabLog = $('#tab_log'), tabPaycheck = $('#tab_paycheck'), tabRates = $('#tab_rates'), tabFuel = $('#tab_fuel'), tabDeleted = $('#tab_deleted'), tabData = $('#tab_data');
+    if(tabEntry) tabEntry.onclick = ()=>{ editingId = null; form = blankForm(); view='entry'; render(); };
+    if(tabLog) tabLog.onclick = ()=>{ view='log'; render(); };
+    if(tabPaycheck) tabPaycheck.onclick = ()=>{ view='paycheck'; render(); };
+    if(tabRates) tabRates.onclick = ()=>{ view='rates'; render(); };
+    if(tabFuel) tabFuel.onclick = ()=>{ editingFuelId=null; fuelForm={truck:'',pins:['']}; view='fuel'; render(); };
+    if(tabDeleted) tabDeleted.onclick = ()=>{ view='deleted'; render(); };
+    if(tabData) tabData.onclick = ()=>{ view='data'; render(); };
+
+    if(view === 'entry'){
+      const fDate = $('#f_date'), fTruck = $('#f_truck');
+      if(fDate) fDate.oninput = e=>{
+        form.date = e.target.value;
+        if(!editingId) form.truck = lastTruckForDate(form.date);
+        render();
+      };
+      if(fTruck) fTruck.oninput = e=> form.truck = e.target.value;
+
+      const pickDh = $('#pick_dh'), pickTmw = $('#pick_tmw');
+      if(pickDh) pickDh.onclick = ()=> setType('DH');
+      if(pickTmw) pickTmw.onclick = ()=> setType('TMW');
+
+      if(form.type === 'DH'){
+        ['number','ref'].forEach(k=>{
+          const el = $('#dh_'+k);
+          if(el) el.oninput = e=>{
+            form.dh[k] = e.target.value;
+            if(k === 'number'){
+              let flag = app.querySelector('.num-flag');
+              const bad = e.target.value && !/^\d{7}$/.test(e.target.value.trim());
+              if(bad && !flag){
+                flag = document.createElement('div');
+                flag.className = 'num-flag';
+                flag.textContent = '⚠ Must be exactly 7 digits';
+                el.closest('.row').after(flag);
+              } else if(!bad && flag){
+                flag.remove();
+              }
+            }
+          };
+        });
+        const reasonEl = $('#dh_reason');
+        if(reasonEl){
+          reasonEl.oninput = e=>{
+            form.dh.reason = e.target.value;
+            e.target.style.height = '44px';
+            e.target.style.height = e.target.scrollHeight + 'px';
+          };
+          reasonEl.style.height = '44px';
+          if(reasonEl.scrollHeight > 44) reasonEl.style.height = reasonEl.scrollHeight + 'px';
+        }
+        ['start','end'].forEach(k=>{
+          const el = $('#dh_'+k);
+          if(el) el.oninput = e=>{
+            form.dh[k] = e.target.value;
+            // Only re-render to update claimed time preview when time is complete
+            if(e.target.value.length === 5) renderSavingFocus();
+            else {
+              // Just update the claimed display without full re-render
+              const disp = app.querySelector('.claimed-auto');
+              if(disp) disp.textContent = calcClaimedDecimal(form.dh.start, form.dh.end) || 'Enter start & end time above';
+            }
+          };
+        });
+      }
+
+      if(form.type === 'TMW'){
+        const num = $('#tmw_number'), site = $('#tmw_site');
+        if(num) num.oninput = e=>{
+          form.tmw.number = e.target.value;
+          let flag = app.querySelector('.num-flag');
+          const bad = e.target.value && !/^\d{7}$/.test(e.target.value.trim());
+          if(bad && !flag){
+            flag = document.createElement('div');
+            flag.className = 'num-flag';
+            flag.textContent = '⚠ Must be exactly 7 digits';
+            num.closest('.row').after(flag);
+          } else if(!bad && flag){
+            flag.remove();
+          }
+        };
+        if(site){
+          site.oninput = e=>{ form.tmw.site = e.target.value.toUpperCase(); e.target.value = form.tmw.site; };
+          site.onblur = ()=> renderSavingFocus();
+        }
+
+        const wNo = $('#wait_no'), wYes = $('#wait_yes');
+        if(wNo) wNo.onclick = ()=>{ form.tmw.anyWaiting = false; form.tmw.waitings = []; render(); };
+        if(wYes) wYes.onclick = ()=>{
+          form.tmw.anyWaiting = true;
+          if(form.tmw.waitings.length === 0) form.tmw.waitings.push(blankWaiting());
+          render();
+        };
+
+        app.querySelectorAll('[data-w]').forEach(el=>{
+          const handler = e=>{
+            const idx = +e.target.dataset.w, key = e.target.dataset.k;
+            form.tmw.waitings[idx][key] = e.target.value;
+            // When start or end time is complete, re-render to auto-calc claimed time
+            if((key === 'start' || key === 'end') && e.target.value.length === 5){
+              // Clear manual override so auto-calc takes over
+              form.tmw.waitings[idx]._autoCalc = null;
+              renderSavingFocus();
+            }
+          };
+          el.oninput = handler;
+          el.onchange = handler;
+        });
+        app.querySelectorAll('.removewait').forEach(btn=>{
+          btn.onclick = e=>{
+            const idx = +e.currentTarget.dataset.idx;
+            form.tmw.waitings.splice(idx,1);
+            render();
+          };
+        });
+        const addWait = $('#add_waiting');
+        if(addWait) addWait.onclick = ()=>{ form.tmw.waitings.push(blankWaiting()); render(); };
+      }
+
+      const saveBtn = $('#save_entry'), resetBtn = $('#reset_entry'), saveAnotherBtn = $('#save_and_another'), saveAllBtn = $('#save_all_loads');
+      if(saveBtn) saveBtn.onclick = (!editingId && form.type) ? onSaveAndAnother : onSave;
+      if(saveAnotherBtn) saveAnotherBtn.onclick = onSaveAndAnother;
+      if(saveAllBtn) saveAllBtn.onclick = onSaveAllLoads;
+      app.querySelectorAll('[data-remove-pending]').forEach(btn => {
+        btn.onclick = e => {
+          const idx = +e.currentTarget.dataset.removePending;
+          pendingLoads.splice(idx, 1);
+          render();
+        };
+      });
+      if(resetBtn) resetBtn.onclick = ()=>{
+        const wasEditing = !!editingId;
+        editingId = null;
+        pendingLoads = [];
+        form = blankForm();
+        if(wasEditing) view = 'log';
+        render();
+      };
+    } else if(view === 'log') {
+      app.querySelector('#log_date_filter')?.addEventListener('change', e=>{ logDateFilter=e.target.value; render(); });
+      app.querySelector('#log_date_today')?.addEventListener('click', ()=>{ logDateFilter=todayMST(); render(); });
+      app.querySelector('#log_date_clear')?.addEventListener('click', ()=>{ logDateFilter=''; render(); });
+
+      app.querySelectorAll('[data-edit]').forEach(btn=>{
+        btn.onclick = e=>{
+          const id = e.currentTarget.dataset.edit;
+          const entry = entries.find(en=>en.id === id);
+          if(entry) loadIntoForm(entry);
+        };
+      });
+      app.querySelectorAll('[data-del]').forEach(btn=>{
+        btn.onclick = e=>{
+          const id = e.currentTarget.dataset.del;
+          confirmModal('Move this entry to Trash? It will be permanently deleted after 30 days.', ()=>{
+            const idx = entries.findIndex(en=>en.id === id);
+            if(idx === -1) return;
+            const removed = {...entries[idx], deletedAt: Date.now(), deleteReason: 'user'};
+            entries.splice(idx, 1);
+            deletedEntries.unshift(removed);
+            saveEntries();
+            saveDeletedEntries();
+            render();
+            undoToast('Moved to Trash', ()=>{
+              deletedEntries = deletedEntries.filter(e=>e.id !== removed.id);
+              entries.splice(idx, 0, removed);
+              saveEntries();
+              saveDeletedEntries();
+              render();
+            });
+          });
+        };
+      });
+
+      // demurrage bindings (Add/Edit/Delete still live in View Logs; pay status moved to Pay Check)
+      app.querySelectorAll('[data-add-demurrage]').forEach(btn=>{
+        btn.onclick = e=>{
+          const id = e.currentTarget.dataset.addDemurrage;
+          demurrageForm = { entryId:id, editIdx:null, ref:'', start:'', end:'', claimed:'', reason:'' };
+          showDemurrageModal();
+        };
+      });
+      app.querySelectorAll('[data-edit-demurrage]').forEach(btn=>{
+        btn.onclick = e=>{
+          const id = e.currentTarget.dataset.editDemurrage, di = +e.currentTarget.dataset.editDemurrageIdx;
+          const entry = entries.find(en=>en.id===id);
+          if(!entry || !entry.dh.demurrages[di]) return;
+          const d = entry.dh.demurrages[di];
+          demurrageForm = { entryId:id, editIdx:di, ref:d.ref||'', start:d.start||'', end:d.end||'', claimed:d.claimed||'', reason:d.reason||'' };
+          showDemurrageModal();
+        };
+      });
+      app.querySelectorAll('[data-del-demurrage]').forEach(btn=>{
+        btn.onclick = e=>{
+          const id = e.currentTarget.dataset.delDemurrage, di = +e.currentTarget.dataset.delDemurrageIdx;
+          confirmModal('Delete this demurrage?', ()=>{
+            const entry = entries.find(en=>en.id===id);
+            if(!entry) return;
+            entry.dh.demurrages.splice(di,1);
+            saveEntries();
+            render();
+          });
+        };
+      });
+    } else if(view === 'paycheck'){
+      app.querySelector('#pfilter_all')?.addEventListener('click', ()=>{ payFilter='all'; payCutoffDate=todayMST(); render(); });
+      app.querySelector('#pfilter_real')?.addEventListener('click', ()=>{ payFilter = payFilter==='real_pending'?'all':'real_pending'; payCutoffDate=todayMST(); render(); });
+      app.querySelector('#pfilter_final')?.addEventListener('click', ()=>{ payFilter = payFilter==='final_pending'?'all':'final_pending'; payCutoffDate=todayMST(); render(); });
+      app.querySelector('#pcutoff_date')?.addEventListener('change', e=>{ payCutoffDate=e.target.value; render(); });
+      app.querySelector('#pcutoff_today')?.addEventListener('click', ()=>{ payCutoffDate=todayMST(); render(); });
+      app.querySelector('#pay_view_detail')?.addEventListener('click', ()=>{ payViewMode='detail'; render(); });
+      app.querySelector('#pay_view_list')?.addEventListener('click', ()=>{ payViewMode='list'; render(); });
+
+      app.querySelectorAll('[data-pay]').forEach(sel=>{
+        sel.onchange = e=>{
+          const id = e.target.dataset.pay, key = e.target.dataset.paykey;
+          const entry = entries.find(en=>en.id === id);
+          if(!entry) return;
+          entry[key] = e.target.value;
+          if(entry.type === 'DH' && entry.dh){ entry.dh[key] = e.target.value; }
+          if(key === 'finalPaid'){
+            if(entry.type === 'DH'){
+              entry.finalPaidAt = dhAllFinalPaid(entry) ? Date.now() : null;
+            } else {
+              entry.finalPaidAt = tmwAllFinalPaid(entry) ? Date.now() : null;
+            }
+          }
+          saveEntries();
+          toast('Updated');
+          render();
+        };
+      });
+      app.querySelectorAll('[data-refpay]').forEach(sel=>{
+        sel.onchange = e=>{
+          const id = e.target.dataset.refpay, scope = e.target.dataset.refscope, key = e.target.dataset.refkey;
+          const entry = entries.find(en=>en.id === id);
+          if(!entry) return;
+          if(scope === 'dh'){
+            entry.dh[key] = e.target.value;
+            if(key === 'finalPaid'){ entry.finalPaidAt = dhAllFinalPaid(entry) ? Date.now() : null; }
+          } else if(scope === 'tmw'){
+            const idx = +e.target.dataset.refidx;
+            entry.tmw.waitings[idx][key] = e.target.value;
+            if(key === 'finalPaid'){ entry.finalPaidAt = tmwAllFinalPaid(entry) ? Date.now() : null; }
+          }
+          saveEntries();
+          toast('Updated');
+          render();
+        };
+      });
+      app.querySelectorAll('[data-dh-pay]').forEach(sel=>{
+        sel.onchange = e=>{
+          const id = e.target.dataset.dhPay, key = e.target.dataset.dhKey;
+          const entry = entries.find(en=>en.id === id);
+          if(!entry || !entry.dh) return;
+          entry.dh[key] = e.target.value;
+          entry[key] = e.target.value;
+          if(key === 'finalPaid'){
+            entry.finalPaidAt = dhAllFinalPaid(entry) ? Date.now() : null;
+          }
+          saveEntries();
+          toast('Updated');
+          render();
+        };
+      });
+      app.querySelectorAll('[data-demurrage]').forEach(sel=>{
+        sel.onchange = e=>{
+          const id = e.target.dataset.demurrage, di = +e.target.dataset.didx, key = e.target.dataset.dkey;
+          const entry = entries.find(en=>en.id===id);
+          if(!entry || !entry.dh.demurrages) return;
+          entry.dh.demurrages[di][key] = e.target.value;
+          if(key === 'finalPaid'){
+            entry.finalPaidAt = dhAllFinalPaid(entry) ? Date.now() : null;
+          }
+          saveEntries();
+          toast('Updated');
+          render();
+        };
+      });
+      app.querySelectorAll('[data-comment-id]').forEach(btn=>{
+        btn.onclick = e=>{
+          const id = e.currentTarget.dataset.commentId;
+          const scope = e.currentTarget.dataset.commentScope;
+          const idx = e.currentTarget.dataset.commentIdx !== undefined ? +e.currentTarget.dataset.commentIdx : null;
+          const entry = entries.find(en=>en.id===id);
+          if(!entry) return;
+          let current = '';
+          if(scope === 'entry') current = entry.comment || '';
+          else if(scope === 'dh') current = entry.dh.comment || '';
+          else if(scope === 'demurrage') current = (entry.dh.demurrages[idx]||{}).comment || '';
+          else if(scope === 'waiting') current = (entry.tmw.waitings[idx]||{}).comment || '';
+          commentModal = { id, scope, idx, text: current };
+          render();
+        };
+      });
+    } else if(view === 'rates'){
+      const rSite = $('#rate_site'), rRate = $('#rate_value');
+      if(rSite){ rSite.oninput = e=>{ rateForm.site = e.target.value.toUpperCase(); e.target.value = rateForm.site; }; }
+      if(rRate) rRate.oninput = e=> rateForm.rate = e.target.value;
+
+      const saveRateBtn = $('#save_rate');
+      if(saveRateBtn) saveRateBtn.onclick = onSaveRate;
+
+      // Inline edit inputs
+      const inlineSite = $('#inline_rate_site'), inlineRate = $('#inline_rate_value');
+      if(inlineSite){ inlineSite.oninput = e=>{ rateForm.site = e.target.value.toUpperCase(); e.target.value = rateForm.site; }; }
+      if(inlineRate) inlineRate.oninput = e=> rateForm.rate = e.target.value;
+      const inlineSaveBtn = $('#inline_save_rate');
+      if(inlineSaveBtn) inlineSaveBtn.onclick = onSaveRate;
+      const inlineCancelBtn = $('#inline_cancel_rate');
+      if(inlineCancelBtn) inlineCancelBtn.onclick = ()=>{ editingRateId=null; rateForm={site:'',rate:''}; render(); };
+
+      app.querySelectorAll('[data-edit-rate]').forEach(btn=>{
+        btn.onclick = e=>{
+          const id = e.currentTarget.dataset.editRate;
+          const r = rates.find(x=>x.id === id);
+          if(r){ editingRateId = id; rateForm = { site: r.site, rate: r.rate }; render(); }
+        };
+      });
+      app.querySelectorAll('[data-del-rate]').forEach(btn=>{
+        btn.onclick = e=>{
+          const id = e.currentTarget.dataset.delRate;
+          confirmModal('Delete this site rate?', ()=>{
+            const idx = rates.findIndex(r=>r.id === id);
+            if(idx === -1) return;
+            const removed = rates[idx];
+            rates.splice(idx, 1);
+            saveRates();
+            render();
+            undoToast('Rate deleted', ()=>{
+              rates.splice(idx, 0, removed);
+              saveRates();
+              render();
+            });
+          });
+        };
+      });
+    } else if(view === 'fuel'){
+      const fTruck = $('#fuel_truck');
+      if(fTruck) fTruck.oninput = e=> fuelForm.truck = e.target.value;
+
+      app.querySelectorAll('[data-pin-input]').forEach(inp=>{
+        inp.oninput = e=>{
+          const i = +e.target.dataset.pinInput;
+          fuelForm.pins[i] = e.target.value;
+        };
+      });
+
+      const addPinBtn = $('#add_pin');
+      if(addPinBtn) addPinBtn.onclick = ()=>{ fuelForm.pins.push(''); render(); };
+
+      app.querySelectorAll('[data-remove-pin]').forEach(btn=>{
+        btn.onclick = e=>{
+          const i = +e.currentTarget.dataset.removePin;
+          fuelForm.pins.splice(i,1);
+          if(fuelForm.pins.length === 0) fuelForm.pins = [''];
+          render();
+        };
+      });
+
+      const saveFuelBtn = $('#save_fuel');
+      if(saveFuelBtn) saveFuelBtn.onclick = onSaveFuel;
+
+      const cancelFuelBtn = $('#cancel_fuel');
+      if(cancelFuelBtn) cancelFuelBtn.onclick = ()=>{ editingFuelId=null; fuelForm={truck:'',pins:['']}; render(); };
+
+      app.querySelectorAll('[data-edit-fuel]').forEach(btn=>{
+        btn.onclick = e=>{
+          const id = e.currentTarget.dataset.editFuel;
+          const f = fuelPins.find(x=>x.id===id);
+          if(f){ editingFuelId=id; fuelForm={truck:f.truck, pins:[...f.pins]}; render(); }
+        };
+      });
+
+      app.querySelectorAll('[data-del-fuel]').forEach(btn=>{
+        btn.onclick = e=>{
+          const id = e.currentTarget.dataset.delFuel;
+          confirmModal('Delete this truck\'s fuel pins?', ()=>{
+            const idx = fuelPins.findIndex(f=>f.id===id);
+            if(idx===-1) return;
+            const removed = fuelPins[idx];
+            fuelPins.splice(idx,1);
+            saveFuelPins();
+            render();
+            undoToast('Fuel pins deleted', ()=>{ fuelPins.splice(idx,0,removed); saveFuelPins(); render(); });
+          });
+        };
+      });
+    } else if(view === 'deleted'){
+      app.querySelector('#trash_tab_auto')?.addEventListener('click', ()=>{ trashSubTab='auto'; render(); });
+      app.querySelector('#trash_tab_user')?.addEventListener('click', ()=>{ trashSubTab='user'; render(); });
+      app.querySelectorAll('[data-restore]').forEach(btn=>{
+        btn.onclick = e=>{
+          const id = e.currentTarget.dataset.restore;
+          const idx = deletedEntries.findIndex(en=>en.id===id);
+          if(idx===-1) return;
+          const entry = {...deletedEntries[idx]};
+          delete entry.deletedAt;
+          delete entry.deleteReason;
+          deletedEntries.splice(idx,1);
+          entries.push(entry);
+          saveEntries();
+          saveDeletedEntries();
+          toast('Entry restored');
+          render();
+        };
+      });
+      app.querySelectorAll('[data-perm-del]').forEach(btn=>{
+        btn.onclick = e=>{
+          const id = e.currentTarget.dataset.permDel;
+          confirmModal('Permanently delete this entry? This cannot be undone.', ()=>{
+            deletedEntries = deletedEntries.filter(en=>en.id!==id);
+            saveDeletedEntries();
+            render();
+          });
+        };
+      });
+      const emptyTrashBtn = $('#empty_trash');
+      if(emptyTrashBtn) emptyTrashBtn.onclick = ()=>{
+        const count = deletedEntries.filter(e=>e.deleteReason===trashSubTab).length;
+        const label = trashSubTab==='auto' ? 'Auto-Deleted After Pay' : 'User Deleted';
+        confirmModal(`Permanently delete all ${count} items in "${label}"?`, ()=>{
+          deletedEntries = deletedEntries.filter(e=>e.deleteReason!==trashSubTab);
+          saveDeletedEntries();
+          render();
+        });
+      };
+    }
+    if(view==='data'){
+      const exportAllBtn = $('#export_all');
+      if(exportAllBtn) exportAllBtn.onclick = exportAll;
+      const importAllFile = $('#import_all_file');
+      if(importAllFile) importAllFile.onchange = e=>{ const f=e.target.files[0]; if(f) importAll(f); e.target.value=''; };
+
+      const ghSave = $('#gh_save_settings');
+      if(ghSave) ghSave.onclick = ()=>{
+        const u = $('#gh_user')?.value.trim();
+        const r = $('#gh_repo')?.value.trim();
+        const t = $('#gh_token')?.value.trim();
+        if(!u||!r||!t){ toast('Fill in all three GitHub fields'); return; }
+        localStorage.setItem('worklog:gh_user', u);
+        localStorage.setItem('worklog:gh_repo', r);
+        localStorage.setItem('worklog:gh_token', t);
+        _ghSha = null; // reset SHA cache on credential change
+        toast('GitHub settings saved');
+        render();
+      };
+      const ghBackup = $('#gh_backup');
+      if(ghBackup) ghBackup.onclick = githubBackup;
+      const ghRestore = $('#gh_restore');
+      if(ghRestore) ghRestore.onclick = githubRestore;
+    }
+  }
+
+  function renderDeleted(){
+    purgeOldDeleted();
+    // Backward compatibility: entries deleted before this feature existed have no deleteReason
+    deletedEntries.forEach(e=>{ if(!e.deleteReason) e.deleteReason = 'user'; });
+
+    const autoCount = deletedEntries.filter(e=>e.deleteReason==='auto').length;
+    const userCount = deletedEntries.filter(e=>e.deleteReason==='user').length;
+
+    let html = `<div class="trash-info">Items are permanently deleted 30 days after being moved to Trash.</div>`;
+    html += `<div class="tabs" style="margin-bottom:14px;">
+      <div class="tab ${trashSubTab==='auto'?'active':''}" id="trash_tab_auto">Auto-Deleted After Pay${autoCount?` (${autoCount})`:''}</div>
+      <div class="tab ${trashSubTab==='user'?'active':''}" id="trash_tab_user">User Deleted${userCount?` (${userCount})`:''}</div>
+    </div>`;
+
+    const visible = deletedEntries.filter(e=>e.deleteReason === trashSubTab);
+
+    if(!visible.length){
+      html += `<div class="card"><div class="empty">${trashSubTab==='auto' ? 'No auto-deleted entries.' : 'No user-deleted entries.'}</div></div>`;
+      return html;
+    }
+
+    html += `<button class="btn ghost" id="empty_trash" style="width:100%;margin-bottom:14px;color:var(--rust);border-color:var(--rust);">Empty This Tab (${visible.length} items)</button>`;
+
+    const sorted = [...visible].sort((a,b)=>b.deletedAt-a.deletedAt);
+    const groups = {};
+    sorted.forEach(e=>{ if(!groups[e.date]) groups[e.date]=[]; groups[e.date].push(e); });
+
+    Object.keys(groups).sort((a,b)=>b.localeCompare(a)).forEach(date=>{
+      const dObj = new Date(date+'T00:00:00');
+      const niceDate = dObj.toLocaleDateString(undefined,{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+      html += `<div class="card"><h2 class="datehdr"><span>${esc(niceDate)}</span></h2>`;
+      groups[date].forEach(e=>{
+        const badge = e.type==='DH'?`<span class="badge dh">DH</span>`:`<span class="badge tmw">TMW</span>`;
+        const number = e.type==='DH'?e.dh.number:e.tmw.number;
+        const site = e.type==='TMW'?`<span class="logsite">${esc((e.tmw.site||'').toUpperCase())}</span>`:'';
+        const countdown = daysLeftDeleteLabel(e.deletedAt);
+        const urgent = (THIRTY_DAYS_MS-(Date.now()-e.deletedAt)) < 3*24*60*60*1000;
+        html += `<div class="logrow">
+          <div class="logrow-head">
+            ${badge} <span class="lognum">${esc(number)}</span>
+            ${site}
+            <span class="logtruck">Truck ${esc(e.truck)}</span>
+          </div>
+          <div class="trash-countdown ${urgent?'urgent':''}">${esc(countdown)}</div>`;
+
+        if(e.type==='DH' && e.dh.claimed){
+          html += `<div class="claimrow">
+            <div class="claimrow-top">
+              <span class="claimtime">${esc(claimedDisplay(e.dh.claimed))}</span>
+              <span class="claimkind">${esc(e.dh.reason)||'Deadhead'}</span>
+              <span class="claimref">Ref: ${esc(e.dh.ref)||'&mdash;'}</span>
+            </div>
+          </div>`;
+        }
+        if(e.type==='TMW' && e.tmw.waitings.length){
+          e.tmw.waitings.forEach(w=>{
+            html += `<div class="claimrow">
+              <div class="claimrow-top">
+                <span class="claimtime">${esc(claimedDisplay(w.claimed))||'&mdash;'}</span>
+                <span class="claimkind">${esc(w.kind)||'&mdash;'}</span>
+                <span class="claimref">Ref: ${esc(w.ref)||'&mdash;'}</span>
+              </div>
+            </div>`;
+          });
+        }
+        html += `<div class="trash-actions">
+          <button class="btn ghost" style="font-size:12px;padding:7px 12px;" data-restore="${e.id}">Restore</button>
+          <button class="delbtn" data-perm-del="${e.id}">Delete Permanently</button>
+        </div></div>`;
+      });
+      html += `</div>`;
+    });
+    return html;
+  }
+
+  function onSaveFuel(){
+    const truck = fuelForm.truck.trim();
+    const pins = fuelForm.pins.map(p=>p.trim()).filter(p=>p);
+    if(!truck){ toast('Enter a truck number'); return; }
+    if(!pins.length){ toast('Enter at least one fuel pin'); return; }
+    const dup = fuelPins.find(f=>f.truck.trim().toLowerCase()===truck.toLowerCase() && f.id!==editingFuelId);
+    if(dup){ toast('This truck already has fuel pins \u2014 edit it instead'); return; }
+    if(editingFuelId){
+      const f = fuelPins.find(x=>x.id===editingFuelId);
+      if(f){ f.truck=truck; f.pins=pins; }
+    } else {
+      fuelPins.push({ id:'fp_'+Date.now()+'_'+Math.random().toString(36).slice(2,7), truck, pins });
+    }
+    saveFuelPins();
+    toast(editingFuelId ? 'Fuel pins updated' : 'Fuel pins saved');
+    editingFuelId=null;
+    fuelForm={truck:'',pins:['']};
+    render();
+  }
+
+  function renderFuelPins(){
+    let adminBanner = '';
+    if(isAdmin()){
+      adminBanner = `<div class="card" style="background:#eaf1ea;border:1px solid var(--moss);margin-bottom:14px;"><div style="font-size:12px;font-weight:700;color:var(--moss);">👑 Admin mode</div><div style="font-size:12px;color:var(--ink);margin-top:4px;">Changes you make here are published for every user.</div></div>`;
+    } else {
+      adminBanner = `<div class="card" style="background:#f4f2ea;border:1px solid var(--line);margin-bottom:14px;"><div style="font-size:12px;color:var(--muted);">Fuel pins shown here include the shared list kept up to date by the admin account. Anything you add or edit below is saved to your account only.</div></div>`;
+    }
+    // Find last used truck from entries
+    const lastTruck = (()=>{
+      if(!entries.length) return null;
+      const sorted = [...entries].sort((a,b)=> b.created - a.created);
+      return sorted[0].truck;
+    })();
+    const lastTruckPin = lastTruck ? fuelPins.find(fp => fp.truck.trim().toLowerCase() === lastTruck.trim().toLowerCase()) : null;
+
+    let html = adminBanner;
+    if(lastTruck){
+      html += `<div class="card" style="margin-bottom:14px;">
+        <h2 style="margin-bottom:10px;">Last Used Truck</h2>
+        <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center;">
+          <div>
+            <div class="fuel-pin-label">Truck Last Used</div>
+            <div style="font-size:20px;font-weight:800;color:var(--ink);margin-top:2px;">${esc(lastTruck)}</div>
+          </div>
+          <div>
+            <div class="fuel-pin-label">Fuel Pin${lastTruckPin && lastTruckPin.pins.filter(Boolean).length>1?'s':''}</div>
+            ${lastTruckPin && lastTruckPin.pins.filter(Boolean).length
+              ? lastTruckPin.pins.filter(Boolean).map(p=>`<div style="font-size:20px;font-weight:800;color:var(--amber);margin-top:2px;letter-spacing:.06em;">${esc(p)}</div>`).join('')
+              : `<div style="font-size:14px;color:var(--muted);margin-top:4px;">No pin saved for this truck</div>`
+            }
+          </div>
+        </div>
+      </div>`;
+    }
+
+    if(!editingFuelId){
+      html += `<div class="card"><h2>Add Fuel Pins</h2>`;
+      html += `<div class="row single">`;
+      html += field('Truck Number', `<input type="text" id="fuel_truck" placeholder="e.g. 1320" value="${esc(fuelForm.truck)}">`);
+      html += `</div>`;
+      fuelForm.pins.forEach((pin,i)=>{
+        html += `<div class="row single fuel-pin-row">
+          <div class="field" style="position:relative;">
+            <label>Pin ${i+1}</label>
+            <input type="text" data-pin-input="${i}" placeholder="Enter fuel pin" value="${esc(pin)}" style="padding-right:${fuelForm.pins.length>1?'50px':'12px'}">
+            ${fuelForm.pins.length>1 ? `<button class="pin-remove" data-remove-pin="${i}">&times;</button>` : ''}
+          </div>
+        </div>`;
+      });
+      html += `<button class="btn add" id="add_pin" style="margin-bottom:12px;">+ Add Another Pin</button>`;
+      html += `<div class="btnrow">
+        <button class="btn primary" id="save_fuel">Save Fuel Pins</button>
+      </div></div>`;
+    }
+
+    if(!fuelPins.length){
+      html += `<div class="card"><div class="empty">No fuel pins saved yet.</div></div>`;
+      return html;
+    }
+
+    const sorted = [...fuelPins].sort((a,b)=>a.truck.localeCompare(b.truck,undefined,{numeric:true}));
+
+    // Find max pins count for column headers
+    const maxPins = Math.max(...sorted.map(f=>f.pins.filter(Boolean).length), 1);
+
+    // If editing, show inline edit form above table
+    if(editingFuelId){
+      const f = sorted.find(x=>x.id===editingFuelId);
+      html += `<div class="card" style="margin-bottom:14px;"><h2>Edit Fuel Pins — Truck ${esc(fuelForm.truck)}</h2>`;
+      fuelForm.pins.forEach((pin,i)=>{
+        html += `<div class="row single fuel-pin-row" style="margin-bottom:8px;">
+          <div class="field" style="position:relative;">
+            <label>Pin ${i+1}</label>
+            <input type="text" data-pin-input="${i}" placeholder="Enter fuel pin" value="${esc(pin)}" style="padding-right:${fuelForm.pins.length>1?'50px':'12px'}">
+            ${fuelForm.pins.length>1 ? `<button class="pin-remove" data-remove-pin="${i}">&times;</button>` : ''}
+          </div>
+        </div>`;
+      });
+      html += `<button class="btn add" id="add_pin" style="margin-bottom:10px;font-size:12px;padding:8px 12px;">+ Add Pin</button>`;
+      html += `<div class="btnrow" style="margin-top:0;">
+        <button class="btn primary" id="save_fuel" style="flex:none;padding:10px 18px;">Update</button>
+        <button class="btn ghost" id="cancel_fuel">Cancel</button>
+      </div></div>`;
+    }
+
+    // Excel-style table
+    html += `<div class="card" style="padding:0;overflow:hidden;">
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:320px;">
+          <thead>
+            <tr style="background:var(--ink);">
+              <th style="text-align:left;padding:10px 12px;color:var(--paper);font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;border-right:1px solid rgba(255,255,255,.15);width:80px;">#</th>
+              <th style="text-align:left;padding:10px 12px;color:var(--paper);font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;border-right:1px solid rgba(255,255,255,.15);">Truck</th>
+              ${Array.from({length:maxPins},(_,i)=>`<th style="text-align:left;padding:10px 12px;color:var(--paper);font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;border-right:1px solid rgba(255,255,255,.15);">Pin ${maxPins>1?i+1:''}</th>`).join('')}
+              <th style="text-align:center;padding:10px 12px;color:var(--paper);font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;width:100px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${sorted.map((f,ri)=>{
+              const pins = f.pins.filter(Boolean);
+              const isEven = ri%2===0;
+              const rowBg = isEven ? 'var(--paper)' : '#ffffff';
+              const isEditing = editingFuelId === f.id;
+              return `<tr style="background:${isEditing?'#fffbe6':rowBg};border-bottom:1px solid var(--line);">
+                <td style="padding:10px 12px;color:var(--muted);font-size:11px;font-weight:600;border-right:1px solid var(--line);text-align:center;">${ri+1}</td>
+                <td style="padding:10px 12px;font-weight:700;color:var(--ink);border-right:1px solid var(--line);letter-spacing:.02em;">${esc(f.truck)}</td>
+                ${Array.from({length:maxPins},(_,pi)=>
+                  `<td style="padding:10px 12px;font-weight:700;color:var(--amber);letter-spacing:.08em;border-right:1px solid var(--line);font-family:monospace;font-size:14px;">${esc(pins[pi]||'')}</td>`
+                ).join('')}
+                <td style="padding:8px 10px;text-align:center;white-space:nowrap;">
+                  <button class="delbtn editbtn" data-edit-fuel="${f.id}" style="margin-right:8px;">Edit</button>
+                  <button class="delbtn" data-del-fuel="${f.id}">Delete</button>
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+    return html;
+  }
+
+  function onSaveRate(){
+    const site = rateForm.site.trim().toUpperCase();
+    const rateVal = rateForm.rate.trim();
+    if(!site || !rateVal){ toast('Enter site name and rate'); return; }
+    if(editingRateId){
+      const r = rates.find(x=>x.id === editingRateId);
+      if(r){ r.site = site; r.rate = rateVal; }
+    } else {
+      const dup = rates.find(r=>r.site.trim().toLowerCase() === site.toLowerCase());
+      if(dup){ toast('Site already has a rate \u2014 edit it instead'); return; }
+      rates.push({ id: 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2,7), site, rate: rateVal });
+    }
+    saveRates();
+    toast(editingRateId ? 'Rate updated' : 'Rate added');
+    editingRateId = null;
+    rateForm = { site:'', rate:'' };
+    render();
+  }
+
+  function renderRates(){
+    let html = '';
+    if(isAdmin()){
+      html += `<div class="card" style="background:#eaf1ea;border:1px solid var(--moss);"><div style="font-size:12px;font-weight:700;color:var(--moss);">👑 Admin mode</div><div style="font-size:12px;color:var(--ink);margin-top:4px;">Changes you make here are published for every user.</div></div>`;
+    } else {
+      html += `<div class="card" style="background:#f4f2ea;border:1px solid var(--line);"><div style="font-size:12px;color:var(--muted);">Rates shown here include the shared list kept up to date by the admin account. Anything you add or edit below is saved to your account only.</div></div>`;
+    }
+    html += `<div class="card"><h2>Add Site Rate</h2>`;
+    html += `<div class="row">`;
+    html += field('Site Name', `<input type="text" id="rate_site" placeholder="e.g. MIDWAY TERMINAL" autocomplete="off" style="text-transform:uppercase;" value="${esc(rateForm.site.toUpperCase())}">`);
+    html += field('Pay Rate', `<input type="text" id="rate_value" placeholder="e.g. 75.00" value="${esc(rateForm.rate)}">`);
+    html += `</div>`;
+    html += `<div class="btnrow">
+      <button class="btn primary" id="save_rate">Add Rate</button>
+    </div></div>`;
+
+    if(rates.length === 0){
+      html += `<div class="card"><div class="empty">No site rates yet. Add one above to start tracking pay per trip.</div></div>`;
+      return html;
+    }
+
+    const sorted = [...rates].sort((a,b)=> a.site.localeCompare(b.site));
+    html += `<div class="card"><h2>Site Rates</h2>`;
+    sorted.forEach(r=>{
+      if(editingRateId === r.id){
+        html += `<div class="logrow" style="padding:14px 0;">
+          <div class="row" style="margin-bottom:8px;">
+            <div class="field"><label>Site Name</label><input type="text" id="inline_rate_site" autocomplete="off" style="text-transform:uppercase;" value="${esc(rateForm.site.toUpperCase())}"></div>
+            <div class="field"><label>Pay Rate</label><input type="text" id="inline_rate_value" value="${esc(rateForm.rate)}"></div>
+          </div>
+          <div class="btnrow" style="margin-top:0;">
+            <button class="btn primary" id="inline_save_rate" style="flex:none;padding:10px 18px;">Update</button>
+            <button class="btn ghost" id="inline_cancel_rate">Cancel</button>
+          </div>
+        </div>`;
+      } else {
+        html += `<div class="logrow">
+          <div class="logrow-head">
+            <span class="lognum">${esc(r.site)}</span>
+            <span class="logtruck">$${esc(r.rate)}</span>
+            <button class="delbtn editbtn" data-edit-rate="${r.id}">Edit</button>
+            <button class="delbtn" data-del-rate="${r.id}">Delete</button>
+          </div>
+        </div>`;
+      }
+    });
+    html += `</div>`;
+    return html;
+  }
+
+
+
+  function fmt24ts(ts){
+    if(!ts) return 'Never';
+    const d = new Date(ts);
+    const pad = n => String(n).padStart(2,'0');
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}  ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  }
+
+  function renderData(){
+    const totalEntries = entries.length;
+    const totalRates = rates.length;
+    const totalPins = fuelPins.length;
+    const ghUser  = localStorage.getItem('worklog:gh_user')||'';
+    const ghRepo  = localStorage.getItem('worklog:gh_repo')||'';
+    const ghToken = localStorage.getItem('worklog:gh_token')||'';
+    const ghConfigured = !!(ghUser && ghRepo && ghToken);
+    const lastGhBackup = localStorage.getItem('worklog:gh_last_backup')||'';
+
+    const online = firebaseReady && !currentUser?.isGuest;
+    const guest = !!currentUser?.isGuest;
+    const syncDotColor = online ? '#3cba54' : guest ? '#f4a400' : '#e53935';
+    const syncStatusLabel = online ? 'Synced to Firestore' : guest ? 'Guest — local only' : 'Offline — not syncing';
+    const syncDetail = guest
+      ? 'Guest sessions never leave this device. Sign in with a User ID to sync to the cloud.'
+      : online
+        ? `Your entries, site rates, and fuel pins are backed up to your account (<strong>${esc(currentUser.userId)}</strong>) on Firestore in real time as you save changes.${isAdmin() ? ' As admin, your site rate and fuel pin edits are also published to the shared list every other user sees.' : ' Site rates and fuel pins also include a shared baseline kept up to date by the admin account.'}`
+        : 'No connection to Firestore right now — changes are saved on this device and will sync once you\'re back online.';
+
+    return `
+      <div class="card">
+        <h2>App Info</h2>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--paper);border:1px solid var(--line);border-radius:4px;">
+          <div>
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:3px;">Last App Build</div>
+            <div style="font-size:14px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:.03em;">${BUILD_TIME_MST} MST</div>
+          </div>
+          <div style="font-size:20px;color:var(--muted);opacity:.4;">🛠</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 14px;background:var(--paper);border:1px solid var(--line);border-radius:4px;margin-top:8px;">
+          <div>
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:3px;">Data Sync</div>
+            <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px;">
+              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${syncDotColor};margin-right:6px;vertical-align:middle;"></span>${syncStatusLabel}
+            </div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.5;max-width:420px;">${syncDetail}</div>
+            ${(()=>{ const ts = localStorage.getItem('worklog:last_fb_sync'); return ts ? `<div style="font-size:12px;color:var(--muted);margin-top:6px;">Last synced: <strong style="color:var(--ink);">${new Date(ts).toLocaleString('en-CA',{timeZone:'America/Edmonton',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})}</strong> MST</div>` : '<div style="font-size:12px;color:var(--muted);margin-top:6px;">Not synced yet this session</div>'; })()}
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Export &amp; Import All Data</h2>
+        <p style="font-size:13px;color:var(--muted);margin:0 0 16px;line-height:1.5;">
+          A single CSV file covers all sections: work log entries, site rates, and fuel pins.
+          Use <strong>Export All</strong> to back up or transfer data, and <strong>Import All</strong> to restore it.
+        </p>
+        <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+          <button class="btn primary" id="export_all" style="flex:1;min-width:140px;">Export All</button>
+          <label class="btn ghost import-label" style="flex:1;min-width:140px;">
+            Import All
+            <input type="file" accept=".csv,text/csv" id="import_all_file" style="display:none;">
+          </label>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--paper);border:1px solid var(--line);border-radius:4px;">
+            <div>
+              <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:3px;">Last Export</div>
+              <div style="font-size:14px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:.03em;" id="last_export_ts">${fmt24ts(lastExportTs)}</div>
+            </div>
+            <div style="font-size:22px;color:var(--muted);opacity:.4;">↑</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--paper);border:1px solid var(--line);border-radius:4px;">
+            <div>
+              <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:3px;">Last Import</div>
+              <div style="font-size:14px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:.03em;" id="last_import_ts">${fmt24ts(lastImportTs)}</div>
+            </div>
+            <div style="font-size:22px;color:var(--muted);opacity:.4;">↓</div>
+          </div>
+        </div>
+        <div style="margin-top:18px;padding:10px 14px;background:var(--paper);border:1px solid var(--line);border-radius:4px;">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px;">Current Data Summary</div>
+          <div style="display:flex;gap:24px;flex-wrap:wrap;">
+            <div><span style="font-size:20px;font-weight:800;color:var(--ink);">${totalEntries}</span><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;">Log Entries</div></div>
+            <div><span style="font-size:20px;font-weight:800;color:var(--ink);">${totalRates}</span><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;">Site Rates</div></div>
+            <div><span style="font-size:20px;font-weight:800;color:var(--ink);">${totalPins}</span><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;">Fuel Pin Sets</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 style="display:flex;align-items:center;gap:8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--ink)"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          GitHub Backup
+        </h2>
+        <p style="font-size:13px;color:var(--muted);margin:0 0 14px;line-height:1.5;">
+          Back up all your data to a private GitHub repo. Backs up automatically on every save once configured.
+        </p>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px;">
+          <div class="field"><label>GitHub Username</label><input type="text" id="gh_user" value="${esc(ghUser)}" placeholder="your-username" autocomplete="off" autocapitalize="none" spellcheck="false"></div>
+          <div class="field"><label>Repository Name</label><input type="text" id="gh_repo" value="${esc(ghRepo)}" placeholder="worklog-backup" autocomplete="off" autocapitalize="none" spellcheck="false"></div>
+          <div class="field"><label>Personal Access Token</label><input type="password" id="gh_token" value="${esc(ghToken)}" placeholder="ghp_••••••••••••••" autocomplete="off"></div>
+        </div>
+        <button class="btn ghost" id="gh_save_settings" style="width:100%;margin-bottom:14px;">Save GitHub Settings</button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+          <button class="btn primary" id="gh_backup" style="flex:1;min-width:130px;" ${ghConfigured?'':'disabled'}>☁ Backup Now</button>
+          <button class="btn ghost" id="gh_restore" style="flex:1;min-width:130px;" ${ghConfigured?'':'disabled'}>↓ Restore Latest</button>
+        </div>
+        ${lastGhBackup ? `
+        <div style="padding:10px 14px;background:var(--paper);border:1px solid var(--line);border-radius:4px;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:3px;">Last GitHub Backup</div>
+            <div style="font-size:13px;font-weight:700;color:var(--ink);">${new Date(lastGhBackup).toLocaleString()}</div>
+          </div>
+          <div style="font-size:20px;color:var(--moss);">✓</div>
+        </div>` : `<p style="font-size:12px;color:var(--muted);margin:0;">No backup yet — tap Backup Now to create your first one.</p>`}
+        ${!ghConfigured ? `<p style="font-size:12px;color:var(--muted);margin:10px 0 0;">⚠ Enter your GitHub details above and tap Save to enable backup.</p>` : ''}
+      </div>`;
+  }
+
+  function exportAll(){
+    const stamp = new Date().toISOString().slice(0,10);
+    // Section 1: Log entries
+    const entryHeaders = ['__section__','Date','Truck','Type','Number','Site/Reason','Kind of Waiting','Claimed Time','Reference Number','Real Pay','Final Paid','Start','End','Comments'];
+    const entryRows = [entryHeaders];
+    const sorted = [...entries].sort((a,b)=> a.date.localeCompare(b.date) || a.created - b.created);
+    sorted.forEach(e=>{
+      if(e.type === 'DH'){
+        entryRows.push(['entries', e.date, e.truck, 'Deadhead', e.dh.number, e.dh.reason||'', '', e.dh.claimed||'', e.dh.ref||'', e.realPay, e.finalPaid, e.dh.start||'', e.dh.end||'', e.dh.comment||'']);
+        (e.dh.demurrages||[]).forEach(d=>{
+          entryRows.push(['entries', e.date, e.truck, 'Demurrage', e.dh.number, d.reason||'', '', d.claimed||'', d.ref||'', d.realPay||'No', d.finalPaid||'No', d.start||'', d.end||'', d.comment||'']);
+        });
+      } else {
+        if(e.tmw.waitings.length){
+          e.tmw.waitings.forEach(w=>{
+            entryRows.push(['entries', e.date, e.truck, 'TMW', e.tmw.number, e.tmw.site, w.kind||'', w.claimed||'', w.ref||'', e.realPay, e.finalPaid, w.start||'', w.end||'', w.comment||'']);
+          });
+        } else {
+          entryRows.push(['entries', e.date, e.truck, 'TMW', e.tmw.number, e.tmw.site, '', '', '', e.realPay, e.finalPaid, '', '', e.comment||'']);
+        }
+      }
+    });
+
+    // Section 2: Rates
+    const rateHeaders = ['__section__','Site Name','Pay Rate','','','','','','','',''];
+    const rateRows = [rateHeaders];
+    [...rates].sort((a,b)=>a.site.localeCompare(b.site)).forEach(r=>{
+      rateRows.push(['rates', r.site, r.rate, '', '', '', '', '', '', '', '']);
+    });
+
+    // Section 3: Fuel pins
+    const fuelHeaders = ['__section__','Truck','Pin','','','','','','','',''];
+    const fuelRows = [fuelHeaders];
+    [...fuelPins].sort((a,b)=>a.truck.localeCompare(b.truck,undefined,{numeric:true})).forEach(f=>{
+      f.pins.filter(Boolean).forEach(p=>{
+        fuelRows.push(['fuel', f.truck, p, '', '', '', '', '', '', '', '']);
+      });
+    });
+
+    // Combine with blank separator rows
+    const allRows = [
+      ...entryRows,
+      ['','','','','','','','','','',''],
+      ...rateRows,
+      ['','','','','','','','','','',''],
+      ...fuelRows
+    ];
+
+    const csv = allRows.map(r => r.map(csvCell).join(',')).join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `worklog_all_${stamp}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    lastExportTs = Date.now();
+    try{ localStorage.setItem('worklog:lastExport', String(lastExportTs)); }catch(e){}
+    toast('All data exported');
+    render();
+  }
+
+  function buildBackupPayload(){
+    // Build a full JSON snapshot of all data
+    return JSON.stringify({
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      entries,
+      rates,
+      fuelPins,
+      deletedEntries
+    }, null, 2);
+  }
+
+  let _ghSha = null; // cache SHA to avoid extra GET calls
+
+  async function autoBackup(){
+    const user  = localStorage.getItem('worklog:gh_user')||'';
+    const repo  = localStorage.getItem('worklog:gh_repo')||'';
+    const token = localStorage.getItem('worklog:gh_token')||'';
+    if(!user||!repo||!token) return; // not configured, skip silently
+    try {
+      const apiUrl = `https://api.github.com/repos/${user}/${repo}/contents/worklog-backup.json`;
+      const content = btoa(unescape(encodeURIComponent(buildBackupPayload())));
+      if(!_ghSha){
+        const chk = await fetch(apiUrl, { headers:{ 'Authorization':`token ${token}`, 'Accept':'application/vnd.github.v3+json' } });
+        if(chk.ok){ const f = await chk.json(); _ghSha = f.sha; }
+      }
+      const body = { message:`Auto-backup ${new Date().toISOString().slice(0,10)}`, content };
+      if(_ghSha) body.sha = _ghSha;
+      const res = await fetch(apiUrl, {
+        method:'PUT',
+        headers:{ 'Authorization':`token ${token}`, 'Accept':'application/vnd.github.v3+json', 'Content-Type':'application/json' },
+        body: JSON.stringify(body)
+      });
+      if(res.ok){
+        const data = await res.json();
+        _ghSha = data.content?.sha || null;
+        localStorage.setItem('worklog:gh_last_backup', new Date().toISOString());
+      }
+    } catch(e){ /* silent fail */ }
+  }
+
+  async function githubBackup(){
+    const user  = localStorage.getItem('worklog:gh_user')||'';
+    const repo  = localStorage.getItem('worklog:gh_repo')||'';
+    const token = localStorage.getItem('worklog:gh_token')||'';
+    if(!user||!repo||!token){ toast('GitHub not configured — enter details in Data tab'); return; }
+    toast('Backing up to GitHub…');
+    const apiUrl = `https://api.github.com/repos/${user}/${repo}/contents/worklog-backup.json`;
+    const content = btoa(unescape(encodeURIComponent(buildBackupPayload())));
+    try {
+      let sha = _ghSha;
+      if(!sha){
+        const chk = await fetch(apiUrl, { headers:{ 'Authorization':`token ${token}`, 'Accept':'application/vnd.github.v3+json' } });
+        if(chk.ok){ const f = await chk.json(); sha = f.sha; }
+      }
+      const body = { message:`Backup ${new Date().toISOString().slice(0,10)}`, content };
+      if(sha) body.sha = sha;
+      const res = await fetch(apiUrl, {
+        method:'PUT',
+        headers:{ 'Authorization':`token ${token}`, 'Accept':'application/vnd.github.v3+json', 'Content-Type':'application/json' },
+        body: JSON.stringify(body)
+      });
+      if(res.ok){
+        const data = await res.json();
+        _ghSha = data.content?.sha || null;
+        localStorage.setItem('worklog:gh_last_backup', new Date().toISOString());
+        toast('✓ Backed up to GitHub');
+        render();
+      } else {
+        const err = await res.json();
+        toast('Backup failed: ' + (err.message||res.status));
+      }
+    } catch(e){ toast('Backup failed: ' + e.message); }
+  }
+
+  async function githubRestore(){
+    const user  = localStorage.getItem('worklog:gh_user')||'';
+    const repo  = localStorage.getItem('worklog:gh_repo')||'';
+    const token = localStorage.getItem('worklog:gh_token')||'';
+    if(!user||!repo||!token){ toast('GitHub not configured — enter details in Data tab'); return; }
+    if(!confirm('Restore from GitHub? This will replace all current data with the latest backup.')) return;
+    toast('Fetching backup from GitHub…');
+    const apiUrl = `https://api.github.com/repos/${user}/${repo}/contents/worklog-backup.json`;
+    try {
+      const res = await fetch(apiUrl, {
+        headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+      });
+      if(!res.ok){ toast('No backup found on GitHub'); return; }
+      const file = await res.json();
+      _ghSha = file.sha;
+      const json = JSON.parse(decodeURIComponent(escape(atob(file.content.replace(/\n/g,'')))));
+      if(json.entries) { entries = json.entries; saveEntries(); }
+      if(json.rates) { rates = json.rates; saveRates(); }
+      if(json.fuelPins) { fuelPins = json.fuelPins; saveFuelPins(); }
+      if(json.deletedEntries) { deletedEntries = json.deletedEntries; saveDeletedEntries(); }
+      toast('✓ Data restored from GitHub');
+      render();
+    } catch(e){ toast('Restore failed: ' + e.message); }
+  }
+
+  function parseCSV(text){
+    const rows = [];
+    let row = [], field = '', inQuotes = false;
+    for(let i=0; i<text.length; i++){
+      const c = text[i], next = text[i+1];
+      if(inQuotes){
+        if(c === '"' && next === '"'){ field += '"'; i++; }
+        else if(c === '"'){ inQuotes = false; }
+        else field += c;
+      } else {
+        if(c === '"'){ inQuotes = true; }
+        else if(c === ','){ row.push(field); field=''; }
+        else if(c === '\r'){ /* skip */ }
+        else if(c === '\n'){ row.push(field); rows.push(row); row=[]; field=''; }
+        else field += c;
+      }
+    }
+    if(field.length || row.length){ row.push(field); rows.push(row); }
+    return rows.filter(r => r.length > 1 || (r.length===1 && r[0] !== ''));
+  }
+
+  function importAll(file){
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const rows = parseCSV(reader.result);
+        if(!rows.length){ toast('CSV file is empty'); return; }
+
+        // Detect sections by __section__ column
+        let entriesAdded=0, entriesReplaced=0, ratesAdded=0, ratesReplaced=0, fuelAdded=0, fuelReplaced=0;
+
+        // Find header rows for each section
+        let entryHeaderIdx = -1, rateHeaderIdx = -1, fuelHeaderIdx = -1;
+        rows.forEach((r, i)=>{
+          const first = (r[0]||'').trim().toLowerCase();
+          if(first === '__section__'){
+            const second = (r[1]||'').trim().toLowerCase();
+            if(second === 'date') entryHeaderIdx = i;
+            else if(second === 'site name') rateHeaderIdx = i;
+            else if(second === 'truck') fuelHeaderIdx = i;
+          }
+        });
+
+        if(entryHeaderIdx === -1 && rateHeaderIdx === -1 && fuelHeaderIdx === -1){
+          toast('Format not recognized — use a file exported from this app');
+          return;
+        }
+
+        // Helper: get rows belonging to a section (between its header and next header/end)
+        function getSectionRows(headerIdx){
+          if(headerIdx === -1) return [];
+          const result = [];
+          for(let i = headerIdx+1; i < rows.length; i++){
+            const first = (rows[i][0]||'').trim().toLowerCase();
+            if(first === '__section__') break;
+            if(rows[i].every(c=>!c.trim())) continue; // skip blank
+            result.push(rows[i]);
+          }
+          return result;
+        }
+
+        // --- Import entries ---
+        if(entryHeaderIdx > -1){
+          const hdr = rows[entryHeaderIdx].map(h=>h.trim().toLowerCase());
+          const idx = {
+            section: 0,
+            date: hdr.indexOf('date'),
+            truck: hdr.indexOf('truck'),
+            type: hdr.indexOf('type'),
+            number: hdr.indexOf('number'),
+            site: hdr.indexOf('site/reason'),
+            kind: hdr.indexOf('kind of waiting'),
+            claimed: hdr.indexOf('claimed time'),
+            ref: hdr.indexOf('reference number'),
+            realPay: hdr.indexOf('real pay'),
+            finalPaid: hdr.indexOf('final paid'),
+            start: hdr.indexOf('start'),
+            end: hdr.indexOf('end'),
+            comments: hdr.indexOf('comments')
+          };
+          const dataRows = getSectionRows(entryHeaderIdx).filter(r=>(r[idx.section]||'').trim().toLowerCase()==='entries');
+          const groups = new Map();
+          const activeDHKey = new Map(); // base key -> currently-active DH group key (for attaching demurrage rows)
+          const dhSeen = new Map(); // base key -> count of actual Deadhead rows seen so far
+          dataRows.forEach(r=>{
+            if(!r[idx.date]) return;
+            const type = (r[idx.type]||'').trim();
+            const isDemurrage = /demurrage/i.test(type);
+            const isActualDeadhead = /^deadhead$/i.test(type);
+            const isDH = /deadhead/i.test(type) || isDemurrage;
+            const ref = idx.ref>-1 ? (r[idx.ref]||'') : '';
+            // Demurrage rows belong to the same DH entry as the Deadhead row with the same date/truck/number
+            const baseKey = isDH
+              ? [r[idx.date], r[idx.truck], 'DH', r[idx.number]].join('|||')
+              : [r[idx.date], r[idx.truck], 'TMW', r[idx.number]].join('|||');
+            let key = baseKey;
+            if(isDH){
+              if(isActualDeadhead){
+                // A real Deadhead row: if we've already seen one for this date/truck/number,
+                // this is a separate trip that happens to reuse the same number — give it its own group.
+                const n = (dhSeen.get(baseKey)||0) + 1;
+                dhSeen.set(baseKey, n);
+                key = n>1 ? baseKey+'|||'+n : baseKey;
+                activeDHKey.set(baseKey, key);
+              } else {
+                // Demurrage row: attach to whichever Deadhead group is currently active for this base key
+                key = activeDHKey.get(baseKey) || baseKey;
+              }
+            }
+            if(!groups.has(key)){
+              groups.set(key, {
+                date: r[idx.date], truck: r[idx.truck], type: isDH?'DH':'TMW', number: r[idx.number], ref,
+                site: idx.site>-1 ? r[idx.site] : '',
+                realPay: idx.realPay>-1 && r[idx.realPay] ? r[idx.realPay] : 'No',
+                finalPaid: idx.finalPaid>-1 && r[idx.finalPaid] ? r[idx.finalPaid] : 'No',
+                rows: []
+              });
+            }
+            groups.get(key).rows.push(r);
+          });
+          function dupKey(date, truck, type, number, ref){
+            return type==='DH'
+              ? [String(date).trim(), String(truck).trim().toLowerCase(), 'DH', String(number).trim().toLowerCase(), String(ref||'').trim().toLowerCase()].join('|||')
+              : [String(date).trim(), String(truck).trim().toLowerCase(), 'TMW', String(number).trim().toLowerCase()].join('|||');
+          }
+          function findExistingIdx(date, truck, type, number, ref){
+            const key = dupKey(date, truck, type, number, ref);
+            return entries.findIndex(en=>{
+              const n = en.type==='DH' ? en.dh.number : en.tmw.number;
+              const r = en.type==='DH' ? en.dh.ref : '';
+              return dupKey(en.date, en.truck, en.type, n, r) === key;
+            });
+          }
+          let ic = 0;
+          groups.forEach(g=>{
+            // For DH groups, separate the Deadhead row from Demurrage rows
+            const deadheadRow = g.type==='DH' ? g.rows.find(r=>/^deadhead$/i.test((r[idx.type]||'').trim())) : null;
+            const demurrageRows = g.type==='DH' ? g.rows.filter(r=>/demurrage/i.test((r[idx.type]||'').trim())) : [];
+            const firstRow = deadheadRow || g.rows[0];
+            let entry;
+            if(g.type==='DH'){
+              entry = {
+                id:'e_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+                created: Date.now(), date: g.date, truck: g.truck, type:'DH',
+                dh:{
+                  number: g.number,
+                  start: idx.start>-1 ? (firstRow[idx.start]||'') : '',
+                  end: idx.end>-1 ? (firstRow[idx.end]||'') : '',
+                  reason: idx.site>-1 ? firstRow[idx.site]:'',
+                  ref: idx.ref>-1 ? firstRow[idx.ref]:'',
+                  claimed: idx.claimed>-1 ? firstRow[idx.claimed]:'',
+                  comment: idx.comments>-1 ? (firstRow[idx.comments]||'') : '',
+                  realPay: g.realPay,
+                  finalPaid: g.finalPaid,
+                  demurrages: demurrageRows.map(r=>({
+                    reason: idx.site>-1 ? (r[idx.site]||'') : '',
+                    start: idx.start>-1 ? (r[idx.start]||'') : '',
+                    end: idx.end>-1 ? (r[idx.end]||'') : '',
+                    claimed: idx.claimed>-1 ? (r[idx.claimed]||'') : '',
+                    ref: idx.ref>-1 ? (r[idx.ref]||'') : '',
+                    realPay: idx.realPay>-1 && r[idx.realPay] ? r[idx.realPay] : 'No',
+                    finalPaid: idx.finalPaid>-1 && r[idx.finalPaid] ? r[idx.finalPaid] : 'No',
+                    comment: idx.comments>-1 ? (r[idx.comments]||'') : ''
+                  }))
+                },
+                tmw:null, realPay:g.realPay, finalPaid:g.finalPaid,
+                finalPaidAt: null
+              };
+              entry.finalPaidAt = dhAllFinalPaid(entry) ? Date.now() : null;
+            } else {
+              const waitings = g.rows.filter(r=>(idx.kind>-1&&r[idx.kind])||(idx.claimed>-1&&r[idx.claimed])||(idx.ref>-1&&r[idx.ref])).map(r=>({
+                kind: idx.kind>-1?r[idx.kind]:'', claimed: idx.claimed>-1?r[idx.claimed]:'', ref: idx.ref>-1?r[idx.ref]:'',
+                comments: idx.comments>-1?(r[idx.comments]||''):'',
+                comment: idx.comments>-1?(r[idx.comments]||''):'',
+                start: idx.start>-1?(r[idx.start]||''):'',
+                end: idx.end>-1?(r[idx.end]||''):'',
+                realPay:g.realPay, finalPaid:g.finalPaid
+              }));
+              entry = {
+                id:'e_'+Date.now()+'_'+Math.random().toString(36).slice(2,7)+'_'+ic,
+                created: Date.now(), date: g.date, truck: g.truck, type:'TMW',
+                dh:null, tmw:{ number: g.number, site: g.site, waitings },
+                realPay:g.realPay, finalPaid:g.finalPaid,
+                comment: idx.comments>-1 ? (firstRow[idx.comments]||'') : '',
+                finalPaidAt: g.finalPaid==='Yes' ? Date.now() : null
+              };
+            }
+            const xi = findExistingIdx(g.date, g.truck, g.type, g.number, g.ref);
+            if(xi>-1){ entry.id=entries[xi].id; entry.created=entries[xi].created; entries[xi]=entry; entriesReplaced++; }
+            else { entries.push(entry); entriesAdded++; }
+            ic++;
+          });
+          if(entriesAdded||entriesReplaced) saveEntries();
+        }
+
+        // --- Import rates ---
+        if(rateHeaderIdx > -1){
+          const hdr = rows[rateHeaderIdx].map(h=>h.trim().toLowerCase());
+          const siteIdx = hdr.indexOf('site name');
+          const rateIdx = hdr.indexOf('pay rate');
+          if(siteIdx>-1 && rateIdx>-1){
+            getSectionRows(rateHeaderIdx).forEach(r=>{
+              const site = (r[siteIdx]||'').trim().toUpperCase();
+              const rate = (r[rateIdx]||'').trim();
+              if(!site||!rate) return;
+              const xi = rates.findIndex(x=>x.site.trim().toLowerCase()===site.toLowerCase());
+              if(xi>-1){ rates[xi].rate=rate; ratesReplaced++; }
+              else { rates.push({id:'r_'+Date.now()+'_'+Math.random().toString(36).slice(2,7), site, rate}); ratesAdded++; }
+            });
+            if(ratesAdded||ratesReplaced) saveRates();
+          }
+        }
+
+        // --- Import fuel pins ---
+        if(fuelHeaderIdx > -1){
+          const hdr = rows[fuelHeaderIdx].map(h=>h.trim().toLowerCase());
+          const truckIdx = hdr.indexOf('truck');
+          const pinIdx = hdr.indexOf('pin');
+          if(truckIdx>-1 && pinIdx>-1){
+            const pinGroups = new Map();
+            getSectionRows(fuelHeaderIdx).forEach(r=>{
+              const truck = (r[truckIdx]||'').trim();
+              const pin = (r[pinIdx]||'').trim();
+              if(!truck) return;
+              if(!pinGroups.has(truck)) pinGroups.set(truck, []);
+              if(pin) pinGroups.get(truck).push(pin);
+            });
+            pinGroups.forEach((pins, truck)=>{
+              const xi = fuelPins.findIndex(f=>f.truck.trim().toLowerCase()===truck.toLowerCase());
+              if(xi>-1){ fuelPins[xi].pins=pins; fuelReplaced++; }
+              else { fuelPins.push({id:'fp_'+Date.now()+'_'+Math.random().toString(36).slice(2,7), truck, pins}); fuelAdded++; }
+            });
+            if(fuelAdded||fuelReplaced) saveFuelPins();
+          }
+        }
+
+        lastImportTs = Date.now();
+        try{ localStorage.setItem('worklog:lastImport', String(lastImportTs)); }catch(e){}
+
+        const parts = [];
+        if(entriesAdded||entriesReplaced) parts.push(`Entries: ${entriesAdded} added, ${entriesReplaced} updated`);
+        if(ratesAdded||ratesReplaced) parts.push(`Rates: ${ratesAdded} added, ${ratesReplaced} updated`);
+        if(fuelAdded||fuelReplaced) parts.push(`Fuel pins: ${fuelAdded} added, ${fuelReplaced} updated`);
+        toast(parts.length ? `Import done — ${parts.join(' · ')}` : 'Nothing new to import');
+        view = 'data';
+        render();
+      }catch(err){
+        console.error(err);
+        toast('Could not read CSV file');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function csvCell(v){
+    const s = String(v===undefined||v===null ? '' : v);
+    if(/[",\n]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
+    return s;
+  }
+
+  function validateTMWForm(){
+    if(!form.date || !form.truck){ toast('Enter date and truck number'); return false; }
+    if(form.type !== 'TMW'){ return false; }
+    if(!form.tmw.number || !form.tmw.site){ toast('Fill TMW number and site'); return false; }
+    if(!/^\d{7}$/.test(form.tmw.number.trim())){ toast('TMW number must be exactly 7 digits — please check it'); return false; }
+    if(form.tmw.anyWaiting === null){ toast('Answer: Any Waiting?'); return false; }
+    return true;
+  }
+
+  function validateDHForm(){
+    if(!form.date || !form.truck){ toast('Enter date and truck number'); return false; }
+    if(!form.dh.number){ toast('Enter Deadhead number'); return false; }
+    if(!/^\d{7}$/.test(form.dh.number.trim())){ toast('DH number must be exactly 7 digits'); return false; }
+    return true;
+  }
+
+  function onSaveAndAnother(){
+    if(form.type === 'DH'){
+      if(!validateDHForm()) return;
+      pendingLoads.push({
+        type: 'DH',
+        number: form.dh.number.trim(),
+        reason: form.dh.reason,
+        start: form.dh.start,
+        end: form.dh.end,
+        ref: form.dh.ref,
+        claimed: calcClaimedValue(form.dh.start, form.dh.end),
+        demurrages: form.dh.demurrages.map(d=>({...d}))
+      });
+      toast(`DH #${form.dh.number} added to queue`);
+      // Keep date, truck, DH number — clear per-entry fields only
+      const savedDate = form.date;
+      const savedTruck = form.truck;
+      const savedNum = form.dh.number;
+      form = blankForm();
+      form.date = savedDate;
+      form.truck = savedTruck;
+      form.type = 'DH';
+      form.dh.number = savedNum;
+      render();
+      window.scrollTo({top:0, behavior:'smooth'});
+      return;
+    }
+    if(!validateTMWForm()) return;
+    // Stage current load into pending queue
+    pendingLoads.push({
+      type: 'TMW',
+      number: form.tmw.number.trim(),
+      site: form.tmw.site.toUpperCase(),
+      waitings: form.tmw.waitings.map(w=>({...w}))
+    });
+    toast(`TMW #${form.tmw.number} added to queue`);
+    // Keep date & truck, clear only TMW fields
+    const savedDate = form.date;
+    const savedTruck = form.truck;
+    form = blankForm();
+    form.date = savedDate;
+    form.truck = savedTruck;
+    form.type = 'TMW';
+    render();
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function onSaveAllLoads(){
+    if(!pendingLoads.length){ toast('No entries to save'); return; }
+    pendingLoads.forEach(load => {
+      const id = 'e_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+      if(load.type === 'DH'){
+        entries.push({
+          id, created: Date.now(),
+          date: form.date, truck: form.truck,
+          type: 'DH',
+          dh: { number: load.number, reason: load.reason, start: load.start, end: load.end, ref: load.ref, claimed: load.claimed, demurrages: load.demurrages||[] },
+          tmw: null,
+          realPay: 'No', finalPaid: 'No'
+        });
+      } else {
+        entries.push({
+          id, created: Date.now(),
+          date: form.date, truck: form.truck,
+          type: 'TMW',
+          dh: null,
+          tmw: { number: load.number, site: load.site, waitings: load.waitings },
+          realPay: 'No', finalPaid: 'No'
+        });
+      }
+    });
+    saveEntries();
+    const count = pendingLoads.length;
+    pendingLoads = [];
+    toast(`${count} entr${count!==1?'ies':'y'} saved`);
+    form = blankForm();
+    view = 'log';
+    render();
+  }
+
+  function onSave(){
+    if(!form.date || !form.truck){ toast('Enter date and truck number'); return; }
+    if(!form.type){ toast('Select Deadhead or TMW'); return; }
+    if(form.type === 'DH'){
+      if(!form.dh.number || !form.dh.start || !form.dh.end){ toast('Fill deadhead number and times'); return; }
+      if(!/^\d{7}$/.test(form.dh.number.trim())){ toast('Deadhead number must be exactly 7 digits — please check it'); return; }
+
+    }
+    if(form.type === 'TMW'){
+      if(!form.tmw.number || !form.tmw.site){ toast('Fill TMW number and site'); return; }
+      if(!/^\d{7}$/.test(form.tmw.number.trim())){ toast('TMW number must be exactly 7 digits — please check it'); return; }
+      if(form.tmw.anyWaiting === null){ toast('Answer: Any Waiting?'); return; }
+    }
+    const existing = editingId ? entries.find(en=>en.id === editingId) : null;
+    const entry = {
+      id: existing ? existing.id : 'e_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      created: existing ? existing.created : Date.now(),
+      date: form.date,
+      truck: form.truck,
+      type: form.type,
+      dh: form.type==='DH' ? {...form.dh, claimed: calcClaimedValue(form.dh.start, form.dh.end)||form.dh.claimed, demurrages: (form.dh.demurrages||[]).map(d=>({...d}))} : null,
+      tmw: form.type==='TMW' ? { number: form.tmw.number, site: form.tmw.site.toUpperCase(), waitings: form.tmw.waitings.map(w=>({...w})) } : null,
+      realPay: existing ? existing.realPay : 'No',
+      finalPaid: existing ? existing.finalPaid : 'No'
+    };
+    if(existing){
+      const idx = entries.findIndex(en=>en.id === existing.id);
+      entries[idx] = entry;
+    } else {
+      entries.push(entry);
+    }
+    saveEntries();
+    toast(existing ? 'Entry updated' : 'Entry saved');
+    editingId = null;
+    form = blankForm();
+    view = 'log';
+    render();
+  }
+
+  // ── Bootstrap ─────────────────────────────────────────────────────────────
+  async function boot(){
+    // Check for existing session
+    const session = loadSession();
+    if(session && session.userId && !session.isGuest){
+      currentUser = { userId: session.userId, displayName: session.displayName };
+      // Load cloud data then merge local
+      await fbLoadFromCloud();
+      loadEntries();
+    } else {
+      // Show auth screen immediately (no session)
+      renderApp();
+    }
+  }
+
+  // Wait for Firebase SDK to be ready then boot
+  // ES modules run after regular scripts, so we poll instead of relying on the event
+  function waitForFirebase(){
+    if(window.__wlDB){
+      firebaseReady = true;
+      syncPendingReg();
+      boot();
+      return;
+    }
+
+    let booted = false;
+    function doBoot(online){
+      if(booted) return;
+      booted = true;
+      clearInterval(interval);
+      firebaseReady = online;
+      if(online) syncPendingReg();
+      boot();
+    }
+
+    document.getElementById('app').innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:20px;padding:40px;text-align:center;">
+        <div style="font-size:28px;">🔌</div>
+        <div style="font-size:16px;color:#666;font-weight:600;">Connecting to server…</div>
+        <div style="font-size:12px;color:#aaa;">This usually takes a moment</div>
+        <button id="btn_skip_connect" style="margin-top:10px;padding:12px 24px;background:#1c2b2d;color:#f6f4ee;border:none;border-radius:6px;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;">
+          Continue Without Sync
+        </button>
+      </div>`;
+
+    document.getElementById('btn_skip_connect')?.addEventListener('click', ()=> doBoot(false));
+
+    const interval = setInterval(()=>{
+      if(window.__wlDB) doBoot(true);
+    }, 50);
+
+    // Auto-boot after 2 seconds regardless
+    setTimeout(()=> doBoot(false), 2000);
+  }
+  waitForFirebase();
+
+})();
+
+  // ---- 24hr time input masking ----
+  function attach24hrInputs(root){
+    (root || document).querySelectorAll('input[placeholder="HH:MM"]').forEach(input=>{
+      if(input._24hr) return;
+      input._24hr = true;
+
+      input.addEventListener('keydown', function(e){
+        if(e.key === 'Backspace' && this.value.endsWith(':')) {
+          this.value = this.value.slice(0,-1);
+          e.preventDefault();
+        }
+      });
+
+      input.addEventListener('input', function(e){
+        let v = this.value.replace(/[^0-9]/g,'');
+        if(v.length > 4) v = v.slice(0,4);
+        let out = '';
+        if(v.length >= 3){
+          let h = v.slice(0,2), m = v.slice(2,4);
+          if(parseInt(h,10) > 23) h = '23';
+          if(m.length === 2 && parseInt(m,10) > 59) m = '59';
+          out = h + ':' + m;
+        } else if(v.length === 2){
+          let h = v;
+          if(parseInt(h,10) > 23) h = '23';
+          out = h + ':';
+        } else {
+          out = v;
+        }
+        const atEnd = this.selectionStart >= this.value.length;
+        this.value = out;
+        if(atEnd) this.setSelectionRange(out.length, out.length);
+
+        // Auto-advance only when exactly 4 digits entered (complete HH:MM)
+        if(v.length === 4 && /^\d{2}:\d{2}$/.test(out)){
+          const allInputs = Array.from((root || document).querySelectorAll(
+            'input:not([disabled]):not([type="hidden"]):not([style*="display:none"]), select:not([disabled]), textarea:not([disabled])'
+          ));
+          const idx = allInputs.indexOf(this);
+          if(idx > -1 && allInputs[idx+1]){
+            allInputs[idx+1].focus();
+          }
+        }
+      });
+    });
+  }
+
+</script>
+</body>
+</html>
