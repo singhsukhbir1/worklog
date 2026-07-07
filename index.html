@@ -225,7 +225,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
 (function(){
   const app = document.getElementById('app');
 
-  // Permanent baked-in fuel pins. Click "Bake Pins into File" to update and re-download.
+  // Permanent baked-in fuel pins (offline fallback / initial defaults — the admin account can
+  // override these for all users via the Fuel Pins tab, which publishes to Firestore).
   const BAKED_FUEL_PINS = [{"id": "fp_baked_1280", "truck": "1280", "pins": ["2017"]}, {"id": "fp_baked_2401972", "truck": "240-1972", "pins": ["6428"]}, {"id": "fp_baked_2401973", "truck": "240-1973", "pins": ["5685"]}, {"id": "fp_baked_2401980", "truck": "240-1980", "pins": ["8122"]}, {"id": "fp_baked_2401981", "truck": "240-1981", "pins": ["9582"]}, {"id": "fp_baked_1285", "truck": "1285", "pins": ["8805"]}, {"id": "fp_baked_1289", "truck": "1289", "pins": ["3170"]}, {"id": "fp_baked_1291", "truck": "1291", "pins": ["1962"]}, {"id": "fp_baked_1292", "truck": "1292", "pins": ["7261"]}, {"id": "fp_baked_1299", "truck": "1299", "pins": ["5917"]}, {"id": "fp_baked_1300", "truck": "1300", "pins": ["8007"]}, {"id": "fp_baked_130122", "truck": "130122", "pins": ["5957", "3205"]}, {"id": "fp_baked_1302", "truck": "1302", "pins": ["9520"]}, {"id": "fp_baked_1308", "truck": "1308", "pins": ["7711"]}, {"id": "fp_baked_1311", "truck": "1311", "pins": ["6377"]}, {"id": "fp_baked_1313", "truck": "1313", "pins": ["8415"]}, {"id": "fp_baked_1314", "truck": "1314", "pins": ["3224"]}, {"id": "fp_baked_1320", "truck": "1320", "pins": ["0852"]}, {"id": "fp_baked_1324", "truck": "1324", "pins": ["3173"]}, {"id": "fp_baked_1326", "truck": "1326", "pins": ["3903"]}, {"id": "fp_baked_1327", "truck": "1327", "pins": ["2024"]}]; // DO NOT EDIT THIS LINE MANUALLY
 
   // Permanent baked-in site rates. localStorage wins on conflict.
@@ -241,7 +242,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   let logDateFilter = '';
   let payFilter = 'all';
   let payCutoffDate = '';
-  let payViewMode = 'detail'; // 'detail' | 'list'
+  let payViewMode = 'list'; // 'detail' | 'list'
   let trashSubTab = 'auto';
   let commentModal = null;
   let fuelPins = [];
@@ -254,6 +255,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
   let lastExportTs = null;
   let lastImportTs = null;
+  let _purgeInterval = null, _connInterval = null, _clockInterval = null;
 
   // ── Auth state ────────────────────────────────────────────────────────────
   let currentUser = null; // { userId, displayName }
@@ -283,11 +285,12 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     await f.setDoc(ref, data, { merge: true });
   }
 
-  const ADMIN_USER_ID  = 'admin';
+  const ADMIN_USER_ID  = 'admin'; // primary/bootstrap admin account (has PIN fallback below)
+  const ADMIN_USER_IDS = ['admin', 'taksuk']; // all accounts with admin (global publish) rights
   const ADMIN_PIN_HASH = '97cdecb2ac28e75196d8a4e5d352889f3b54d88a9ae168fcdf3845ed5fcb754a';
 
   function isAdmin(){
-    return !!currentUser && !currentUser.isGuest && String(currentUser.userId||'').toLowerCase() === ADMIN_USER_ID;
+    return !!currentUser && !currentUser.isGuest && ADMIN_USER_IDS.includes(String(currentUser.userId||'').toLowerCase());
   }
 
   async function fbLoadGlobalDefaults(){
@@ -524,7 +527,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-07-06 18:23';
+  const BUILD_TIME_MST = '2026-07-06 19:00';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -895,8 +898,15 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     if(!editingId && !form.truck) form.truck = lastTruckForDate(form.date);
     loaded = true;
     renderApp();
-    setInterval(()=>{ purgeExpiredEntries(); purgeOldDeleted(); if(view==='log'||view==='deleted'||view==='paycheck') render(); }, 60*60*1000);
-    setInterval(()=>{
+    // Clear any previously-created timers before starting new ones — loadEntries()
+    // can run more than once per page session (login, register, guest login, or
+    // signing out and back in again), and without this, each run would stack a new
+    // set of intervals on top of the last, multiplying purges/syncs/renders over time.
+    clearInterval(_purgeInterval);
+    clearInterval(_connInterval);
+    clearInterval(_clockInterval);
+    _purgeInterval = setInterval(()=>{ purgeExpiredEntries(); purgeOldDeleted(); if(view==='log'||view==='deleted'||view==='paycheck') render(); }, 60*60*1000);
+    _connInterval = setInterval(()=>{
       // Update connectivity dot without full re-render
       const dot = document.getElementById('conn_indicator');
       if(dot && currentUser){
@@ -908,7 +918,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         dot.title = online ? 'Connected to server' : guest ? 'Guest — local only' : 'Offline';
       }
     }, 3000);
-    setInterval(()=>{
+    _clockInterval = setInterval(()=>{
       const clockEl = document.getElementById('live_clock');
       if(clockEl) clockEl.textContent = nowMSTTime();
     }, 1000);
@@ -3227,8 +3237,18 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     const session = loadSession();
     if(session && session.userId && !session.isGuest){
       currentUser = { userId: session.userId, displayName: session.displayName };
-      // Load cloud data then merge local
-      await fbLoadFromCloud();
+      // Load cloud data, then merge in any local-only entries (mirrors doLogin's merge)
+      // before loadEntries() reads back from localStorage — otherwise loadEntries()
+      // would immediately overwrite `entries` with stale/empty local data and discard
+      // whatever was just fetched from Firestore.
+      const hasCloud = await fbLoadFromCloud();
+      if(hasCloud){
+        const localEntries = (() => { try{ return JSON.parse(localStorage.getItem('worklog:entries')||'[]'); }catch(e){ return []; } })();
+        localEntries.forEach(le => {
+          if(!entries.some(e=>e.id===le.id)) entries.push(le);
+        });
+        saveEntries();
+      }
       loadEntries();
     } else {
       // Show auth screen immediately (no session)
