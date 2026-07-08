@@ -51,9 +51,13 @@ try {
 body,#app{margin:0;padding:0;background:transparent;color:var(--ink);-webkit-text-size-adjust:100%;}
 #app{max-width:880px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top)) 16px calc(80px + env(safe-area-inset-bottom));}
 
-.hdr{display:flex;align-items:baseline;justify-content:space-between;border-bottom:3px solid var(--ink);padding-bottom:10px;margin-bottom:18px;}
-.hdr h1{font-size:22px;letter-spacing:.04em;text-transform:uppercase;margin:0;font-weight:800;}
-.hdr .sub{font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
+.hdr{border-bottom:3px solid var(--ink);padding-bottom:8px;margin-bottom:16px;}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 10px;}
+.hdr h1{flex-shrink:0;font-size:17px;letter-spacing:.03em;text-transform:uppercase;margin:0;font-weight:800;white-space:nowrap;}
+.hdr-sync{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);letter-spacing:.02em;white-space:nowrap;flex-shrink:0;}
+.hdr-status{display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.hdr-status .who{font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;}
+.hdr-status button{font-size:10px;color:var(--muted);background:none;border:1px solid var(--line);border-radius:4px;padding:4px 7px;cursor:pointer;font-weight:700;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;flex-shrink:0;}
 
 .tabs{display:flex;gap:8px;margin-bottom:18px;}
 .tab{flex:1;padding:13px 10px;text-align:center;border:2px solid var(--ink);background:var(--panel);font-weight:700;letter-spacing:.03em;text-transform:uppercase;font-size:13px;cursor:pointer;min-height:44px;}
@@ -140,7 +144,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
 
 .confirm-overlay{position:fixed;inset:0;background:rgba(28,43,45,0);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;transition:background-color .2s;pointer-events:none;}
 .confirm-overlay.show{background:rgba(28,43,45,.55);pointer-events:auto;}
-.confirm-box{background:var(--panel);border-radius:8px;padding:22px;max-width:340px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,.3);transform:translateY(10px);opacity:0;transition:transform .2s,opacity .2s;}
+.confirm-box{background:var(--panel);border-radius:8px;padding:22px;max-width:340px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,.3);transform:translateY(10px);opacity:0;transition:transform .2s,opacity .2s;}
 .confirm-overlay.show .confirm-box{transform:translateY(0);opacity:1;}
 .confirm-msg{font-size:15px;color:var(--ink);margin-bottom:18px;line-height:1.4;}
 .confirm-btns{display:flex;gap:10px;}
@@ -201,7 +205,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
 
 @media (max-width: 480px){
   #app{padding-left:12px;padding-right:12px;}
-  .hdr h1{font-size:19px;}
+  .hdr h1{font-size:15px;}
   .row{grid-template-columns:1fr;gap:10px;}
   .typepick{flex-direction:column;}
   .logtruck{margin-left:0;margin-right:0;}
@@ -411,10 +415,15 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         const hasCloud = await fbLoadFromCloud();
         if(hasCloud){
           const localEntries = (() => { try{ return JSON.parse(localStorage.getItem('worklog:entries')||'[]'); }catch(e){ return []; } })();
+          let entriesChanged = false;
           localEntries.forEach(le => {
-            if(!entries.some(e=>e.id===le.id)) entries.push(le);
+            if(!entries.some(e=>e.id===le.id)){ entries.push(le); entriesChanged = true; }
           });
-          saveEntries();
+          try{ localStorage.setItem('worklog:entries', JSON.stringify(entries)); }catch(e){}
+          try{ if(rates.length) localStorage.setItem('worklog:rates', JSON.stringify(rates)); }catch(e){}
+          try{ if(fuelPins.length) localStorage.setItem('worklog:fuelpins', JSON.stringify(fuelPins)); }catch(e){}
+          try{ localStorage.setItem('worklog:deleted', JSON.stringify(deletedEntries)); }catch(e){}
+          if(entriesChanged){ autoBackup(); fbSyncToCloud(); }
         }
       } else {
         // Offline: check against locally cached PIN if available
@@ -528,7 +537,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-07-08 05:05';
+  const BUILD_TIME_MST = '2026-07-08 13:43';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -542,6 +551,19 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       timeZone: 'America/Edmonton',
       hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
     }).format(new Date()); // en-GB formats as HH:MM:SS (24hr)
+  }
+
+  function headerSyncLabel(){
+    const ts = localStorage.getItem('worklog:last_fb_sync');
+    if(!ts) return 'Sync: not yet';
+    const d = new Date(ts);
+    const datePart = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Edmonton', month: 'short', day: '2-digit'
+    }).format(d); // e.g. "Jul 08"
+    const timePart = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'America/Edmonton', hour: '2-digit', minute: '2-digit', hour12: false
+    }).format(d); // e.g. "14:32"
+    return `Sync: ${datePart}, ${timePart} MST`;
   }
   payCutoffDate = todayMST();
 
@@ -763,6 +785,9 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           <button class="btn ghost" id="profile_cancel">Cancel</button>
           <button class="btn primary" id="profile_save">Save Changes</button>
         </div>
+        <div style="border-top:1px solid var(--line);margin-top:16px;padding-top:14px;">
+          <button id="profile_signout" style="width:100%;font-size:12px;color:var(--rust);background:none;border:1px solid var(--rust);border-radius:4px;padding:8px;cursor:pointer;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">Sign Out</button>
+        </div>
       </div>`;
 
     document.body.appendChild(overlay);
@@ -776,6 +801,16 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
 
     overlay.querySelector('#profile_cancel').onclick = closeModal;
     overlay.onclick = e=>{ if(e.target===overlay) closeModal(); };
+
+    overlay.querySelector('#profile_signout').onclick = ()=>{
+      if(!confirm('Sign out of this device?')) return;
+      closeModal();
+      clearSession();
+      currentUser = null;
+      authScreen = 'login';
+      authError = '';
+      renderApp();
+    };
 
     overlay.querySelector('#profile_save').onclick = async ()=>{
       const newName = overlay.querySelector('#profile_name').value.trim();
@@ -1018,6 +1053,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         dot.className = online ? 'conn-online' : '';
         dot.title = online ? 'Connected to server' : guest ? 'Guest — local only' : 'Offline';
       }
+      const syncLabel = document.getElementById('hdr_sync_label');
+      if(syncLabel) syncLabel.textContent = headerSyncLabel();
     }, 3000);
     _clockInterval = setInterval(()=>{
       const clockEl = document.getElementById('live_clock');
@@ -1929,15 +1966,18 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     }
     app.innerHTML = `
       <div class="hdr">
-        <h1>Daily Work Log</h1>
-        <div class="sub">TMW / Deadhead Tracker</div>
-        <div style="display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap;">
-          <span style="font-size:12px;color:var(--muted);font-weight:600;display:flex;align-items:center;gap:6px;">
-            <span id="conn_indicator" title="${firebaseReady && !currentUser?.isGuest ? 'Connected to server' : currentUser?.isGuest ? 'Guest — local only' : 'Offline'}" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${firebaseReady && !currentUser?.isGuest ? '#3cba54' : currentUser?.isGuest ? '#f4a400' : '#e53935'};box-shadow:0 0 0 2px ${firebaseReady && !currentUser?.isGuest ? 'rgba(60,186,84,.25)' : currentUser?.isGuest ? 'rgba(244,164,0,.25)' : 'rgba(229,57,53,.25)'};flex-shrink:0;" class="${firebaseReady && !currentUser?.isGuest ? 'conn-online' : ''}"></span>
-            ${currentUser.isGuest ? '👤 Guest' : '👤 '+esc(currentUser.displayName)}
-          </span>
-          <button id="btn_logout" style="font-size:11px;color:var(--muted);background:none;border:1px solid var(--line);border-radius:4px;padding:3px 8px;cursor:pointer;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">${currentUser.isGuest ? 'Sign In' : 'Sign Out'}</button>
-          ${!currentUser.isGuest ? `<button id="btn_profile" style="font-size:11px;color:var(--muted);background:none;border:1px solid var(--line);border-radius:4px;padding:3px 8px;cursor:pointer;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">Profile</button>` : ''}
+        <div class="hdr-top">
+          <h1>Daily Work Log</h1>
+          <div class="hdr-sync">
+            <span id="conn_indicator" title="${firebaseReady && !currentUser?.isGuest ? 'Connected to server' : currentUser?.isGuest ? 'Guest — local only' : 'Offline'}" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${firebaseReady && !currentUser?.isGuest ? '#3cba54' : currentUser?.isGuest ? '#f4a400' : '#e53935'};box-shadow:0 0 0 2px ${firebaseReady && !currentUser?.isGuest ? 'rgba(60,186,84,.25)' : currentUser?.isGuest ? 'rgba(244,164,0,.25)' : 'rgba(229,57,53,.25)'};flex-shrink:0;" class="${firebaseReady && !currentUser?.isGuest ? 'conn-online' : ''}"></span>
+            <span id="hdr_sync_label">${esc(headerSyncLabel())}</span>
+          </div>
+        </div>
+        <div class="hdr-status">
+          <span class="who">${currentUser.isGuest ? '👤 Guest' : '👤 '+esc(currentUser.displayName)}</span>
+          ${currentUser.isGuest
+            ? `<button id="btn_logout">Sign In</button>`
+            : `<button id="btn_profile">Profile</button>`}
         </div>
       </div>
       <div class="tabs">
@@ -3417,17 +3457,28 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     const session = loadSession();
     if(session && session.userId && !session.isGuest){
       currentUser = { userId: session.userId, displayName: session.displayName };
-      // Load cloud data, then merge in any local-only entries (mirrors doLogin's merge)
-      // before loadEntries() reads back from localStorage — otherwise loadEntries()
-      // would immediately overwrite `entries` with stale/empty local data and discard
-      // whatever was just fetched from Firestore.
+      // Load cloud data, then persist it to localStorage before loadEntries() runs.
+      // loadEntries() always reads entries/rates/fuelPins/deletedEntries fresh from
+      // localStorage (merging rates/fuelPins with the baked-in/global base) — without
+      // this step it would silently discard whatever fbLoadFromCloud() just fetched,
+      // e.g. showing an empty log or missing personal rate customizations on a fresh
+      // device. We write directly to localStorage rather than calling saveEntries()/
+      // saveRates()/etc. so a normal app launch doesn't also trigger an unnecessary
+      // extra Firestore write + GitHub auto-backup push every single time.
       const hasCloud = await fbLoadFromCloud();
       if(hasCloud){
         const localEntries = (() => { try{ return JSON.parse(localStorage.getItem('worklog:entries')||'[]'); }catch(e){ return []; } })();
+        let entriesChanged = false;
         localEntries.forEach(le => {
-          if(!entries.some(e=>e.id===le.id)) entries.push(le);
+          if(!entries.some(e=>e.id===le.id)){ entries.push(le); entriesChanged = true; }
         });
-        saveEntries();
+        try{ localStorage.setItem('worklog:entries', JSON.stringify(entries)); }catch(e){}
+        try{ if(rates.length) localStorage.setItem('worklog:rates', JSON.stringify(rates)); }catch(e){}
+        try{ if(fuelPins.length) localStorage.setItem('worklog:fuelpins', JSON.stringify(fuelPins)); }catch(e){}
+        try{ localStorage.setItem('worklog:deleted', JSON.stringify(deletedEntries)); }catch(e){}
+        // Only push back to the cloud/GitHub if we actually found local-only entries
+        // (e.g. added while offline) that the cloud copy didn't have yet.
+        if(entriesChanged){ autoBackup(); fbSyncToCloud(); }
       }
       loadEntries();
     } else {
