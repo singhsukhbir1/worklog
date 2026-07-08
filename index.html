@@ -240,6 +240,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   let editingRateId = null;
   let rateForm = { site:'', rate:'' };
   let logDateFilter = '';
+  let logViewMode = 'detail'; // 'detail' | 'list'
   let payFilter = 'all';
   let payCutoffDate = '';
   let payViewMode = 'list'; // 'detail' | 'list'
@@ -527,7 +528,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-07-06 19:00';
+  const BUILD_TIME_MST = '2026-07-08 05:05';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -728,6 +729,106 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     };
 
     overlay.onclick = e=>{ if(e.target === overlay){ closeModal(); render(); } };
+  }
+
+  function showProfileModal(){
+    const existing = document.getElementById('profile-overlay');
+    if(existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'profile-overlay';
+    overlay.className = 'confirm-overlay';
+    overlay.innerHTML = `
+      <div class="confirm-box" style="max-width:400px;">
+        <h2 style="font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 14px;border-bottom:1px solid var(--line);padding-bottom:8px;">Profile — ${esc(currentUser.displayName)}</h2>
+
+        <div style="margin-bottom:14px;">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;font-weight:700;">User ID</div>
+          <div style="font-size:14px;font-weight:700;color:var(--ink);padding:10px 12px;background:var(--paper);border:1px solid var(--line);border-radius:4px;">${esc(currentUser.userId)}</div>
+        </div>
+
+        <div class="field" style="margin-bottom:12px;">
+          <label>Display Name</label>
+          <input type="text" id="profile_name" value="${esc(currentUser.displayName)}" autocomplete="off">
+        </div>
+
+        <div style="border-top:1px solid var(--line);padding-top:14px;margin-top:4px;margin-bottom:12px;">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px;font-weight:700;">Change PIN <span style="font-weight:400;text-transform:none;letter-spacing:0;">(leave blank to keep current)</span></div>
+          <div class="field" style="margin-bottom:8px;"><label>New PIN (4 digits)</label><input type="password" id="profile_pin1" placeholder="••••" maxlength="4" inputmode="numeric" autocomplete="new-password"></div>
+          <div class="field" style="margin-bottom:0;"><label>Confirm New PIN</label><input type="password" id="profile_pin2" placeholder="••••" maxlength="4" inputmode="numeric" autocomplete="new-password"></div>
+        </div>
+
+        <div id="profile_error" style="font-size:12px;color:var(--rust);min-height:18px;margin-bottom:10px;"></div>
+        <div class="confirm-btns">
+          <button class="btn ghost" id="profile_cancel">Cancel</button>
+          <button class="btn primary" id="profile_save">Save Changes</button>
+        </div>
+      </div>`;
+
+    document.body.appendChild(overlay);
+    requestAnimationFrame(()=>overlay.classList.add('show'));
+    overlay.querySelector('#profile_name').focus();
+
+    const closeModal = ()=>{
+      overlay.classList.remove('show');
+      setTimeout(()=>overlay.remove(), 200);
+    };
+
+    overlay.querySelector('#profile_cancel').onclick = closeModal;
+    overlay.onclick = e=>{ if(e.target===overlay) closeModal(); };
+
+    overlay.querySelector('#profile_save').onclick = async ()=>{
+      const newName = overlay.querySelector('#profile_name').value.trim();
+      const pin1 = overlay.querySelector('#profile_pin1').value.trim();
+      const pin2 = overlay.querySelector('#profile_pin2').value.trim();
+      const errEl = overlay.querySelector('#profile_error');
+      errEl.textContent = '';
+
+      if(!newName){ errEl.textContent = 'Display name cannot be empty'; return; }
+
+      // PIN validation — only if user entered something
+      if(pin1 || pin2){
+        if(!/^\d{4}$/.test(pin1)){ errEl.textContent = 'PIN must be exactly 4 digits'; return; }
+        if(pin1 !== pin2){ errEl.textContent = 'PINs do not match — please re-enter'; return; }
+      }
+
+      const saveBtn = overlay.querySelector('#profile_save');
+      saveBtn.textContent = 'Saving…'; saveBtn.disabled = true;
+
+      try {
+        const updates = { displayName: newName };
+        if(pin1){
+          updates.pinHash = await hashPIN(currentUser.userId, pin1);
+        }
+        if(firebaseReady){
+          const existing = await fbGetDoc(`users/${currentUser.userId}`);
+          if(!existing && !updates.pinHash){
+            // No Firestore doc exists yet for this account — this happens for the
+            // hardcoded-fallback admin bootstrap account before its first real save.
+            // Without a pinHash the doc we're about to create would have none at all,
+            // which would lock this account out of every future login. Fall back to
+            // the known current PIN hash so login keeps working.
+            const uidLower = String(currentUser.userId||'').toLowerCase();
+            if(uidLower === ADMIN_USER_ID) updates.pinHash = ADMIN_PIN_HASH;
+          }
+          if(!existing && !updates.pinHash){
+            errEl.textContent = 'Please set a PIN before saving (first-time setup for this account)';
+            saveBtn.textContent = 'Save Changes'; saveBtn.disabled = false;
+            return;
+          }
+          await fbSetDoc(`users/${currentUser.userId}`, { userId: currentUser.userId, ...updates });
+        }
+        // Update local session
+        currentUser.displayName = newName;
+        saveSession(currentUser.userId, newName);
+        toast('Profile updated');
+        closeModal();
+        render();
+      } catch(e){
+        errEl.textContent = 'Save failed: '+e.message;
+        saveBtn.textContent = 'Save Changes'; saveBtn.disabled = false;
+      }
+    };
   }
 
   function confirmModal(message, onConfirm){
@@ -1181,6 +1282,71 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     return `${h}h ${m}m`;
   }
 
+  function renderLogList(filtered){
+    const groups = {};
+    filtered.forEach(e=>{ if(!groups[e.date]) groups[e.date]=[]; groups[e.date].push(e); });
+    const dates = Object.keys(groups).sort((a,b)=>b.localeCompare(a));
+
+    let html = `<div class="card" style="padding:0;overflow:hidden;">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">`;
+
+    dates.forEach(date=>{
+      const dayEntries = groups[date].sort((a,b)=>a.created - b.created);
+      const dObj = new Date(date+'T00:00:00');
+      const niceDate = dObj.toLocaleDateString('en-CA',{month:'long',day:'numeric',timeZone:'America/Edmonton'});
+
+      html += `<tr>
+        <td colspan="2" style="padding:10px 14px 6px;font-weight:800;font-size:14px;color:var(--ink);background:var(--paper);border-bottom:2px solid var(--line);border-top:2px solid var(--line);">${esc(niceDate)}</td>
+      </tr>`;
+
+      const dhEntries = dayEntries.filter(e=>e.type==='DH');
+      const tmwEntries = dayEntries.filter(e=>e.type==='TMW');
+
+      // DH claims — non-indented
+      dhEntries.forEach(e=>{
+        const claimed = e.dh.claimed || calcClaimedValue(e.dh.start, e.dh.end);
+        if(claimed){
+          const rp=(e.dh.realPay||'No')==='Yes', fp=(e.dh.finalPaid||'No')==='Yes';
+          const bg=fp?'#dca8d9':rp?'#a8d9dc':'';
+          html += `<tr style="border-bottom:1px solid var(--line);${bg?'background:'+bg+';':''}">
+            <td style="padding:8px 14px;color:var(--muted);font-weight:600;white-space:nowrap;">Ref: ${esc(e.dh.ref||'—')}</td>
+            <td style="padding:8px 14px;color:var(--ink);width:100%;">${esc(claimed)} - ${esc(e.dh.reason||'Deadhead')}</td>
+          </tr>`;
+        }
+        (e.dh.demurrages||[]).forEach(d=>{
+          const rp=(d.realPay||'No')==='Yes', fp=(d.finalPaid||'No')==='Yes';
+          const bg=fp?'#dca8d9':rp?'#a8d9dc':'';
+          html += `<tr style="border-bottom:1px solid var(--line);${bg?'background:'+bg+';':''}">
+            <td style="padding:8px 14px;color:var(--muted);font-weight:600;white-space:nowrap;">Ref: ${esc(d.ref||'—')}</td>
+            <td style="padding:8px 14px;color:var(--ink);width:100%;">${esc(claimedDisplay(d.claimed)||'—')} - ${esc(d.reason||'Demurrage')}</td>
+          </tr>`;
+        });
+      });
+
+      // TMW loads + waitings indented
+      tmwEntries.forEach(e=>{
+        const rp=(e.realPay||'No')==='Yes', fp=(e.finalPaid||'No')==='Yes';
+        const bg=fp?'#dca8d9':rp?'#a8d9dc':'';
+        html += `<tr style="border-bottom:${(e.tmw.waitings||[]).length?'none':'1px solid var(--line)'};${bg?'background:'+bg+';':''}">
+          <td style="padding:8px 14px;color:var(--moss);font-weight:700;white-space:nowrap;">Tmw: ${esc(e.tmw.number)}</td>
+          <td style="padding:8px 14px;color:var(--ink);font-weight:600;width:100%;">${esc((e.tmw.site||'').toUpperCase())}</td>
+        </tr>`;
+        (e.tmw.waitings||[]).forEach((w,wi)=>{
+          const wrp=(w.realPay||'No')==='Yes', wfp=(w.finalPaid||'No')==='Yes';
+          const wBg=wfp?'#dca8d9':wrp?'#a8d9dc':'';
+          const isLast=wi===(e.tmw.waitings||[]).length-1;
+          html += `<tr style="border-bottom:1px solid var(--line);${wBg?'background:'+wBg+';':''}">
+            <td style="padding:6px 14px 6px 28px;color:var(--muted);font-style:italic;white-space:nowrap;font-size:12px;"><span style="margin-right:4px;">└</span>Ref: ${esc(w.ref||'—')}</td>
+            <td style="padding:6px 14px;color:var(--muted);font-style:italic;font-size:12px;width:100%;">${esc(claimedDisplay(w.claimed)||'—')} - ${esc(w.kind||'Waiting')}</td>
+          </tr>`;
+        });
+      });
+    });
+
+    html += `</table></div>`;
+    return html;
+  }
+
   function renderLog(){
     if(entries.length === 0){
       return `<div class="card"><div class="empty">No entries yet. Switch to "New Entry" to log your first day.</div></div>`;
@@ -1190,16 +1356,24 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     let filtered = entries;
     if(logDateFilter) filtered = filtered.filter(e=> e.date === logDateFilter);
 
-    let html = `<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;">
+    let html = `<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;">
       <label style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);white-space:nowrap;">Date</label>
       <input id="log_date_filter" type="date" value="${logDateFilter}" style="flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:3px;font-size:14px;background:var(--paper);color:var(--ink);font-family:inherit;min-height:38px;">
       <button id="log_date_today" style="padding:8px 12px;border:1px solid var(--line);border-radius:3px;background:var(--paper);color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;white-space:nowrap;min-height:38px;">Today</button>
       <button id="log_date_clear" style="padding:8px 12px;border:1px solid var(--line);border-radius:3px;background:var(--paper);color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;white-space:nowrap;min-height:38px;">Clear</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <button id="log_view_detail" style="flex:1;padding:9px;border:2px solid var(--ink);border-radius:4px;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;background:${logViewMode==='detail'?'var(--ink)':'var(--panel)'};color:${logViewMode==='detail'?'var(--paper)':'var(--ink)'};">Detail View</button>
+      <button id="log_view_list" style="flex:1;padding:9px;border:2px solid var(--ink);border-radius:4px;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;background:${logViewMode==='list'?'var(--ink)':'var(--panel)'};color:${logViewMode==='list'?'var(--paper)':'var(--ink)'};">List View</button>
     </div>`;
-
 
     if(filtered.length === 0){
       html += `<div class="card"><div class="empty">No entries match this filter.</div></div>`;
+      return html;
+    }
+
+    if(logViewMode === 'list'){
+      html += renderLogList(filtered);
       return html;
     }
 
@@ -1763,6 +1937,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
             ${currentUser.isGuest ? '👤 Guest' : '👤 '+esc(currentUser.displayName)}
           </span>
           <button id="btn_logout" style="font-size:11px;color:var(--muted);background:none;border:1px solid var(--line);border-radius:4px;padding:3px 8px;cursor:pointer;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">${currentUser.isGuest ? 'Sign In' : 'Sign Out'}</button>
+          ${!currentUser.isGuest ? `<button id="btn_profile" style="font-size:11px;color:var(--muted);background:none;border:1px solid var(--line);border-radius:4px;padding:3px 8px;cursor:pointer;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">Profile</button>` : ''}
         </div>
       </div>
       <div class="tabs">
@@ -1796,6 +1971,9 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       authScreen = 'login';
       authError = '';
       renderApp();
+    });
+    document.getElementById('btn_profile')?.addEventListener('click', ()=>{
+      showProfileModal();
     });
     if(_focusId){
       const el = app.querySelector('#'+_focusId);
@@ -1955,6 +2133,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       app.querySelector('#log_date_filter')?.addEventListener('change', e=>{ logDateFilter=e.target.value; render(); });
       app.querySelector('#log_date_today')?.addEventListener('click', ()=>{ logDateFilter=todayMST(); render(); });
       app.querySelector('#log_date_clear')?.addEventListener('click', ()=>{ logDateFilter=''; render(); });
+      app.querySelector('#log_view_detail')?.addEventListener('click', ()=>{ logViewMode='detail'; render(); });
+      app.querySelector('#log_view_list')?.addEventListener('click', ()=>{ logViewMode='list'; render(); });
 
       app.querySelectorAll('[data-edit]').forEach(btn=>{
         btn.onclick = e=>{
