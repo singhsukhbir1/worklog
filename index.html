@@ -261,6 +261,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   let lastExportTs = null;
   let lastImportTs = null;
   let _purgeInterval = null, _connInterval = null, _clockInterval = null;
+  let userAccessList = null;   // cached list of all registered users, for admins only
+  let userAccessLoading = false;
 
   // ── Auth state ────────────────────────────────────────────────────────────
   let currentUser = null; // { userId, displayName }
@@ -296,6 +298,34 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
 
   function isAdmin(){
     return !!currentUser && !currentUser.isGuest && ADMIN_USER_IDS.includes(String(currentUser.userId||'').toLowerCase());
+  }
+
+  // Per-user access control for Trip Rates / Fuel Pins, managed by admins in the Data tab.
+  // Defaults to allowed (true) whenever a flag hasn't been explicitly set, so existing
+  // accounts are never unexpectedly locked out until an admin deliberately restricts them.
+  function hasAccess(feature){ // feature: 'rates' | 'fuelPins'
+    if(!currentUser) return false;
+    if(currentUser.isGuest) return true; // guests aren't part of the managed user list
+    if(isAdmin()) return true; // admins always retain full access to their own tools
+    if(!currentUser.access) return true;
+    return currentUser.access[feature] !== false;
+  }
+
+  async function fbListUsers(){
+    const db = window.__wlDB;
+    const f = window.__wlFire;
+    const snap = await f.getDocs(f.collection(db, 'users'));
+    const list = [];
+    snap.forEach(d=>{
+      const data = d.data() || {};
+      list.push({
+        userId: data.userId || d.id,
+        displayName: data.displayName || data.userId || d.id,
+        access: data.access || { rates: true, fuelPins: true }
+      });
+    });
+    list.sort((a,b)=> a.userId.localeCompare(b.userId));
+    return list;
   }
 
   async function fbLoadGlobalDefaults(){
@@ -382,16 +412,16 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         if(existing) return 'That User ID is already taken — choose another';
         const pinHash = await hashPIN(userId, pin);
         await fbSetDoc(`users/${userId}`, {
-          userId, displayName, pinHash, createdAt: Date.now()
+          userId, displayName, pinHash, createdAt: Date.now(), access: { rates:false, fuelPins:false }
         });
-        currentUser = { userId, displayName };
+        currentUser = { userId, displayName, access: { rates:false, fuelPins:false } };
         saveSession(userId, displayName);
         await fbSyncToCloud();
       } else {
         // Offline: register locally, sync when connected
         const pinHash = await hashPIN(userId, pin);
-        localStorage.setItem('worklog:pending_reg', JSON.stringify({ userId, displayName, pinHash, createdAt: Date.now() }));
-        currentUser = { userId, displayName };
+        localStorage.setItem('worklog:pending_reg', JSON.stringify({ userId, displayName, pinHash, createdAt: Date.now(), access: { rates:false, fuelPins:false } }));
+        currentUser = { userId, displayName, access: { rates:false, fuelPins:false } };
         saveSession(userId, displayName);
       }
       return null; // success
@@ -410,7 +440,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         if(!user) return 'User ID not found';
         const pinHash = await hashPIN(userId, pin);
         if(pinHash !== user.pinHash) return 'Incorrect PIN';
-        currentUser = { userId, displayName: user.displayName };
+        currentUser = { userId, displayName: user.displayName, access: user.access || { rates:true, fuelPins:true } };
         saveSession(userId, user.displayName);
         const hasCloud = await fbLoadFromCloud();
         if(hasCloud){
@@ -537,7 +567,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-07-08 13:43';
+  const BUILD_TIME_MST = '2026-07-09 05:10';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -2483,6 +2513,28 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       if(ghBackup) ghBackup.onclick = githubBackup;
       const ghRestore = $('#gh_restore');
       if(ghRestore) ghRestore.onclick = githubRestore;
+
+      app.querySelectorAll('[data-access-user]').forEach(cb=>{
+        cb.addEventListener('change', async ()=>{
+          const uid = cb.getAttribute('data-access-user');
+          const feature = cb.getAttribute('data-access-feature');
+          const checked = cb.checked;
+          const entry = userAccessList && userAccessList.find(u=>u.userId===uid);
+          if(!entry) return;
+          const prevAccess = { ...entry.access };
+          entry.access = { ...entry.access, [feature]: checked };
+          cb.disabled = true;
+          try{
+            await fbSetDoc(`users/${uid}`, { access: entry.access });
+            toast(`Updated access for ${entry.displayName}`);
+          }catch(err){
+            entry.access = prevAccess; // revert cache on failure
+            cb.checked = !checked;
+            toast('Failed to update access: '+err.message);
+          }
+          cb.disabled = false;
+        });
+      });
     }
   }
 
@@ -2581,7 +2633,16 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     render();
   }
 
+  function renderAccessDenied(label){
+    return `<div class="card" style="text-align:center;padding:36px 20px;">
+      <div style="font-size:32px;margin-bottom:10px;opacity:.5;">🔒</div>
+      <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:6px;">You don't have access to ${esc(label)}</div>
+      <div style="font-size:13px;color:var(--muted);">Please contact your admin to request access.</div>
+    </div>`;
+  }
+
   function renderFuelPins(){
+    if(!hasAccess('fuelPins')) return renderAccessDenied('Fuel Pins');
     let adminBanner = '';
     if(isAdmin()){
       adminBanner = `<div class="card" style="background:#eaf1ea;border:1px solid var(--moss);margin-bottom:14px;"><div style="font-size:12px;font-weight:700;color:var(--moss);">👑 Admin mode</div><div style="font-size:12px;color:var(--ink);margin-top:4px;">Changes you make here are published for every user.</div></div>`;
@@ -2723,6 +2784,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   }
 
   function renderRates(){
+    if(!hasAccess('rates')) return renderAccessDenied('Trip Rates');
     let html = '';
     if(isAdmin()){
       html += `<div class="card" style="background:#eaf1ea;border:1px solid var(--moss);"><div style="font-size:12px;font-weight:700;color:var(--moss);">👑 Admin mode</div><div style="font-size:12px;color:var(--ink);margin-top:4px;">Changes you make here are published for every user.</div></div>`;
@@ -2781,6 +2843,66 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}  ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
   }
 
+  function loadUserAccessList(){
+    if(userAccessLoading) return;
+    userAccessLoading = true;
+    fbListUsers().then(list=>{
+      userAccessList = list;
+      userAccessLoading = false;
+      if(view==='data') render();
+    }).catch(e=>{
+      console.error('Failed to load user list', e);
+      userAccessLoading = false;
+      userAccessList = [];
+      if(view==='data') render();
+    });
+  }
+
+  function renderUserAccessCard(){
+    if(!isAdmin()) return '';
+    if(!firebaseReady){
+      return `<div class="card"><h2>User Access Control</h2><p style="font-size:13px;color:var(--muted);">Connect to the server to manage user access.</p></div>`;
+    }
+    if(userAccessList === null){
+      if(!userAccessLoading) loadUserAccessList();
+      return `<div class="card"><h2>User Access Control</h2><p style="font-size:13px;color:var(--muted);">Loading registered users&hellip;</p></div>`;
+    }
+    let rows = '';
+    userAccessList.forEach(u=>{
+      const isUserAdmin = ADMIN_USER_IDS.includes(String(u.userId).toLowerCase());
+      if(isUserAdmin){
+        rows += `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--ink);">${esc(u.displayName)} <span style="font-size:10px;color:var(--moss);font-weight:700;text-transform:uppercase;">👑 Admin</span></div>
+            <div style="font-size:11px;color:var(--muted);">${esc(u.userId)}</div>
+          </div>
+          <div style="font-size:11px;color:var(--muted);">Full access</div>
+        </div>`;
+      } else {
+        const ratesOn = u.access.rates !== false;
+        const pinsOn = u.access.fuelPins !== false;
+        rows += `<div style="padding:10px 0;border-bottom:1px solid var(--line);">
+          <div style="font-size:13px;font-weight:700;color:var(--ink);">${esc(u.displayName)}</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">${esc(u.userId)}</div>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink);cursor:pointer;">
+              <input type="checkbox" data-access-user="${esc(u.userId)}" data-access-feature="rates" ${ratesOn?'checked':''}> Trip Rates
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink);cursor:pointer;">
+              <input type="checkbox" data-access-user="${esc(u.userId)}" data-access-feature="fuelPins" ${pinsOn?'checked':''}> Fuel Pins
+            </label>
+          </div>
+        </div>`;
+      }
+    });
+    if(!rows) rows = `<p style="font-size:13px;color:var(--muted);">No registered users found.</p>`;
+    return `<div class="card">
+      <h2>User Access Control</h2>
+      <p style="font-size:12px;color:var(--muted);margin:0 0 12px;line-height:1.5;">Visible only to admin accounts. Uncheck a box to hide that tab for a user — takes effect the next time they open the app.</p>
+      ${rows}
+    </div>`;
+  }
+
   function renderData(){
     const totalEntries = entries.length;
     const totalRates = rates.length;
@@ -2822,6 +2944,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           </div>
         </div>
       </div>
+
+      ${renderUserAccessCard()}
 
       <div class="card">
         <h2>Export &amp; Import All Data</h2>
@@ -3456,7 +3580,15 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     // Check for existing session
     const session = loadSession();
     if(session && session.userId && !session.isGuest){
-      currentUser = { userId: session.userId, displayName: session.displayName };
+      currentUser = { userId: session.userId, displayName: session.displayName, access: { rates:true, fuelPins:true } };
+      // Refresh access permissions from Firestore on every launch (not just full login)
+      // so an admin-set restriction takes effect the next time this user opens the app.
+      if(firebaseReady){
+        try {
+          const userDoc = await fbGetDoc(`users/${session.userId}`);
+          if(userDoc) currentUser.access = userDoc.access || { rates:true, fuelPins:true };
+        } catch(e){ /* stay permissive if this lookup fails */ }
+      }
       // Load cloud data, then persist it to localStorage before loadEntries() runs.
       // loadEntries() always reads entries/rates/fuelPins/deletedEntries fresh from
       // localStorage (merging rates/fuelPins with the baked-in/global base) — without
