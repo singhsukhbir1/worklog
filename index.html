@@ -54,7 +54,7 @@ body,#app{margin:0;padding:0;background:transparent;color:var(--ink);-webkit-tex
 .hdr{border-bottom:3px solid var(--ink);padding-bottom:8px;margin-bottom:16px;}
 .hdr-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 10px;}
 .hdr h1{flex-shrink:0;font-size:17px;letter-spacing:.03em;text-transform:uppercase;margin:0;font-weight:800;white-space:nowrap;}
-.hdr-sync{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);letter-spacing:.02em;white-space:nowrap;flex-shrink:0;}
+.hdr-sync{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--ink);letter-spacing:.02em;white-space:nowrap;flex-shrink:0;}
 .hdr-status{display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap;margin-top:6px;}
 .hdr-status .who{font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;}
 .hdr-status button{font-size:10px;color:var(--muted);background:none;border:1px solid var(--line);border-radius:4px;padding:4px 7px;cursor:pointer;font-weight:700;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;flex-shrink:0;}
@@ -567,7 +567,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-07-09 05:10';
+  const BUILD_TIME_MST = '2026-07-10 06:00';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -591,8 +591,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       timeZone: 'America/Edmonton', month: 'short', day: '2-digit'
     }).format(d); // e.g. "Jul 08"
     const timePart = new Intl.DateTimeFormat('en-GB', {
-      timeZone: 'America/Edmonton', hour: '2-digit', minute: '2-digit', hour12: false
-    }).format(d); // e.g. "14:32"
+      timeZone: 'America/Edmonton', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+    }).format(d); // e.g. "14:32:07"
     return `Sync: ${datePart}, ${timePart} MST`;
   }
   payCutoffDate = todayMST();
@@ -2881,15 +2881,15 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       } else {
         const ratesOn = u.access.rates !== false;
         const pinsOn = u.access.fuelPins !== false;
-        rows += `<div style="padding:10px 0;border-bottom:1px solid var(--line);">
-          <div style="font-size:13px;font-weight:700;color:var(--ink);">${esc(u.displayName)}</div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">${esc(u.userId)}</div>
-          <div style="display:flex;gap:16px;flex-wrap:wrap;">
-            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink);cursor:pointer;">
-              <input type="checkbox" data-access-user="${esc(u.userId)}" data-access-feature="rates" ${ratesOn?'checked':''}> Trip Rates
+        rows += `<div style="padding:14px 0;border-bottom:1px solid var(--line);">
+          <div style="font-size:14px;font-weight:800;color:var(--ink);">${esc(u.displayName)}</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">${esc(u.userId)}</div>
+          <div style="display:flex;gap:20px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--ink);cursor:pointer;">
+              <input type="checkbox" data-access-user="${esc(u.userId)}" data-access-feature="rates" ${ratesOn?'checked':''} style="width:20px;height:20px;flex-shrink:0;accent-color:var(--ink);cursor:pointer;border-radius:4px;border:1.5px solid var(--line);"> Trip Rates
             </label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink);cursor:pointer;">
-              <input type="checkbox" data-access-user="${esc(u.userId)}" data-access-feature="fuelPins" ${pinsOn?'checked':''}> Fuel Pins
+            <label style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--ink);cursor:pointer;">
+              <input type="checkbox" data-access-user="${esc(u.userId)}" data-access-feature="fuelPins" ${pinsOn?'checked':''} style="width:20px;height:20px;flex-shrink:0;accent-color:var(--ink);cursor:pointer;border-radius:4px;border:1.5px solid var(--line);"> Fuel Pins
             </label>
           </div>
         </div>`;
@@ -2916,12 +2916,12 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     const online = firebaseReady && !currentUser?.isGuest;
     const guest = !!currentUser?.isGuest;
     const syncDotColor = online ? '#3cba54' : guest ? '#f4a400' : '#e53935';
-    const syncStatusLabel = online ? 'Synced to Firestore' : guest ? 'Guest — local only' : 'Offline — not syncing';
+    const syncStatusLabel = online ? 'Synced to Google Server' : guest ? 'Guest — local only' : 'Offline — not syncing';
     const syncDetail = guest
       ? 'Guest sessions never leave this device. Sign in with a User ID to sync to the cloud.'
       : online
-        ? `Your entries, site rates, and fuel pins are backed up to your account (<strong>${esc(currentUser.userId)}</strong>) on Firestore in real time as you save changes.${isAdmin() ? ' As admin, your site rate and fuel pin edits are also published to the shared list every other user sees.' : ' Site rates and fuel pins also include a shared baseline kept up to date by the admin account.'}`
-        : 'No connection to Firestore right now — changes are saved on this device and will sync once you\'re back online.';
+        ? `Your entries, site rates, and fuel pins are backed up to your account (<strong>${esc(currentUser.userId)}</strong>) on the Google server in real time as you save changes.${isAdmin() ? ' As admin, your site rate and fuel pin edits are also published to the shared list every other user sees.' : ' Site rates and fuel pins also include a shared baseline kept up to date by the admin account.'}`
+        : 'No connection to the Google server right now — changes are saved on this device and will sync once you\'re back online.';
 
     return `
       <div class="card">
