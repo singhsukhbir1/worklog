@@ -271,6 +271,14 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   let authLoading = false;
   let firebaseReady = false;
 
+  // firebaseReady only means "the Firebase SDK object was constructed" — it's set once
+  // at boot and never reflects the device actually losing its network connection
+  // afterward. isOnline() combines it with navigator.onLine (the browser's live
+  // network-interface state) so the sync dot actually reacts to connectivity changes.
+  function isOnline(){
+    return firebaseReady && navigator.onLine;
+  }
+
   async function hashPIN(userId, pin){
     const data = new TextEncoder().encode(userId.toLowerCase() + ':' + pin);
     const buf = await crypto.subtle.digest('SHA-256', data);
@@ -573,8 +581,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-07-11 05:00';
-  const APP_VERSION = '2.3';
+  const BUILD_TIME_MST = '2026-07-11 15:36';
+  const APP_VERSION = '2.4';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -1145,7 +1153,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       // Update connectivity dot without full re-render
       const dot = document.getElementById('conn_indicator');
       if(dot && currentUser){
-        const online = firebaseReady && !currentUser.isGuest;
+        const online = isOnline() && !currentUser.isGuest;
         const guest = currentUser.isGuest;
         dot.style.background = online ? '#3cba54' : guest ? '#f4a400' : '#e53935';
         dot.style.boxShadow = online ? '0 0 0 2px rgba(60,186,84,.25)' : guest ? '0 0 0 2px rgba(244,164,0,.25)' : '0 0 0 2px rgba(229,57,53,.25)';
@@ -2068,7 +2076,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         <div class="hdr-top">
           <h1>Daily Work Log</h1>
           <div class="hdr-sync">
-            <span id="conn_indicator" title="${firebaseReady && !currentUser?.isGuest ? 'Connected to server' : currentUser?.isGuest ? 'Guest — local only' : 'Offline'}" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${firebaseReady && !currentUser?.isGuest ? '#3cba54' : currentUser?.isGuest ? '#f4a400' : '#e53935'};box-shadow:0 0 0 2px ${firebaseReady && !currentUser?.isGuest ? 'rgba(60,186,84,.25)' : currentUser?.isGuest ? 'rgba(244,164,0,.25)' : 'rgba(229,57,53,.25)'};flex-shrink:0;" class="${firebaseReady && !currentUser?.isGuest ? 'conn-online' : ''}"></span>
+            <span id="conn_indicator" title="${isOnline() && !currentUser?.isGuest ? 'Connected to server' : currentUser?.isGuest ? 'Guest — local only' : 'Offline'}" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${isOnline() && !currentUser?.isGuest ? '#3cba54' : currentUser?.isGuest ? '#f4a400' : '#e53935'};box-shadow:0 0 0 2px ${isOnline() && !currentUser?.isGuest ? 'rgba(60,186,84,.25)' : currentUser?.isGuest ? 'rgba(244,164,0,.25)' : 'rgba(229,57,53,.25)'};flex-shrink:0;" class="${isOnline() && !currentUser?.isGuest ? 'conn-online' : ''}"></span>
             <span id="hdr_sync_label">${esc(headerSyncLabel())}</span>
           </div>
         </div>
@@ -2995,7 +3003,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     const ghConfigured = !!(ghUser && ghRepo && ghToken);
     const lastGhBackup = localStorage.getItem('worklog:gh_last_backup')||'';
 
-    const online = firebaseReady && !currentUser?.isGuest;
+    const online = isOnline() && !currentUser?.isGuest;
     const guest = !!currentUser?.isGuest;
     const syncDotColor = online ? '#3cba54' : guest ? '#f4a400' : '#e53935';
     const syncStatusLabel = online ? 'Synced to Google Server' : guest ? 'Guest — local only' : 'Offline — not syncing';
@@ -3703,6 +3711,12 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
 
   // Wait for Firebase SDK to be ready then boot
   // ES modules run after regular scripts, so we poll instead of relying on the event
+  // React instantly to the device's actual network state changing, rather than waiting
+  // for the next 3-second poll to notice. The dot/sync-label refresh logic already
+  // lives in the _connInterval tick (see loadEntries), so just reuse it here.
+  window.addEventListener('online', ()=>{ if(loaded) renderSavingFocus(); });
+  window.addEventListener('offline', ()=>{ if(loaded) renderSavingFocus(); });
+
   function waitForFirebase(){
     if(window.__wlDB){
       firebaseReady = true;
