@@ -324,7 +324,13 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         access: data.access || { rates: true, fuelPins: true }
       });
     });
-    list.sort((a,b)=> a.userId.localeCompare(b.userId));
+    list.sort((a,b)=>{
+      const aAdmin = ADMIN_USER_IDS.includes(String(a.userId).toLowerCase());
+      const bAdmin = ADMIN_USER_IDS.includes(String(b.userId).toLowerCase());
+      if(aAdmin && !bAdmin) return -1;
+      if(!aAdmin && bAdmin) return 1;
+      return a.userId.localeCompare(b.userId);
+    });
     return list;
   }
 
@@ -567,7 +573,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-07-10 06:00';
+  const BUILD_TIME_MST = '2026-07-11 05:00';
+  const APP_VERSION = '2.3';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -892,6 +899,68 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       } catch(e){
         errEl.textContent = 'Save failed: '+e.message;
         saveBtn.textContent = 'Save Changes'; saveBtn.disabled = false;
+      }
+    };
+  }
+
+  function showResetPinModal(userId, displayName){
+    const existing = document.getElementById('reset-pin-overlay');
+    if(existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'reset-pin-overlay';
+    overlay.className = 'confirm-overlay';
+    overlay.innerHTML = `
+      <div class="confirm-box" style="max-width:360px;">
+        <h2 style="font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 14px;border-bottom:1px solid var(--line);padding-bottom:8px;">Reset PIN</h2>
+
+        <div style="margin-bottom:16px;">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;font-weight:700;">User</div>
+          <div style="font-size:14px;font-weight:700;color:var(--ink);padding:10px 12px;background:var(--paper);border:1px solid var(--line);border-radius:4px;">${esc(displayName)} <span style="font-weight:400;color:var(--muted);">(${esc(userId)})</span></div>
+        </div>
+
+        <div class="field" style="margin-bottom:8px;"><label>New PIN (4 digits)</label><input type="password" id="reset_pin1" placeholder="••••" maxlength="4" inputmode="numeric" autocomplete="new-password"></div>
+        <div class="field" style="margin-bottom:12px;"><label>Confirm New PIN</label><input type="password" id="reset_pin2" placeholder="••••" maxlength="4" inputmode="numeric" autocomplete="new-password"></div>
+
+        <div id="reset_pin_error" style="font-size:12px;color:var(--rust);min-height:18px;margin-bottom:6px;"></div>
+        <div class="confirm-btns">
+          <button class="btn ghost" id="reset_pin_cancel">Cancel</button>
+          <button class="btn primary" id="reset_pin_save">Reset PIN</button>
+        </div>
+      </div>`;
+
+    document.body.appendChild(overlay);
+    requestAnimationFrame(()=>overlay.classList.add('show'));
+    overlay.querySelector('#reset_pin1').focus();
+
+    const closeModal = ()=>{
+      overlay.classList.remove('show');
+      setTimeout(()=>overlay.remove(), 200);
+    };
+
+    overlay.querySelector('#reset_pin_cancel').onclick = closeModal;
+    overlay.onclick = e=>{ if(e.target===overlay) closeModal(); };
+
+    overlay.querySelector('#reset_pin_save').onclick = async ()=>{
+      const pin1 = overlay.querySelector('#reset_pin1').value.trim();
+      const pin2 = overlay.querySelector('#reset_pin2').value.trim();
+      const errEl = overlay.querySelector('#reset_pin_error');
+      errEl.textContent = '';
+
+      if(!/^\d{4}$/.test(pin1)){ errEl.textContent = 'PIN must be exactly 4 digits'; return; }
+      if(pin1 !== pin2){ errEl.textContent = 'PINs do not match — please re-enter'; return; }
+
+      const saveBtn = overlay.querySelector('#reset_pin_save');
+      saveBtn.textContent = 'Resetting…'; saveBtn.disabled = true;
+
+      try {
+        const pinHash = await hashPIN(userId, pin1);
+        await fbSetDoc(`users/${userId}`, { pinHash });
+        toast(`PIN reset for ${displayName}`);
+        closeModal();
+      } catch(e){
+        errEl.textContent = 'Reset failed: '+e.message;
+        saveBtn.textContent = 'Reset PIN'; saveBtn.disabled = false;
       }
     };
   }
@@ -2535,6 +2604,14 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           cb.disabled = false;
         });
       });
+
+      app.querySelectorAll('[data-reset-pin-user]').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const uid = btn.getAttribute('data-reset-pin-user');
+          const name = btn.getAttribute('data-reset-pin-name');
+          showResetPinModal(uid, name);
+        });
+      });
     }
   }
 
@@ -2882,8 +2959,13 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         const ratesOn = u.access.rates !== false;
         const pinsOn = u.access.fuelPins !== false;
         rows += `<div style="padding:14px 0;border-bottom:1px solid var(--line);">
-          <div style="font-size:14px;font-weight:800;color:var(--ink);">${esc(u.displayName)}</div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">${esc(u.userId)}</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div>
+              <div style="font-size:14px;font-weight:800;color:var(--ink);">${esc(u.displayName)}</div>
+              <div style="font-size:11px;color:var(--muted);">${esc(u.userId)}</div>
+            </div>
+            <button data-reset-pin-user="${esc(u.userId)}" data-reset-pin-name="${esc(u.displayName)}" title="Reset PIN" aria-label="Reset PIN" style="width:36px;height:36px;flex-shrink:0;padding:0;display:flex;align-items:center;justify-content:center;background:var(--paper);border:1px solid var(--line);border-radius:6px;cursor:pointer;font-size:16px;">🔑</button>
+          </div>
           <div style="display:flex;gap:20px;flex-wrap:wrap;">
             <label style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--ink);cursor:pointer;">
               <input type="checkbox" data-access-user="${esc(u.userId)}" data-access-feature="rates" ${ratesOn?'checked':''} style="width:20px;height:20px;flex-shrink:0;accent-color:var(--ink);cursor:pointer;border-radius:4px;border:1.5px solid var(--line);"> Trip Rates
@@ -2929,7 +3011,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--paper);border:1px solid var(--line);border-radius:4px;">
           <div>
             <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:3px;">Last App Build</div>
-            <div style="font-size:14px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:.03em;">${BUILD_TIME_MST} MST</div>
+            <div style="font-size:14px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:.03em;">v${esc(APP_VERSION)} &middot; ${BUILD_TIME_MST} MST</div>
           </div>
           <div style="font-size:20px;color:var(--muted);opacity:.4;">🛠</div>
         </div>
