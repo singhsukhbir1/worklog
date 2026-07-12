@@ -102,6 +102,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
 .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;text-transform:uppercase;}
 .badge.dh{background:#fbeee8;color:var(--rust);}
 .badge.tmw{background:#eaf1ea;color:var(--moss);}
+.badge.restored{background:#eaf0fb;color:#3a5fa8;}
 .empty{text-align:center;padding:40px 10px;color:var(--muted);font-size:14px;}
 .delbtn{
   background:#fbeee8;
@@ -581,8 +582,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-07-11 15:36';
-  const APP_VERSION = '2.4';
+  const BUILD_TIME_MST = '2026-07-12 02:44';
+  const APP_VERSION = '2.5';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -1025,7 +1026,9 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     let movedToTrash = false;
     entries.forEach(e=>{
       let expired = false;
-      if(e.type === 'DH'){
+      if(e.restored){
+        expired = false; // restored entries are exempt — only a manual delete can trash them again
+      } else if(e.type === 'DH'){
         expired = dhAllFinalPaid(e) && e.finalPaidAt && (Date.now() - e.finalPaidAt) >= SEVEN_DAYS_MS;
       } else {
         expired = tmwAllFinalPaid(e) && e.finalPaidAt && (Date.now() - e.finalPaidAt) >= SEVEN_DAYS_MS;
@@ -1218,7 +1221,6 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   }
 
   function setType(t){
-    if(form.type !== t) pendingLoads = [];
     form.type = t;
     render();
   }
@@ -1569,8 +1571,9 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
             <div class="logrow-head">
               <span class="badge dh">DH</span> <span class="lognum">${esc(num)}</span>
               <span class="logtruck">Truck ${esc(e.truck)}</span>
+              ${e.restored ? '<span class="badge restored">Restored</span>' : ''}
             </div>
-            ${dhAllFinalPaid(e) && e.finalPaidAt ? `<div class="paystatus"><span class="autodel">Auto-deletes ${esc(daysLeftLabel(e.finalPaidAt))}</span></div>` : ''}`;
+            ${!e.restored && dhAllFinalPaid(e) && e.finalPaidAt ? `<div class="paystatus"><span class="autodel">Auto-deletes ${esc(daysLeftLabel(e.finalPaidAt))}</span></div>` : ''}`;
           const claimed = e.dh.claimed || calcClaimedValue(e.dh.start, e.dh.end);
           const hasDemurrages = e.dh.demurrages && e.dh.demurrages.length;
           if(!claimed && !hasDemurrages){
@@ -1622,8 +1625,9 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
             <div class="logrow-head">
               <span class="badge dh">DH</span> <span class="lognum">${esc(num)}</span>
               <span class="logsite">${totalRefs} ${totalRefs===1?'reference':'references'}</span>
+              ${group.some(e=>e.restored) ? '<span class="badge restored">Restored</span>' : ''}
             </div>`;
-          const groupSoonest = group.filter(e=>dhAllFinalPaid(e) && e.finalPaidAt).sort((a,b)=>a.finalPaidAt-b.finalPaidAt)[0];
+          const groupSoonest = group.filter(e=>!e.restored && dhAllFinalPaid(e) && e.finalPaidAt).sort((a,b)=>a.finalPaidAt-b.finalPaidAt)[0];
           if(groupAllFinal && groupSoonest){
             html += `<div class="paystatus"><span class="autodel">Auto-deletes ${esc(daysLeftLabel(groupSoonest.finalPaidAt))}</span></div>`;
           }
@@ -1677,12 +1681,13 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
             ${badge} <span class="lognum">${esc(number)}</span>
             ${siteLabel}
             <span class="logtruck">Truck ${esc(e.truck)}</span>
+            ${e.restored ? '<span class="badge restored">Restored</span>' : ''}
           </div>
           <div class="logrow-actions">
             <button class="delbtn editbtn" data-edit="${e.id}">Edit</button>
             <button class="delbtn" data-del="${e.id}">Delete</button>
           </div>
-          ${tmwAllFinalPaid(e) && e.finalPaidAt ? `<div class="paystatus"><span class="autodel">Auto-deletes ${esc(daysLeftLabel(e.finalPaidAt))}</span></div>` : ''}`;
+          ${!e.restored && tmwAllFinalPaid(e) && e.finalPaidAt ? `<div class="paystatus"><span class="autodel">Auto-deletes ${esc(daysLeftLabel(e.finalPaidAt))}</span></div>` : ''}`;
 
         if(e.tmw.waitings.length){
           e.tmw.waitings.forEach((w,wi)=>{
@@ -1908,6 +1913,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           <div class="logrow-head">
             <span class="badge dh">DH</span> <span class="lognum">${esc(e.dh.number)}</span>
             <span class="logtruck">Truck ${esc(e.truck)}</span>
+            ${e.restored ? '<span class="badge restored">Restored</span>' : ''}
           </div>`;
         const claimed = e.dh.claimed || calcClaimedValue(e.dh.start, e.dh.end);
         if(claimed){
@@ -1935,7 +1941,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
                   <option value="Yes" ${dhClaimFinal==='Yes'?'selected':''}>Yes</option>
                 </select>
               </div>
-              ${dhAllFinalPaid(e) && e.finalPaidAt ? `<span class="autodel">Auto-deletes ${esc(daysLeftLabel(e.finalPaidAt))}</span>` : ''}
+              ${!e.restored && dhAllFinalPaid(e) && e.finalPaidAt ? `<span class="autodel">Auto-deletes ${esc(daysLeftLabel(e.finalPaidAt))}</span>` : ''}
             </div>
             <button class="delbtn comment-btn ${e.dh.comment&&e.dh.comment.trim()?'has-comment':''}" data-comment-id="${e.id}" data-comment-scope="dh">${e.dh.comment&&e.dh.comment.trim() ? '💬 '+esc(e.dh.comment.length>40?e.dh.comment.slice(0,40)+'&hellip;':e.dh.comment) : '+ Add Comment'}</button>
           </div>`;
@@ -1986,6 +1992,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
             ${badge} <span class="lognum">${esc(e.tmw.number)}</span>
             ${siteLabel}
             <span class="logtruck">Truck ${esc(e.truck)}</span>
+            ${e.restored ? '<span class="badge restored">Restored</span>' : ''}
           </div>
           <div class="paystatus">
             <div class="paystat-field">
@@ -2002,7 +2009,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
                 <option value="Yes" ${e.finalPaid==='Yes'?'selected':''}>Yes</option>
               </select>
             </div>
-            ${tmwAllFinal && e.finalPaidAt ? `<span class="autodel">Auto-deletes ${esc(daysLeftLabel(e.finalPaidAt))}</span>` : ''}
+            ${!e.restored && tmwAllFinal && e.finalPaidAt ? `<span class="autodel">Auto-deletes ${esc(daysLeftLabel(e.finalPaidAt))}</span>` : ''}
           </div>
           <button class="delbtn comment-btn ${e.comment&&e.comment.trim()?'has-comment':''}" data-comment-id="${e.id}" data-comment-scope="entry">${e.comment&&e.comment.trim() ? '💬 '+esc(e.comment.length>40?e.comment.slice(0,40)+'&hellip;':e.comment) : '+ Add Comment'}</button>`;
 
@@ -2538,6 +2545,9 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           const entry = {...deletedEntries[idx]};
           delete entry.deletedAt;
           delete entry.deleteReason;
+          // Once restored, this entry is exempt from the automatic 7-days-after-paid
+          // purge — it can only go back to Trash if the user deletes it manually.
+          entry.restored = true;
           deletedEntries.splice(idx,1);
           entries.push(entry);
           saveEntries();
