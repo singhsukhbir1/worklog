@@ -582,8 +582,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-07-12 02:44';
-  const APP_VERSION = '2.5';
+  const BUILD_TIME_MST = '2026-07-15 12:36';
+  const APP_VERSION = '2.6';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -853,6 +853,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       closeModal();
       clearSession();
       currentUser = null;
+      userAccessList = null;
       authScreen = 'login';
       authError = '';
       renderApp();
@@ -1780,9 +1781,13 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       tmwEntries.forEach(e=>{
         const rp = e.realPay||'No', fp = e.finalPaid||'No';
         const bg = fp==='Yes'?'#dca8d9':rp==='Yes'?'#a8d9dc':'';
+        const tmwRate = findRate(e.tmw.site);
         html += `<tr style="border-bottom:${(e.tmw.waitings||[]).length?'none':'1px solid var(--line)'};${bg?'background:'+bg+';':''}">
           <td style="padding:8px 14px;color:var(--moss);font-weight:700;white-space:nowrap;">Tmw: ${esc(e.tmw.number)}</td>
-          <td style="padding:8px 14px;color:var(--ink);font-weight:600;width:100%;">${esc((e.tmw.site||'').toUpperCase())}</td>
+          <td style="padding:8px 14px;color:var(--ink);width:100%;">
+            <div style="font-weight:600;">${esc((e.tmw.site||'').toUpperCase())}</div>
+            ${tmwRate ? `<div style="font-size:11px;color:var(--muted);font-weight:400;margin-top:2px;">$${esc(tmwRate)}</div>` : ''}
+          </td>
           ${payCell(rp, fp,
             `data-pay="${e.id}" data-paykey="realPay"`,
             `data-pay="${e.id}" data-paykey="finalPaid"`)}
@@ -2114,6 +2119,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         // Guest just goes to login screen
         clearSession();
         currentUser = null;
+        userAccessList = null;
         authScreen = 'login';
         authError = '';
         renderApp();
@@ -2122,6 +2128,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       if(!confirm('Sign out of this device?')) return;
       clearSession();
       currentUser = null;
+      userAccessList = null;
       authScreen = 'login';
       authError = '';
       renderApp();
