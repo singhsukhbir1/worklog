@@ -193,6 +193,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
 
 .ratehint{font-size:11px;color:var(--moss);margin:-6px 0 12px;padding:4px 8px;background:#eaf1ea;border-left:2px solid var(--moss);border-radius:0 3px 3px 0;}
 .num-flag{font-size:11px;color:var(--rust);margin:-6px 0 12px;padding:4px 8px;background:#fbeee8;border-left:2px solid var(--rust);border-radius:0 3px 3px 0;font-weight:600;}
+.ref-flag{font-size:11px;color:var(--rust);margin:-6px 0 12px;padding:4px 8px;background:#fbeee8;border-left:2px solid var(--rust);border-radius:0 3px 3px 0;font-weight:600;}
 .claimed-auto{padding:12px 10px;background:var(--paper);border:1px solid var(--line);border-radius:3px;font-size:18px;font-weight:700;color:var(--ink);min-height:44px;}
 
 .fuel-pin-row{position:relative;}
@@ -582,8 +583,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-07-15 12:36';
-  const APP_VERSION = '2.6';
+  const BUILD_TIME_MST = '2026-07-17 12:05';
+  const APP_VERSION = '2.7';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -706,7 +707,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         <div class="row"><div class="field"><label>Start Time (24hr)</label><input id="dm_start" type="text" value="${esc(demurrageForm.start||'')}" placeholder="HH:MM" maxlength="5" inputmode="numeric" autocomplete="off" style="letter-spacing:.08em;"></div>
         <div class="field"><label>End Time (24hr)</label><input id="dm_end" type="text" value="${esc(demurrageForm.end||'')}" placeholder="HH:MM" maxlength="5" inputmode="numeric" autocomplete="off" style="letter-spacing:.08em;"></div></div>
         <div class="field" style="margin-bottom:12px;"><label>Claimed Time (auto-calculated)</label><div class="claimed-auto" id="dm_claimed_display">${autoClaimed||'Enter times above'}</div></div>
-        <div class="row single field"><label>Reference Number</label><input id="dm_ref" type="text" value="${esc(demurrageForm.ref||'')}"></div>
+        <div class="row single field"><label>Reference Number</label><input id="dm_ref" type="text" value="${esc(demurrageForm.ref||'')}" maxlength="6" inputmode="numeric"></div>
+        <div id="dm_ref_flag"></div>
         <div class="confirm-btns" style="margin-top:14px;">
           <button class="btn ghost" id="dm_cancel">Cancel</button>
           <button class="btn primary" id="dm_save">Save</button>
@@ -731,12 +733,18 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     overlay.querySelector('#dm_start').oninput = updateCalc;
     overlay.querySelector('#dm_end').oninput = updateCalc;
     overlay.querySelector('#dm_reason').oninput = e2=> demurrageForm.reason = e2.target.value;
-    overlay.querySelector('#dm_ref').oninput = e2=> demurrageForm.ref = e2.target.value;
+    overlay.querySelector('#dm_ref').oninput = e2=>{
+      demurrageForm.ref = e2.target.value;
+      const flagHolder = overlay.querySelector('#dm_ref_flag');
+      const bad = e2.target.value && !/^\d{6}$/.test(e2.target.value.trim());
+      flagHolder.innerHTML = bad ? `<div class="ref-flag">⚠ Must be exactly 6 digits</div>` : '';
+    };
 
     overlay.querySelector('#dm_cancel').onclick = ()=>{ overlay.classList.remove('show'); setTimeout(()=>overlay.remove(),200); demurrageForm=null; };
 
     overlay.querySelector('#dm_save').onclick = ()=>{
       if(!demurrageForm.ref && !demurrageForm.reason){ toast('Enter at least a reason or reference'); return; }
+      if(demurrageForm.ref && !/^\d{6}$/.test(demurrageForm.ref.trim())){ toast('Reference number must be exactly 6 digits'); return; }
       const entry = entries.find(en=>en.id===demurrageForm.entryId);
       if(!entry) return;
       if(!entry.dh.demurrages) entry.dh.demurrages = [];
@@ -1260,7 +1268,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       html += field('Claimed Time (auto-calculated)', `<div class="claimed-auto">${autoClaimed || 'Enter start &amp; end time above'}</div>`);
       html += `</div>`;
       html += `<div class="row single">`;
-      html += field('Reference Number', `<input type="text" id="dh_ref" value="${esc(form.dh.ref)}">`);
+      html += field('Reference Number', `<input type="text" id="dh_ref" value="${esc(form.dh.ref)}" maxlength="6" inputmode="numeric">`);
       html += `</div>`;
     }
 
@@ -1311,7 +1319,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
               ${field('Claimed Waiting Time', hint + `<select data-w="${i}" data-k="claimed">${claimedTimeOptions(claimedDisplay(w.claimed))}</select>`)}
             </div>
             <div class="row">
-              ${field('Reference Number', `<input type="text" data-w="${i}" data-k="ref" value="${esc(w.ref)}">`)}
+              ${field('Reference Number', `<input type="text" data-w="${i}" data-k="ref" value="${esc(w.ref)}" maxlength="6" inputmode="numeric">`)}
               ${field('Comments', `<input type="text" data-w="${i}" data-k="comments" value="${esc(w.comments)}">`)}
             </div>
           </div>`;
@@ -1786,7 +1794,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           <td style="padding:8px 14px;color:var(--moss);font-weight:700;white-space:nowrap;">Tmw: ${esc(e.tmw.number)}</td>
           <td style="padding:8px 14px;color:var(--ink);width:100%;">
             <div style="font-weight:600;">${esc((e.tmw.site||'').toUpperCase())}</div>
-            ${tmwRate ? `<div style="font-size:11px;color:var(--muted);font-weight:400;margin-top:2px;">$${esc(tmwRate)}</div>` : ''}
+            ${tmwRate ? `<div style="font-size:13px;color:var(--moss);font-weight:600;margin-top:2px;">$${esc(tmwRate)}</div>` : ''}
           </td>
           ${payCell(rp, fp,
             `data-pay="${e.id}" data-paykey="realPay"`,
@@ -2191,6 +2199,18 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
                 flag.remove();
               }
             }
+            if(k === 'ref'){
+              let flag = app.querySelector('.ref-flag');
+              const bad = e.target.value && !/^\d{6}$/.test(e.target.value.trim());
+              if(bad && !flag){
+                flag = document.createElement('div');
+                flag.className = 'ref-flag';
+                flag.textContent = '⚠ Must be exactly 6 digits';
+                el.closest('.row').after(flag);
+              } else if(!bad && flag){
+                flag.remove();
+              }
+            }
           };
         });
         const reasonEl = $('#dh_reason');
@@ -2255,6 +2275,19 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
               // Clear manual override so auto-calc takes over
               form.tmw.waitings[idx]._autoCalc = null;
               renderSavingFocus();
+            }
+            if(key === 'ref'){
+              let flag = e.target.closest('.row').nextElementSibling;
+              const isFlag = flag && flag.classList.contains('ref-flag');
+              const bad = e.target.value && !/^\d{6}$/.test(e.target.value.trim());
+              if(bad && !isFlag){
+                const newFlag = document.createElement('div');
+                newFlag.className = 'ref-flag';
+                newFlag.textContent = '⚠ Must be exactly 6 digits';
+                e.target.closest('.row').after(newFlag);
+              } else if(!bad && isFlag){
+                flag.remove();
+              }
             }
           };
           el.oninput = handler;
@@ -3553,6 +3586,9 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     if(!form.tmw.number || !form.tmw.site){ toast('Fill TMW number and site'); return false; }
     if(!/^\d{7}$/.test(form.tmw.number.trim())){ toast('TMW number must be exactly 7 digits — please check it'); return false; }
     if(form.tmw.anyWaiting === null){ toast('Answer: Any Waiting?'); return false; }
+    for(const w of form.tmw.waitings){
+      if(w.ref && !/^\d{6}$/.test(w.ref.trim())){ toast('Waiting reference number must be exactly 6 digits'); return false; }
+    }
     return true;
   }
 
@@ -3560,6 +3596,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     if(!form.date || !form.truck){ toast('Enter date and truck number'); return false; }
     if(!form.dh.number){ toast('Enter Deadhead number'); return false; }
     if(!/^\d{7}$/.test(form.dh.number.trim())){ toast('DH number must be exactly 7 digits'); return false; }
+    if(form.dh.ref && !/^\d{6}$/.test(form.dh.ref.trim())){ toast('Reference number must be exactly 6 digits'); return false; }
     return true;
   }
 
@@ -3649,12 +3686,16 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     if(form.type === 'DH'){
       if(!form.dh.number || !form.dh.start || !form.dh.end){ toast('Fill deadhead number and times'); return; }
       if(!/^\d{7}$/.test(form.dh.number.trim())){ toast('Deadhead number must be exactly 7 digits — please check it'); return; }
+      if(form.dh.ref && !/^\d{6}$/.test(form.dh.ref.trim())){ toast('Reference number must be exactly 6 digits'); return; }
 
     }
     if(form.type === 'TMW'){
       if(!form.tmw.number || !form.tmw.site){ toast('Fill TMW number and site'); return; }
       if(!/^\d{7}$/.test(form.tmw.number.trim())){ toast('TMW number must be exactly 7 digits — please check it'); return; }
       if(form.tmw.anyWaiting === null){ toast('Answer: Any Waiting?'); return; }
+      for(const w of form.tmw.waitings){
+        if(w.ref && !/^\d{6}$/.test(w.ref.trim())){ toast('Waiting reference number must be exactly 6 digits'); return; }
+      }
     }
     const existing = editingId ? entries.find(en=>en.id === editingId) : null;
     const entry = {
