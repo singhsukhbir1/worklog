@@ -315,8 +315,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // accounts are never unexpectedly locked out until an admin deliberately restricts them.
   function hasAccess(feature){ // feature: 'rates' | 'fuelPins'
     if(!currentUser) return false;
-    if(currentUser.isGuest) return true; // guests aren't part of the managed user list
     if(isAdmin()) return true; // admins always retain full access to their own tools
+    if(currentUser.isGuest) return false; // guests aren't managed accounts — treat like an unapproved new user
     if(!currentUser.access) return true;
     return currentUser.access[feature] !== false;
   }
@@ -583,8 +583,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-07-17 20:52';
-  const APP_VERSION = '2.8';
+  const BUILD_TIME_MST = '2026-07-18 01:45';
+  const APP_VERSION = '2.9';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -2769,10 +2769,13 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   }
 
   function renderAccessDenied(label){
+    const guestNote = currentUser?.isGuest
+      ? 'Sign in with a User ID to request access from your admin.'
+      : 'Please contact your admin to request access.';
     return `<div class="card" style="text-align:center;padding:36px 20px;">
       <div style="font-size:32px;margin-bottom:10px;opacity:.5;">🔒</div>
       <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:6px;">You don't have access to ${esc(label)}</div>
-      <div style="font-size:13px;color:var(--muted);">Please contact your admin to request access.</div>
+      <div style="font-size:13px;color:var(--muted);">${guestNote}</div>
     </div>`;
   }
 
