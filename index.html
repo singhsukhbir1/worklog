@@ -246,7 +246,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   let editingRateId = null;
   let rateForm = { site:'', rate:'' };
   let logDateFilter = '';
-  let logViewMode = 'detail'; // 'detail' | 'list'
+  let logViewMode = 'list'; // 'detail' | 'list'
   let payFilter = 'all';
   let payCutoffDate = '';
   let payViewMode = 'list'; // 'detail' | 'list'
@@ -583,8 +583,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-07-17 12:05';
-  const APP_VERSION = '2.7';
+  const BUILD_TIME_MST = '2026-07-17 20:52';
+  const APP_VERSION = '2.8';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
