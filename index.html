@@ -290,6 +290,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   async function fbGetDoc(path){
     const db = window.__wlDB;
     const f = window.__wlFire;
+    if(!db || !f) return null; // Firebase SDK never loaded (offline/blocked) — treat as no cloud data
     const ref = f.doc(db, ...path.split('/'));
     const snap = await f.getDoc(ref);
     return snap.exists() ? snap.data() : null;
@@ -298,6 +299,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   async function fbSetDoc(path, data){
     const db = window.__wlDB;
     const f = window.__wlFire;
+    if(!db || !f) return; // Firebase SDK never loaded — nothing to write to, no-op
     const ref = f.doc(db, ...path.split('/'));
     await f.setDoc(ref, data, { merge: true });
   }
@@ -307,7 +309,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   const ADMIN_PIN_HASH = '97cdecb2ac28e75196d8a4e5d352889f3b54d88a9ae168fcdf3845ed5fcb754a';
 
   function isAdmin(){
-    return !!currentUser && !currentUser.isGuest && ADMIN_USER_IDS.includes(String(currentUser.userId||'').toLowerCase());
+    return !!currentUser && ADMIN_USER_IDS.includes(String(currentUser.userId||'').toLowerCase());
   }
 
   // Per-user access control for Trip Rates / Fuel Pins, managed by admins in the Data tab.
@@ -316,7 +318,6 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   function hasAccess(feature){ // feature: 'rates' | 'fuelPins'
     if(!currentUser) return false;
     if(isAdmin()) return true; // admins always retain full access to their own tools
-    if(currentUser.isGuest) return false; // guests aren't managed accounts — treat like an unapproved new user
     if(!currentUser.access) return true;
     return currentUser.access[feature] !== false;
   }
@@ -324,6 +325,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   async function fbListUsers(){
     const db = window.__wlDB;
     const f = window.__wlFire;
+    if(!db || !f) return []; // Firebase SDK never loaded — no user list available
     const snap = await f.getDocs(f.collection(db, 'users'));
     const list = [];
     snap.forEach(d=>{
@@ -371,7 +373,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   }
 
   async function fbSyncToCloud(){
-    if(!currentUser || currentUser.isGuest) return;
+    if(!currentUser) return;
     try {
       const uid = currentUser.userId;
       await fbSetDoc(`users/${uid}/data/worklog`, {
@@ -391,10 +393,13 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       const uid = currentUser.userId;
       const data = await fbGetDoc(`users/${uid}/data/worklog`);
       if(data){
-        if(data.entries) entries = JSON.parse(data.entries);
-        if(data.rates) rates = JSON.parse(data.rates);
-        if(data.fuelPins) fuelPins = JSON.parse(data.fuelPins);
-        if(data.deletedEntries) deletedEntries = JSON.parse(data.deletedEntries);
+        // Explicitly default every field rather than leaving whatever is already in
+        // memory when a field is absent from this user's doc — otherwise a partial
+        // cloud record could leave another account's leftover data in place.
+        entries = data.entries ? JSON.parse(data.entries) : [];
+        rates = data.rates ? JSON.parse(data.rates) : [];
+        fuelPins = data.fuelPins ? JSON.parse(data.fuelPins) : [];
+        deletedEntries = data.deletedEntries ? JSON.parse(data.deletedEntries) : [];
         return true;
       }
     } catch(e){ console.error('Firebase load failed', e); }
@@ -417,10 +422,30 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     localStorage.removeItem('worklog:session');
   }
 
+  // Wipes the in-memory work data AND its localStorage cache. This must run any
+  // time the signed-in identity on this device changes (logout, login, register)
+  // — otherwise whatever was last loaded (e.g. an admin's entries) stays sitting
+  // in memory/localStorage and gets silently merged into or synced up to
+  // whichever account logs in next, since none of entries/rates/fuelPins/
+  // deletedEntries or their localStorage keys are namespaced per user.
+  function resetLocalDataState(){
+    entries = [];
+    rates = [];
+    fuelPins = [];
+    deletedEntries = [];
+    try{
+      localStorage.removeItem('worklog:entries');
+      localStorage.removeItem('worklog:rates');
+      localStorage.removeItem('worklog:fuelpins');
+      localStorage.removeItem('worklog:deleted');
+    }catch(e){}
+  }
+
   async function doRegister(userId, displayName, pin){
     if(!userId || !displayName || !pin) return 'All fields are required';
     if(!/^\d{4}$/.test(pin)) return 'PIN must be exactly 4 digits';
     if(!/^[a-zA-Z0-9_-]{3,20}$/.test(userId)) return 'User ID must be 3-20 characters (letters, numbers, _ -)';
+    resetLocalDataState(); // never inherit whatever the previous session on this device had loaded
     try {
       if(firebaseReady){
         // Online: check if userId already taken in Firestore
@@ -446,6 +471,13 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
 
   async function doLogin(userId, pin){
     if(!userId || !pin) return 'Enter your User ID and PIN';
+    // Only wipe the local cache when switching to a DIFFERENT identity than whatever
+    // this device was last signed in as — a same-user re-login (e.g. offline) should
+    // keep their own local cache intact rather than discarding unsynced work.
+    const priorSession = loadSession();
+    if(!priorSession || priorSession.userId !== userId){
+      resetLocalDataState();
+    }
     try {
       if(firebaseReady){
         let user = await fbGetDoc(`users/${userId}`);
@@ -515,12 +547,6 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         `}
 
         ${!firebaseReady ? `<div style="text-align:center;font-size:12px;color:var(--rust);background:#fbeee8;border:1px solid #e3c4b5;border-radius:4px;padding:8px 12px;margin-top:14px;">⚠ Offline — data will sync when connected</div>` : ''}
-
-        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--line);text-align:center;">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em;">Just browsing?</div>
-          <button id="auth_guest" style="width:100%;padding:12px;background:transparent;color:var(--muted);border:1px dashed var(--line);border-radius:6px;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;">Continue as Guest</button>
-          <div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.4;">Guest data is stored on this device only.<br>No sync or backup.</div>
-        </div>
       </div>
     </div>`;
   }
@@ -530,13 +556,6 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     app.querySelector('#auth_tab_login')?.addEventListener('click',()=>{ authScreen='login'; authError=''; renderApp(); });
     app.querySelector('#auth_tab_reg')?.addEventListener('click',()=>{ authScreen='register'; authError=''; renderApp(); });
 
-    app.querySelector('#auth_guest')?.addEventListener('click',()=>{
-      currentUser = { userId: 'guest', displayName: 'Guest', isGuest: true };
-      localStorage.setItem('worklog:session', JSON.stringify(currentUser));
-      migrateLocalData();
-      loadEntries();
-      renderApp();
-    });
     const submitBtn = app.querySelector('#auth_submit');
     if(submitBtn) submitBtn.addEventListener('click', async ()=>{
       if(authLoading) return;
@@ -583,7 +602,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-07-18 01:45';
+  const BUILD_TIME_MST = '2026-07-21 13:27';
   const APP_VERSION = '2.9';
 
   function todayMST(){
@@ -860,6 +879,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       if(!confirm('Sign out of this device?')) return;
       closeModal();
       clearSession();
+      resetLocalDataState();
       currentUser = null;
       userAccessList = null;
       authScreen = 'login';
@@ -1154,8 +1174,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     loaded = true;
     renderApp();
     // Clear any previously-created timers before starting new ones — loadEntries()
-    // can run more than once per page session (login, register, guest login, or
-    // signing out and back in again), and without this, each run would stack a new
+    // can run more than once per page session (login, register, or signing out and
+    // back in again), and without this, each run would stack a new
     // set of intervals on top of the last, multiplying purges/syncs/renders over time.
     clearInterval(_purgeInterval);
     clearInterval(_connInterval);
@@ -1165,12 +1185,11 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       // Update connectivity dot without full re-render
       const dot = document.getElementById('conn_indicator');
       if(dot && currentUser){
-        const online = isOnline() && !currentUser.isGuest;
-        const guest = currentUser.isGuest;
-        dot.style.background = online ? '#3cba54' : guest ? '#f4a400' : '#e53935';
-        dot.style.boxShadow = online ? '0 0 0 2px rgba(60,186,84,.25)' : guest ? '0 0 0 2px rgba(244,164,0,.25)' : '0 0 0 2px rgba(229,57,53,.25)';
+        const online = isOnline();
+        dot.style.background = online ? '#3cba54' : '#e53935';
+        dot.style.boxShadow = online ? '0 0 0 2px rgba(60,186,84,.25)' : '0 0 0 2px rgba(229,57,53,.25)';
         dot.className = online ? 'conn-online' : '';
-        dot.title = online ? 'Connected to server' : guest ? 'Guest — local only' : 'Offline';
+        dot.title = online ? 'Connected to server' : 'Offline';
       }
       const syncLabel = document.getElementById('hdr_sync_label');
       if(syncLabel) syncLabel.textContent = headerSyncLabel();
@@ -1206,6 +1225,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   function saveDeletedEntries(){
     try{
       localStorage.setItem('worklog:deleted', JSON.stringify(deletedEntries));
+      fbSyncToCloud();
     }catch(e){ console.error('save failed', e); }
   }
   function purgeOldDeleted(){
@@ -2096,15 +2116,13 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         <div class="hdr-top">
           <h1>Daily Work Log</h1>
           <div class="hdr-sync">
-            <span id="conn_indicator" title="${isOnline() && !currentUser?.isGuest ? 'Connected to server' : currentUser?.isGuest ? 'Guest — local only' : 'Offline'}" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${isOnline() && !currentUser?.isGuest ? '#3cba54' : currentUser?.isGuest ? '#f4a400' : '#e53935'};box-shadow:0 0 0 2px ${isOnline() && !currentUser?.isGuest ? 'rgba(60,186,84,.25)' : currentUser?.isGuest ? 'rgba(244,164,0,.25)' : 'rgba(229,57,53,.25)'};flex-shrink:0;" class="${isOnline() && !currentUser?.isGuest ? 'conn-online' : ''}"></span>
+            <span id="conn_indicator" title="${isOnline() ? 'Connected to server' : 'Offline'}" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${isOnline() ? '#3cba54' : '#e53935'};box-shadow:0 0 0 2px ${isOnline() ? 'rgba(60,186,84,.25)' : 'rgba(229,57,53,.25)'};flex-shrink:0;" class="${isOnline() ? 'conn-online' : ''}"></span>
             <span id="hdr_sync_label">${esc(headerSyncLabel())}</span>
           </div>
         </div>
         <div class="hdr-status">
-          <span class="who">${currentUser.isGuest ? '👤 Guest' : '👤 '+esc(currentUser.displayName)}</span>
-          ${currentUser.isGuest
-            ? `<button id="btn_logout">Sign In</button>`
-            : `<button id="btn_profile">Profile</button>`}
+          <span class="who">👤 ${esc(currentUser.displayName)}</span>
+          <button id="btn_profile">Profile</button>
         </div>
       </div>
       <div class="tabs">
@@ -2122,25 +2140,6 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     bindEvents();
     const appEl = document.getElementById('app');
     attach24hrInputs(appEl);
-    document.getElementById('btn_logout')?.addEventListener('click', ()=>{
-      if(currentUser?.isGuest){
-        // Guest just goes to login screen
-        clearSession();
-        currentUser = null;
-        userAccessList = null;
-        authScreen = 'login';
-        authError = '';
-        renderApp();
-        return;
-      }
-      if(!confirm('Sign out of this device?')) return;
-      clearSession();
-      currentUser = null;
-      userAccessList = null;
-      authScreen = 'login';
-      authError = '';
-      renderApp();
-    });
     document.getElementById('btn_profile')?.addEventListener('click', ()=>{
       showProfileModal();
     });
@@ -2769,13 +2768,10 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   }
 
   function renderAccessDenied(label){
-    const guestNote = currentUser?.isGuest
-      ? 'Sign in with a User ID to request access from your admin.'
-      : 'Please contact your admin to request access.';
     return `<div class="card" style="text-align:center;padding:36px 20px;">
       <div style="font-size:32px;margin-bottom:10px;opacity:.5;">🔒</div>
       <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:6px;">You don't have access to ${esc(label)}</div>
-      <div style="font-size:13px;color:var(--muted);">${guestNote}</div>
+      <div style="font-size:13px;color:var(--muted);">Please contact your admin to request access.</div>
     </div>`;
   }
 
@@ -3056,15 +3052,12 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     const ghConfigured = !!(ghUser && ghRepo && ghToken);
     const lastGhBackup = localStorage.getItem('worklog:gh_last_backup')||'';
 
-    const online = isOnline() && !currentUser?.isGuest;
-    const guest = !!currentUser?.isGuest;
-    const syncDotColor = online ? '#3cba54' : guest ? '#f4a400' : '#e53935';
-    const syncStatusLabel = online ? 'Synced to Google Server' : guest ? 'Guest — local only' : 'Offline — not syncing';
-    const syncDetail = guest
-      ? 'Guest sessions never leave this device. Sign in with a User ID to sync to the cloud.'
-      : online
-        ? `Your entries, site rates, and fuel pins are backed up to your account (<strong>${esc(currentUser.userId)}</strong>) on the Google server in real time as you save changes.${isAdmin() ? ' As admin, your site rate and fuel pin edits are also published to the shared list every other user sees.' : ' Site rates and fuel pins also include a shared baseline kept up to date by the admin account.'}`
-        : 'No connection to the Google server right now — changes are saved on this device and will sync once you\'re back online.';
+    const online = isOnline();
+    const syncDotColor = online ? '#3cba54' : '#e53935';
+    const syncStatusLabel = online ? 'Synced to Google Server' : 'Offline — not syncing';
+    const syncDetail = online
+      ? `Your entries, site rates, and fuel pins are backed up to your account (<strong>${esc(currentUser.userId)}</strong>) on the Google server in real time as you save changes.${isAdmin() ? ' As admin, your site rate and fuel pin edits are also published to the shared list every other user sees.' : ' Site rates and fuel pins also include a shared baseline kept up to date by the admin account.'}`
+      : 'No connection to the Google server right now — changes are saved on this device and will sync once you\'re back online.';
 
     return `
       <div class="card">
@@ -3730,7 +3723,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   async function boot(){
     // Check for existing session
     const session = loadSession();
-    if(session && session.userId && !session.isGuest){
+    if(session && session.userId){
       currentUser = { userId: session.userId, displayName: session.displayName, access: { rates:true, fuelPins:true } };
       // Refresh access permissions from Firestore on every launch (not just full login)
       // so an admin-set restriction takes effect the next time this user opens the app.
