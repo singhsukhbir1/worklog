@@ -272,6 +272,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   let authError = '';
   let authLoading = false;
   let firebaseReady = false;
+  let hasPendingSync = localStorage.getItem('worklog:pending_sync') === '1';
 
   // firebaseReady only means "the Firebase SDK object was constructed" — it's set once
   // at boot and never reflects the device actually losing its network connection
@@ -374,6 +375,12 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
 
   async function fbSyncToCloud(){
     if(!currentUser) return;
+    if(!isOnline()){
+      hasPendingSync = true;
+      localStorage.setItem('worklog:pending_sync', '1');
+      updateConnIndicator();
+      return;
+    }
     try {
       const uid = currentUser.userId;
       await fbSetDoc(`users/${uid}/data/worklog`, {
@@ -384,7 +391,22 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         updatedAt: Date.now()
       });
       localStorage.setItem('worklog:last_fb_sync', new Date().toISOString());
-    } catch(e){ console.error('Firebase sync failed', e); }
+      hasPendingSync = false;
+      localStorage.removeItem('worklog:pending_sync');
+      updateConnIndicator();
+    } catch(e){
+      console.error('Firebase sync failed', e);
+      hasPendingSync = true;
+      localStorage.setItem('worklog:pending_sync', '1');
+      updateConnIndicator();
+    }
+  }
+
+  // Retry a pending sync once the app detects it's back online
+  async function retryPendingSync(){
+    if(!hasPendingSync) return;
+    if(!isOnline()) return;
+    await fbSyncToCloud();
   }
 
   async function fbLoadFromCloud(){
@@ -609,8 +631,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-07-21 18:21';
-  const APP_VERSION = '3.0';
+  const BUILD_TIME_MST = '2026-07-21 18:33';
+  const APP_VERSION = '3.1';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -627,6 +649,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   }
 
   function headerSyncLabel(){
+    if(hasPendingSync) return 'Sync: pending…';
     const ts = localStorage.getItem('worklog:last_fb_sync');
     if(!ts) return 'Sync: not yet';
     const d = new Date(ts);
@@ -637,6 +660,27 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       timeZone: 'America/Edmonton', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
     }).format(d); // e.g. "14:32:07"
     return `Sync: ${datePart}, ${timePart} MST`;
+  }
+
+  function connIndicatorState(){
+    const online = isOnline();
+    const pending = hasPendingSync && online;
+    if(pending) return { bg:'#f4a400', shadow:'rgba(244,164,0,.25)', title:'Pending sync…', cls:'conn-online' };
+    if(online) return { bg:'#3cba54', shadow:'rgba(60,186,84,.25)', title:'Connected to server', cls:'conn-online' };
+    return { bg:'#e53935', shadow:'rgba(229,57,53,.25)', title: hasPendingSync ? 'Offline — changes will sync when connected' : 'Offline', cls:'' };
+  }
+
+  function updateConnIndicator(){
+    const dot = document.getElementById('conn_indicator');
+    if(dot && currentUser){
+      const st = connIndicatorState();
+      dot.style.background = st.bg;
+      dot.style.boxShadow = `0 0 0 2px ${st.shadow}`;
+      dot.className = st.cls;
+      dot.title = st.title;
+    }
+    const syncLabel = document.getElementById('hdr_sync_label');
+    if(syncLabel) syncLabel.textContent = headerSyncLabel();
   }
   payCutoffDate = todayMST();
 
@@ -1189,17 +1233,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     clearInterval(_clockInterval);
     _purgeInterval = setInterval(()=>{ purgeExpiredEntries(); purgeOldDeleted(); if(view==='log'||view==='deleted'||view==='paycheck') render(); }, 60*60*1000);
     _connInterval = setInterval(()=>{
-      // Update connectivity dot without full re-render
-      const dot = document.getElementById('conn_indicator');
-      if(dot && currentUser){
-        const online = isOnline();
-        dot.style.background = online ? '#3cba54' : '#e53935';
-        dot.style.boxShadow = online ? '0 0 0 2px rgba(60,186,84,.25)' : '0 0 0 2px rgba(229,57,53,.25)';
-        dot.className = online ? 'conn-online' : '';
-        dot.title = online ? 'Connected to server' : 'Offline';
-      }
-      const syncLabel = document.getElementById('hdr_sync_label');
-      if(syncLabel) syncLabel.textContent = headerSyncLabel();
+      updateConnIndicator();
+      retryPendingSync();
     }, 3000);
     _clockInterval = setInterval(()=>{
       const clockEl = document.getElementById('live_clock');
@@ -2123,7 +2158,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         <div class="hdr-top">
           <h1>Daily Work Log</h1>
           <div class="hdr-sync">
-            <span id="conn_indicator" title="${isOnline() ? 'Connected to server' : 'Offline'}" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${isOnline() ? '#3cba54' : '#e53935'};box-shadow:0 0 0 2px ${isOnline() ? 'rgba(60,186,84,.25)' : 'rgba(229,57,53,.25)'};flex-shrink:0;" class="${isOnline() ? 'conn-online' : ''}"></span>
+            <span id="conn_indicator" title="${connIndicatorState().title}" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${connIndicatorState().bg};box-shadow:0 0 0 2px ${connIndicatorState().shadow};flex-shrink:0;" class="${connIndicatorState().cls}"></span>
             <span id="hdr_sync_label">${esc(headerSyncLabel())}</span>
           </div>
         </div>
@@ -3060,8 +3095,9 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     const lastGhBackup = localStorage.getItem('worklog:gh_last_backup')||'';
 
     const online = isOnline();
-    const syncDotColor = online ? '#3cba54' : '#e53935';
-    const syncStatusLabel = online ? 'Synced to Google Server' : 'Offline — not syncing';
+    const pending = hasPendingSync;
+    const syncDotColor = pending && online ? '#f4a400' : online ? '#3cba54' : '#e53935';
+    const syncStatusLabel = pending && online ? 'Syncing…' : online ? 'Synced to Google Server' : pending ? 'Offline — changes pending sync' : 'Offline — not syncing';
     const syncDetail = online
       ? `Your entries, site rates, and fuel pins are backed up to your account (<strong>${esc(currentUser.userId)}</strong>) on the Google server in real time as you save changes.${isAdmin() ? ' As admin, your site rate and fuel pin edits are also published to the shared list every other user sees.' : ' Site rates and fuel pins also include a shared baseline kept up to date by the admin account.'}`
       : 'No connection to the Google server right now — changes are saved on this device and will sync once you\'re back online.';
@@ -3084,6 +3120,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
             </div>
             <div style="font-size:12px;color:var(--muted);line-height:1.5;max-width:420px;">${syncDetail}</div>
             ${(()=>{ const ts = localStorage.getItem('worklog:last_fb_sync'); return ts ? `<div style="font-size:12px;color:var(--muted);margin-top:6px;">Last synced: <strong style="color:var(--ink);">${new Date(ts).toLocaleString('en-CA',{timeZone:'America/Edmonton',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})}</strong> MST</div>` : '<div style="font-size:12px;color:var(--muted);margin-top:6px;">Not synced yet this session</div>'; })()}
+            ${pending ? `<div style="font-size:12px;color:var(--rust);margin-top:6px;font-weight:600;">⏳ You have unsynced changes on this device — they'll upload automatically once connected.</div>` : ''}
           </div>
         </div>
       </div>
@@ -3775,8 +3812,15 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // React instantly to the device's actual network state changing, rather than waiting
   // for the next 3-second poll to notice. The dot/sync-label refresh logic already
   // lives in the _connInterval tick (see loadEntries), so just reuse it here.
-  window.addEventListener('online', ()=>{ if(loaded) renderSavingFocus(); });
-  window.addEventListener('offline', ()=>{ if(loaded) renderSavingFocus(); });
+  window.addEventListener('online', ()=>{
+    updateConnIndicator();
+    retryPendingSync();
+    if(loaded) renderSavingFocus();
+  });
+  window.addEventListener('offline', ()=>{
+    updateConnIndicator();
+    if(loaded) renderSavingFocus();
+  });
 
   function waitForFirebase(){
     if(window.__wlDB){
