@@ -400,6 +400,13 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         rates = data.rates ? JSON.parse(data.rates) : [];
         fuelPins = data.fuelPins ? JSON.parse(data.fuelPins) : [];
         deletedEntries = data.deletedEntries ? JSON.parse(data.deletedEntries) : [];
+        // "Last synced" should reflect the most recent time this device was
+        // confirmed in agreement with the server — that's just as true after a
+        // successful pull (this function) as after a successful push
+        // (fbSyncToCloud). Without this, a device that only ever receives
+        // updates from another device would show a stale/never-updated
+        // timestamp even though its data is fully current.
+        localStorage.setItem('worklog:last_fb_sync', new Date().toISOString());
         return true;
       }
     } catch(e){ console.error('Firebase load failed', e); }
@@ -602,8 +609,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-07-21 13:27';
-  const APP_VERSION = '2.9';
+  const BUILD_TIME_MST = '2026-07-21 18:21';
+  const APP_VERSION = '3.0';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
