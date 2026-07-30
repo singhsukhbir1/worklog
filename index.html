@@ -12,7 +12,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 680 680'%3E%3Crect x='40' y='40' width='600' height='600' rx='120' fill='%231c2b2d'/%3E%3Crect x='180' y='160' width='320' height='380' rx='18' fill='%23f6f4ee' stroke='%23d8d2c2' stroke-width='4'/%3E%3Crect x='290' y='138' width='100' height='44' rx='10' fill='%2346624f'/%3E%3Crect x='310' y='148' width='60' height='24' rx='6' fill='%231c2b2d'/%3E%3Crect x='220' y='260' width='160' height='14' rx='4' fill='%23d8d2c2'/%3E%3Crect x='220' y='292' width='200' height='14' rx='4' fill='%23d8d2c2'/%3E%3Crect x='220' y='324' width='130' height='14' rx='4' fill='%23d8d2c2'/%3E%3Crect x='220' y='356' width='180' height='14' rx='4' fill='%23d8d2c2'/%3E%3Crect x='220' y='388' width='110' height='14' rx='4' fill='%23d8d2c2'/%3E%3Crect x='220' y='258' width='18' height='18' rx='4' fill='%2346624f'/%3E%3Crect x='220' y='290' width='18' height='18' rx='4' fill='%23b5502f'/%3E%3Crect x='220' y='322' width='18' height='18' rx='4' fill='%2346624f'/%3E%3Crect x='220' y='354' width='18' height='18' rx='4' fill='%23b5502f'/%3E%3Crect x='220' y='386' width='18' height='18' rx='4' fill='%2346624f'/%3E%3Cg transform='translate(320,370)'%3E%3Crect x='90' y='20' width='90' height='80' rx='10' fill='%23b5502f'/%3E%3Crect x='98' y='28' width='52' height='36' rx='5' fill='%231c2b2d' opacity='0.7'/%3E%3Crect x='0' y='30' width='96' height='70' rx='6' fill='%2346624f'/%3E%3Crect x='10' y='42' width='76' height='8' rx='2' fill='%231c2b2d' opacity='0.3'/%3E%3Crect x='10' y='58' width='76' height='8' rx='2' fill='%231c2b2d' opacity='0.3'/%3E%3Crect x='10' y='74' width='76' height='8' rx='2' fill='%231c2b2d' opacity='0.3'/%3E%3Crect x='0' y='100' width='180' height='4' rx='2' fill='%23c98a2c' opacity='0.7'/%3E%3Ccircle cx='30' cy='104' r='18' fill='%231c2b2d'/%3E%3Ccircle cx='30' cy='104' r='9' fill='%23d8d2c2'/%3E%3Ccircle cx='82' cy='104' r='18' fill='%231c2b2d'/%3E%3Ccircle cx='82' cy='104' r='9' fill='%23d8d2c2'/%3E%3Ccircle cx='140' cy='104' r='18' fill='%231c2b2d'/%3E%3Ccircle cx='140' cy='104' r='9' fill='%23d8d2c2'/%3E%3Crect x='174' y='0' width='10' height='38' rx='4' fill='%23c98a2c'/%3E%3Crect x='175' y='52' width='12' height='8' rx='2' fill='%23c98a2c'/%3E%3C/g%3E%3C/svg%3E">
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getFirestore, doc, getDoc, setDoc, collection, getDocs, writeBatch, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 const firebaseConfig = {
   apiKey: "AIzaSyA2CV_nQQvX7ntqiBHeTLprOPmTcfOpjy8",
   authDomain: "worklog-tmw.firebaseapp.com",
@@ -25,7 +25,7 @@ try {
   const fbApp = initializeApp(firebaseConfig);
   const db = getFirestore(fbApp);
   window.__wlDB = db;
-  window.__wlFire = { doc, getDoc, setDoc, collection, getDocs, writeBatch, onSnapshot };
+  window.__wlFire = { doc, getDoc, setDoc, collection, getDocs, writeBatch };
   console.log('Firebase: ready');
 } catch(e) {
   console.error('Firebase init failed:', e);
@@ -273,20 +273,6 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   let authLoading = false;
   let firebaseReady = false;
   let hasPendingSync = localStorage.getItem('worklog:pending_sync') === '1';
-  // The baked-in/admin-global baseline in effect for the CURRENT session, captured once
-  // in loadEntries(). saveRates()/saveFuelPins() diff against this so that saving one
-  // personal rate doesn't freeze every untouched site into this user's local storage.
-  let baseRatesSnapshot = [];
-  let baseFuelPinsSnapshot = [];
-  // Site/truck names (lowercase, trimmed) this user has deleted from the baked-in/
-  // admin-global baseline. The merge in loadEntries() can only ADD or REPLACE
-  // baseline entries via localStorage overrides — it has no way to represent an
-  // absence — so a plain delete of a baseline site would silently reappear on the
-  // next load. These "tombstone" lists let the merge explicitly exclude them.
-  let hiddenRateSites = [];
-  let hiddenFuelTrucks = [];
-  let _unsubscribeRealtime = null; // active Firestore onSnapshot() unsubscribe handle for the work-data doc, or null
-  let _unsubscribeProfileSync = null; // active Firestore onSnapshot() unsubscribe handle for the profile doc (access control), or null
 
   // firebaseReady only means "the Firebase SDK object was constructed" — it's set once
   // at boot and never reflects the device actually losing its network connection
@@ -449,86 +435,6 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     return false;
   }
 
-  // Tears down any active Firestore listener. This MUST run before a different
-  // account's data is loaded (register, login as someone else, sign out) —
-  // otherwise a listener left over from the previous identity would keep
-  // delivering that account's changes into whichever user is now signed in,
-  // which is the exact same cross-account leak class the one-time load/sync
-  // functions were already hardened against.
-  function stopRealtimeSync(){
-    if(_unsubscribeRealtime){
-      try{ _unsubscribeRealtime(); }catch(e){}
-      _unsubscribeRealtime = null;
-    }
-    if(_unsubscribeProfileSync){
-      try{ _unsubscribeProfileSync(); }catch(e){}
-      _unsubscribeProfileSync = null;
-    }
-  }
-
-  // Subscribes to this user's Firestore document so changes made from another
-  // device (or another tab) show up here automatically, without needing to
-  // close and reopen the app. Firestore's listener handles its own network
-  // reconnection, so this only needs to be (re)established once per login —
-  // it does not need a manual retry loop the way one-off writes do.
-  function startRealtimeSync(){
-    stopRealtimeSync();
-    if(!currentUser) return;
-    const db = window.__wlDB;
-    const f = window.__wlFire;
-    if(!db || !f || !f.onSnapshot) return; // Firebase SDK never loaded this session
-    const uid = currentUser.userId;
-    const ref = f.doc(db, 'users', uid, 'data', 'worklog');
-    try {
-      _unsubscribeRealtime = f.onSnapshot(ref, snap => {
-        if(!currentUser || currentUser.userId !== uid) return; // stale callback from a listener that should already be torn down
-        // hasPendingWrites is true for the local optimistic echo of our OWN
-        // outgoing write, before the server has acknowledged it — skip that
-        // case so saving on this device doesn't immediately re-process (and
-        // re-render on top of) the very data it just wrote.
-        if(snap.metadata.hasPendingWrites) return;
-        if(!snap.exists()) return;
-        const data = snap.data();
-        entries = data.entries ? JSON.parse(data.entries) : [];
-        rates = data.rates ? JSON.parse(data.rates) : [];
-        fuelPins = data.fuelPins ? JSON.parse(data.fuelPins) : [];
-        deletedEntries = data.deletedEntries ? JSON.parse(data.deletedEntries) : [];
-        try{
-          localStorage.setItem('worklog:entries', JSON.stringify(entries));
-          localStorage.setItem('worklog:rates', JSON.stringify(rates));
-          localStorage.setItem('worklog:fuelpins', JSON.stringify(fuelPins));
-          localStorage.setItem('worklog:deleted', JSON.stringify(deletedEntries));
-        }catch(e){}
-        localStorage.setItem('worklog:last_fb_sync', new Date().toISOString());
-        if(loaded) renderSavingFocus();
-      }, err => {
-        console.error('Realtime listener error', err);
-      });
-    } catch(e){ console.error('Failed to start realtime listener', e); }
-
-    // Separate listener on the user's own PROFILE document (not the work-data
-    // one above) — this is where an admin's Trip Rates / Fuel Pins access
-    // toggle actually lives. Without this, a permission change only takes
-    // effect the next time the affected user fully reopens the app, since
-    // access is otherwise only read once at login/boot.
-    try {
-      const profileRef = f.doc(db, 'users', uid);
-      _unsubscribeProfileSync = f.onSnapshot(profileRef, snap => {
-        if(!currentUser || currentUser.userId !== uid) return; // stale callback, listener should already be torn down
-        if(snap.metadata.hasPendingWrites) return; // skip echo of our own writes (e.g. Profile name/PIN save)
-        if(!snap.exists()) return;
-        const data = snap.data();
-        const newAccess = data.access || { rates:true, fuelPins:true };
-        if(JSON.stringify(newAccess) !== JSON.stringify(currentUser.access)){
-          currentUser.access = newAccess;
-          if(loaded) renderSavingFocus();
-        }
-      }, err => {
-        console.error('Profile listener error', err);
-      });
-    } catch(e){ console.error('Failed to start profile listener', e); }
-  }
-
   function saveSession(userId, displayName){
     localStorage.setItem('worklog:session', JSON.stringify({ userId, displayName, ts: Date.now() }));
   }
@@ -552,7 +458,6 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // whichever account logs in next, since none of entries/rates/fuelPins/
   // deletedEntries or their localStorage keys are namespaced per user.
   function resetLocalDataState(){
-    stopRealtimeSync(); // never let a listener from the previous identity keep delivering into this one
     entries = [];
     rates = [];
     fuelPins = [];
@@ -696,7 +601,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       }
       authLoading = false;
       if(err){ authError = err; renderApp(); }
-      else { migrateLocalData(); loadEntries(); startRealtimeSync(); renderApp(); }
+      else { migrateLocalData(); loadEntries(); renderApp(); }
     });
     // Allow Enter key to submit
     ['auth_userid','auth_pin','auth_name'].forEach(id=>{
@@ -726,8 +631,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-07-29 06:01';
-  const APP_VERSION = '3.6';
+  const BUILD_TIME_MST = '2026-07-21 18:33';
+  const APP_VERSION = '3.1';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -913,7 +818,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       const entry = entries.find(en=>en.id===demurrageForm.entryId);
       if(!entry) return;
       if(!entry.dh.demurrages) entry.dh.demurrages = [];
-      const d = { ref: demurrageForm.ref, start: demurrageForm.start, end: demurrageForm.end, claimed: demurrageForm.claimed, reason: demurrageForm.reason, realPay: demurrageForm.realPay||'No', finalPaid: demurrageForm.finalPaid||'No' };
+      const d = { ref: demurrageForm.ref, start: demurrageForm.start, end: demurrageForm.end, claimed: demurrageForm.claimed, reason: demurrageForm.reason, realPay:'No', finalPaid:'No' };
       const wasEdit = demurrageForm.editIdx !== null;
       if(demurrageForm.editIdx !== null) entry.dh.demurrages[demurrageForm.editIdx] = d;
       else entry.dh.demurrages.push(d);
@@ -1275,8 +1180,6 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         if(globalDefaults.fuelPins) baseFuelPins = globalDefaults.fuelPins;
       }
     }
-    baseRatesSnapshot = baseRates.map(r=>({...r}));
-    baseFuelPinsSnapshot = baseFuelPins.map(p=>({...p}));
     // The admin's own published global doc is already their full, authoritative list
     // (it's exactly what fbSaveGlobalDefaults last sent). Re-overlaying local storage on
     // top of it would resurrect anything admin deleted, so admin uses it as-is.
@@ -1284,8 +1187,6 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       rates = baseRates.map(r=>({...r}));
       fuelPins = baseFuelPins.map(p=>({...p}));
     } else {
-      try{ hiddenRateSites = JSON.parse(localStorage.getItem('worklog:hidden_rates')||'[]'); }catch(e){ hiddenRateSites = []; }
-      try{ hiddenFuelTrucks = JSON.parse(localStorage.getItem('worklog:hidden_fuelpins')||'[]'); }catch(e){ hiddenFuelTrucks = []; }
       try{
         const rraw = localStorage.getItem('worklog:rates');
         const storedRates = rraw ? JSON.parse(rraw) : [];
@@ -1296,10 +1197,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           if(idx > -1) mergedRates[idx] = sr;
           else mergedRates.push(sr);
         });
-        // Drop any baseline site this user has explicitly deleted — the merge above
-        // can only add/replace, so without this a "deleted" baseline rate would
-        // silently reappear here every time.
-        rates = mergedRates.filter(r => !hiddenRateSites.includes(r.site.trim().toLowerCase()));
+        rates = mergedRates;
       }catch(e){ rates = baseRates.map(r=>({...r})); }
       try{
         const fraw = localStorage.getItem('worklog:fuelpins');
@@ -1311,7 +1209,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           if(idx > -1) merged[idx] = sp;
           else merged.push(sp);
         });
-        fuelPins = merged.filter(p => !hiddenFuelTrucks.includes(p.truck.trim().toLowerCase()));
+        fuelPins = merged;
       }catch(e){ fuelPins = baseFuelPins.map(p=>({...p})); }
     }
     try{
@@ -1352,19 +1250,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   }
   function saveRates(){
     try{
-      if(isAdmin()){
-        localStorage.setItem('worklog:rates', JSON.stringify(rates));
-      } else {
-        // Only persist sites this user actually added or changed. Writing the
-        // full merged list would freeze every baked-in/admin-global site —
-        // including ones this user never touched — into their own storage,
-        // permanently hiding any future admin updates to those untouched sites.
-        const personal = rates.filter(r=>{
-          const base = baseRatesSnapshot.find(b=>b.site.trim().toLowerCase()===r.site.trim().toLowerCase());
-          return !base || base.rate !== r.rate; // new site, or rate changed from baseline
-        });
-        localStorage.setItem('worklog:rates', JSON.stringify(personal));
-      }
+      localStorage.setItem('worklog:rates', JSON.stringify(rates));
       autoBackup();
       fbSyncToCloud();
       if(isAdmin()) fbSaveGlobalDefaults();
@@ -1372,17 +1258,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   }
   function saveFuelPins(){
     try{
-      if(isAdmin()){
-        localStorage.setItem('worklog:fuelpins', JSON.stringify(fuelPins));
-      } else {
-        // Same reasoning as saveRates() above — only persist trucks this user
-        // actually added or changed, not the entire merged list.
-        const personal = fuelPins.filter(p=>{
-          const base = baseFuelPinsSnapshot.find(b=>b.truck.trim().toLowerCase()===p.truck.trim().toLowerCase());
-          return !base || JSON.stringify(base.pins) !== JSON.stringify(p.pins);
-        });
-        localStorage.setItem('worklog:fuelpins', JSON.stringify(personal));
-      }
+      localStorage.setItem('worklog:fuelpins', JSON.stringify(fuelPins));
       autoBackup();
       fbSyncToCloud();
       if(isAdmin()) fbSaveGlobalDefaults();
@@ -1527,14 +1403,9 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         </div>`;
       pendingLoads.forEach((load, i) => {
         const isDH = load.type === 'DH';
-        const dObj = load.date ? new Date(load.date+'T00:00:00') : null;
-        const niceDate = dObj ? dObj.toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
         html += `<div style="background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
           <div style="flex:1;min-width:0;">
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:${isDH?'var(--amber)':'var(--moss)'};margin-bottom:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-              <span>${isDH?'DH':'TMW'}</span>
-              ${niceDate ? `<span style="color:var(--muted);font-weight:600;">${esc(niceDate)}${load.truck?' · Truck '+esc(load.truck):''}</span>` : ''}
-            </div>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:${isDH?'var(--amber)':'var(--moss)'};margin-bottom:3px;">${isDH?'DH':'TMW'}</div>
             <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px;">
               <span style="color:var(--rust);">#${esc(load.number)}</span>
               ${isDH
@@ -2534,7 +2405,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       app.querySelectorAll('[data-add-demurrage]').forEach(btn=>{
         btn.onclick = e=>{
           const id = e.currentTarget.dataset.addDemurrage;
-          demurrageForm = { entryId:id, editIdx:null, ref:'', start:'', end:'', claimed:'', reason:'', realPay:'No', finalPaid:'No' };
+          demurrageForm = { entryId:id, editIdx:null, ref:'', start:'', end:'', claimed:'', reason:'' };
           showDemurrageModal();
         };
       });
@@ -2544,10 +2415,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           const entry = entries.find(en=>en.id===id);
           if(!entry || !entry.dh.demurrages[di]) return;
           const d = entry.dh.demurrages[di];
-          // Carry over the existing Real Pay / Final Paid status — editing the
-          // reason, times, or reference number should never silently reset a
-          // demurrage that was already marked paid back to unpaid.
-          demurrageForm = { entryId:id, editIdx:di, ref:d.ref||'', start:d.start||'', end:d.end||'', claimed:d.claimed||'', reason:d.reason||'', realPay:d.realPay||'No', finalPaid:d.finalPaid||'No' };
+          demurrageForm = { entryId:id, editIdx:di, ref:d.ref||'', start:d.start||'', end:d.end||'', claimed:d.claimed||'', reason:d.reason||'' };
           showDemurrageModal();
         };
       });
@@ -2685,17 +2553,11 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
             const idx = rates.findIndex(r=>r.id === id);
             if(idx === -1) return;
             const removed = rates[idx];
-            // If this site came from the baked-in/admin-global baseline, deleting
-            // it alone won't stick on next load (the merge would just bring it
-            // back) — track it as hidden so the merge knows to exclude it.
-            const wasBaseline = !isAdmin() && baseRatesSnapshot.some(b=>b.site.trim().toLowerCase()===removed.site.trim().toLowerCase());
             rates.splice(idx, 1);
-            if(wasBaseline) hideRateSite(removed.site);
             saveRates();
             render();
             undoToast('Rate deleted', ()=>{
               rates.splice(idx, 0, removed);
-              if(wasBaseline) unhideRateSite(removed.site);
               saveRates();
               render();
             });
@@ -2746,17 +2608,10 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
             const idx = fuelPins.findIndex(f=>f.id===id);
             if(idx===-1) return;
             const removed = fuelPins[idx];
-            const wasBaseline = !isAdmin() && baseFuelPinsSnapshot.some(b=>b.truck.trim().toLowerCase()===removed.truck.trim().toLowerCase());
             fuelPins.splice(idx,1);
-            if(wasBaseline) hideFuelTruck(removed.truck);
             saveFuelPins();
             render();
-            undoToast('Fuel pins deleted', ()=>{
-              fuelPins.splice(idx,0,removed);
-              if(wasBaseline) unhideFuelTruck(removed.truck);
-              saveFuelPins();
-              render();
-            });
+            undoToast('Fuel pins deleted', ()=>{ fuelPins.splice(idx,0,removed); saveFuelPins(); render(); });
           });
         };
       });
@@ -2947,7 +2802,6 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     } else {
       fuelPins.push({ id:'fp_'+Date.now()+'_'+Math.random().toString(36).slice(2,7), truck, pins });
     }
-    unhideFuelTruck(truck); // clear any prior deletion tombstone for this truck number
     saveFuelPins();
     toast(editingFuelId ? 'Fuel pins updated' : 'Fuel pins saved');
     editingFuelId=null;
@@ -3086,37 +2940,6 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     return html;
   }
 
-  function hideRateSite(site){
-    const key = site.trim().toLowerCase();
-    if(!hiddenRateSites.includes(key)){
-      hiddenRateSites.push(key);
-      try{ localStorage.setItem('worklog:hidden_rates', JSON.stringify(hiddenRateSites)); }catch(e){}
-    }
-  }
-  function unhideRateSite(site){
-    const key = site.trim().toLowerCase();
-    const idx = hiddenRateSites.indexOf(key);
-    if(idx > -1){
-      hiddenRateSites.splice(idx,1);
-      try{ localStorage.setItem('worklog:hidden_rates', JSON.stringify(hiddenRateSites)); }catch(e){}
-    }
-  }
-  function hideFuelTruck(truck){
-    const key = truck.trim().toLowerCase();
-    if(!hiddenFuelTrucks.includes(key)){
-      hiddenFuelTrucks.push(key);
-      try{ localStorage.setItem('worklog:hidden_fuelpins', JSON.stringify(hiddenFuelTrucks)); }catch(e){}
-    }
-  }
-  function unhideFuelTruck(truck){
-    const key = truck.trim().toLowerCase();
-    const idx = hiddenFuelTrucks.indexOf(key);
-    if(idx > -1){
-      hiddenFuelTrucks.splice(idx,1);
-      try{ localStorage.setItem('worklog:hidden_fuelpins', JSON.stringify(hiddenFuelTrucks)); }catch(e){}
-    }
-  }
-
   function onSaveRate(){
     const site = rateForm.site.trim().toUpperCase();
     const rateVal = rateForm.rate.trim();
@@ -3129,7 +2952,6 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       if(dup){ toast('Site already has a rate \u2014 edit it instead'); return; }
       rates.push({ id: 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2,7), site, rate: rateVal });
     }
-    unhideRateSite(site); // clear any prior deletion tombstone for this site name
     saveRates();
     toast(editingRateId ? 'Rate updated' : 'Rate added');
     editingRateId = null;
@@ -3722,9 +3544,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
                 dh:null, tmw:{ number: g.number, site: g.site, waitings },
                 realPay:g.realPay, finalPaid:g.finalPaid,
                 comment: idx.comments>-1 ? (firstRow[idx.comments]||'') : '',
-                finalPaidAt: null
+                finalPaidAt: g.finalPaid==='Yes' ? Date.now() : null
               };
-              entry.finalPaidAt = tmwAllFinalPaid(entry) ? Date.now() : null;
             }
             const xi = findExistingIdx(g.date, g.truck, g.type, g.number, g.ref);
             if(xi>-1){ entry.id=entries[xi].id; entry.created=entries[xi].created; entries[xi]=entry; entriesReplaced++; }
@@ -3747,7 +3568,6 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
               const xi = rates.findIndex(x=>x.site.trim().toLowerCase()===site.toLowerCase());
               if(xi>-1){ rates[xi].rate=rate; ratesReplaced++; }
               else { rates.push({id:'r_'+Date.now()+'_'+Math.random().toString(36).slice(2,7), site, rate}); ratesAdded++; }
-              unhideRateSite(site); // an explicit import re-adds it, so any prior deletion tombstone no longer applies
             });
             if(ratesAdded||ratesReplaced) saveRates();
           }
@@ -3771,7 +3591,6 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
               const xi = fuelPins.findIndex(f=>f.truck.trim().toLowerCase()===truck.toLowerCase());
               if(xi>-1){ fuelPins[xi].pins=pins; fuelReplaced++; }
               else { fuelPins.push({id:'fp_'+Date.now()+'_'+Math.random().toString(36).slice(2,7), truck, pins}); fuelAdded++; }
-              unhideFuelTruck(truck); // an explicit import re-adds it, so any prior deletion tombstone no longer applies
             });
             if(fuelAdded||fuelReplaced) saveFuelPins();
           }
@@ -3826,8 +3645,6 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       if(!validateDHForm()) return;
       pendingLoads.push({
         type: 'DH',
-        date: form.date,
-        truck: form.truck,
         number: form.dh.number.trim(),
         reason: form.dh.reason,
         start: form.dh.start,
@@ -3854,8 +3671,6 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     // Stage current load into pending queue
     pendingLoads.push({
       type: 'TMW',
-      date: form.date,
-      truck: form.truck,
       number: form.tmw.number.trim(),
       site: form.tmw.site.toUpperCase(),
       waitings: form.tmw.waitings.map(w=>({...w}))
@@ -3876,14 +3691,10 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     if(!pendingLoads.length){ toast('No entries to save'); return; }
     pendingLoads.forEach(load => {
       const id = 'e_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
-      // Each queued load carries its own date/truck from the moment it was
-      // queued — using the CURRENT form's date/truck here instead would
-      // silently rewrite every already-queued item if the person changed
-      // the date or truck field before hitting Save All.
       if(load.type === 'DH'){
         entries.push({
           id, created: Date.now(),
-          date: load.date, truck: load.truck,
+          date: form.date, truck: form.truck,
           type: 'DH',
           dh: { number: load.number, reason: load.reason, start: load.start, end: load.end, ref: load.ref, claimed: load.claimed, demurrages: load.demurrages||[] },
           tmw: null,
@@ -3892,7 +3703,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       } else {
         entries.push({
           id, created: Date.now(),
-          date: load.date, truck: load.truck,
+          date: form.date, truck: form.truck,
           type: 'TMW',
           dh: null,
           tmw: { number: load.number, site: load.site, waitings: load.waitings },
@@ -3938,29 +3749,14 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       realPay: existing ? existing.realPay : 'No',
       finalPaid: existing ? existing.finalPaid : 'No'
     };
-    let groupRenamed = 0;
     if(existing){
       const idx = entries.findIndex(en=>en.id === existing.id);
-      const oldDate = existing.date;
-      const oldNumber = existing.type==='DH' ? existing.dh.number : null;
       entries[idx] = entry;
-      // If this was a Deadhead entry and its number just changed, rename every
-      // OTHER entry that was grouped with it (same date + old number) to match
-      // — otherwise the edited entry splits off on its own and the rest of the
-      // group is silently left behind under the old number.
-      if(entry.type === 'DH' && oldNumber && entry.dh.number !== oldNumber){
-        entries.forEach(en=>{
-          if(en.id !== entry.id && en.type==='DH' && en.date===oldDate && en.dh.number===oldNumber){
-            en.dh.number = entry.dh.number;
-            groupRenamed++;
-          }
-        });
-      }
     } else {
       entries.push(entry);
     }
     saveEntries();
-    toast(existing ? (groupRenamed ? `Entry updated \u2014 ${groupRenamed+1} entries renamed to match` : 'Entry updated') : 'Entry saved');
+    toast(existing ? 'Entry updated' : 'Entry saved');
     editingId = null;
     form = blankForm();
     view = 'log';
@@ -4005,7 +3801,6 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         if(entriesChanged){ autoBackup(); fbSyncToCloud(); }
       }
       loadEntries();
-      startRealtimeSync();
     } else {
       // Show auth screen immediately (no session)
       renderApp();
