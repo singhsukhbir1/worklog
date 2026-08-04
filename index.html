@@ -741,8 +741,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-08-03 11:15';
-  const APP_VERSION = '3.9';
+  const BUILD_TIME_MST = '2026-08-03 12:00';
+  const APP_VERSION = '3.10';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -3049,25 +3049,9 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     // Find max pins count for column headers
     const maxPins = Math.max(...sorted.map(f=>f.pins.filter(Boolean).length), 1);
 
-    // If editing, show inline edit form above table
-    if(editingFuelId){
-      const f = sorted.find(x=>x.id===editingFuelId);
-      html += `<div class="card" style="margin-bottom:14px;"><h2>Edit Fuel Pins — Truck ${esc(fuelForm.truck)}</h2>`;
-      fuelForm.pins.forEach((pin,i)=>{
-        html += `<div class="row single fuel-pin-row" style="margin-bottom:8px;">
-          <div class="field" style="position:relative;">
-            <label>Pin ${i+1}</label>
-            <input type="text" data-pin-input="${i}" placeholder="Enter fuel pin" value="${esc(pin)}" style="padding-right:${fuelForm.pins.length>1?'50px':'12px'}">
-            ${fuelForm.pins.length>1 ? `<button class="pin-remove" data-remove-pin="${i}">&times;</button>` : ''}
-          </div>
-        </div>`;
-      });
-      html += `<button class="btn add" id="add_pin" style="margin-bottom:10px;font-size:12px;padding:8px 12px;">+ Add Pin</button>`;
-      html += `<div class="btnrow" style="margin-top:0;">
-        <button class="btn primary" id="save_fuel" style="flex:none;padding:10px 18px;">Update</button>
-        <button class="btn ghost" id="cancel_fuel">Cancel</button>
-      </div></div>`;
-    }
+    // Editing now happens inline within the table row itself (see below) instead
+    // of in a separate card above the table — clicking Edit no longer jumps the
+    // page to the top when the truck being edited is further down the list.
 
     // Excel-style table
     html += `<div class="card" style="padding:0;overflow:hidden;">
@@ -3083,11 +3067,30 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           </thead>
           <tbody>
             ${sorted.map((f,ri)=>{
+              const isEditing = editingFuelId === f.id;
+              if(isEditing){
+                return `<tr style="background:#fffbe6;border-bottom:1px solid var(--line);">
+                  <td colspan="${maxPins+3}" style="padding:14px 12px;">
+                    <div style="font-weight:800;font-size:13px;color:var(--ink);margin-bottom:10px;">Edit Fuel Pins &mdash; Truck ${esc(fuelForm.truck)}</div>
+                    ${fuelForm.pins.map((pin,i)=>`<div class="row single fuel-pin-row" style="margin-bottom:8px;">
+                      <div class="field" style="position:relative;">
+                        <label>Pin ${i+1}</label>
+                        <input type="text" data-pin-input="${i}" placeholder="Enter fuel pin" value="${esc(pin)}" style="padding-right:${fuelForm.pins.length>1?'50px':'12px'}">
+                        ${fuelForm.pins.length>1 ? `<button class="pin-remove" data-remove-pin="${i}">&times;</button>` : ''}
+                      </div>
+                    </div>`).join('')}
+                    <button class="btn add" id="add_pin" style="margin-bottom:10px;font-size:12px;padding:8px 12px;">+ Add Pin</button>
+                    <div class="btnrow" style="margin-top:0;">
+                      <button class="btn primary" id="save_fuel" style="flex:none;padding:10px 18px;">Update</button>
+                      <button class="btn ghost" id="cancel_fuel">Cancel</button>
+                    </div>
+                  </td>
+                </tr>`;
+              }
               const pins = f.pins.filter(Boolean);
               const isEven = ri%2===0;
               const rowBg = isEven ? 'var(--paper)' : '#ffffff';
-              const isEditing = editingFuelId === f.id;
-              return `<tr style="background:${isEditing?'#fffbe6':rowBg};border-bottom:1px solid var(--line);">
+              return `<tr style="background:${rowBg};border-bottom:1px solid var(--line);">
                 <td style="padding:10px 12px;color:var(--muted);font-size:11px;font-weight:600;border-right:1px solid var(--line);text-align:center;">${ri+1}</td>
                 <td style="padding:10px 12px;font-weight:700;color:var(--ink);border-right:1px solid var(--line);letter-spacing:.02em;">${esc(f.truck)}</td>
                 ${Array.from({length:maxPins},(_,pi)=>
@@ -3095,7 +3098,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
                 ).join('')}
                 <td style="padding:8px 10px;text-align:center;white-space:nowrap;">
                   <button class="delbtn editbtn" data-edit-fuel="${f.id}" style="margin-right:8px;">Edit</button>
-                  <button class="delbtn" data-del-fuel="${f.id}">Delete</button>
+                  <button class="delbtn" data-del-fuel="${f.id}">Del</button>
                 </td>
               </tr>`;
             }).join('')}
@@ -3197,11 +3200,11 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         html += `<div class="logrow" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
           <div>
             <div class="lognum">${esc(r.site)}</div>
-            <div class="logtruck">$${esc(r.rate)}</div>
+            <div style="font-size:13px;color:var(--moss);font-weight:600;margin-top:2px;">$${esc(r.rate)}</div>
           </div>
           <div style="display:flex;gap:8px;flex-shrink:0;">
             <button class="delbtn editbtn" data-edit-rate="${r.id}">Edit</button>
-            <button class="delbtn" data-del-rate="${r.id}">Delete</button>
+            <button class="delbtn" data-del-rate="${r.id}">Del</button>
           </div>
         </div>`;
       }
