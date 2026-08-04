@@ -741,8 +741,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-08-03 10:30';
-  const APP_VERSION = '3.8';
+  const BUILD_TIME_MST = '2026-08-03 11:15';
+  const APP_VERSION = '3.9';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -3749,7 +3749,18 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
               entry.finalPaidAt = tmwAllFinalPaid(entry) ? Date.now() : null;
             }
             const xi = findExistingIdx(g.date, g.truck, g.type, g.number, g.ref);
-            if(xi>-1){ entry.id=entries[xi].id; entry.created=entries[xi].created; entries[xi]=entry; entriesReplaced++; }
+            if(xi>-1){
+              const prev = entries[xi];
+              entry.id = prev.id; entry.created = prev.created;
+              // If this entry was already fully Final Paid before the import (same
+              // status, not a fresh transition), keep its original finalPaidAt
+              // instead of the Date.now() computed above — otherwise re-importing
+              // the same CSV periodically would keep restarting the 7-day
+              // auto-delete countdown forever and these entries would never purge.
+              const wasAllFinal = prev.type==='DH' ? dhAllFinalPaid(prev) : tmwAllFinalPaid(prev);
+              if(entry.finalPaidAt && wasAllFinal && prev.finalPaidAt) entry.finalPaidAt = prev.finalPaidAt;
+              entries[xi]=entry; entriesReplaced++;
+            }
             else { entries.push(entry); entriesAdded++; }
             ic++;
           });
@@ -3958,7 +3969,16 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       dh: form.type==='DH' ? {...form.dh, claimed: calcClaimedValue(form.dh.start, form.dh.end)||form.dh.claimed, demurrages: (form.dh.demurrages||[]).map(d=>({...d}))} : null,
       tmw: form.type==='TMW' ? { number: form.tmw.number, site: form.tmw.site.toUpperCase(), waitings: form.tmw.waitings.map(w=>({...w})) } : null,
       realPay: existing ? existing.realPay : 'No',
-      finalPaid: existing ? existing.finalPaid : 'No'
+      finalPaid: existing ? existing.finalPaid : 'No',
+      // Preserve the original Final Paid timestamp across an edit. Without this,
+      // editing any field of an already Final-Paid entry (fixing a typo, adjusting
+      // a time) would drop finalPaidAt to undefined here, and the next loadEntries()
+      // normalization pass would treat that as "just became final paid" and stamp
+      // it with Date.now() — silently restarting the 7-day auto-delete countdown
+      // from whenever the app next reloads, instead of from when it was actually
+      // marked Final Paid. Paid status/timestamp aren't editable on this form at
+      // all, so simply carrying the existing value forward is always correct.
+      finalPaidAt: existing ? existing.finalPaidAt : null
     };
     let groupRenamed = 0;
     if(existing){
