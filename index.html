@@ -156,40 +156,43 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
 .daycount{font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:12px;}
 
 
-.logrow{padding:14px 0;border-bottom:1px solid var(--line);transition:background-color .2s;}
-.logrow-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
-.logrow-actions{display:flex;gap:8px;margin-bottom:10px;}
-.logrow-actions .delbtn{flex:1;}
-.logrow.paid-real{background:#A8D9DC;border-radius:4px;padding-left:10px;padding-right:10px;margin:0 -10px 0;border-bottom-color:#8fc4c7;}
-.logrow.paid-final{background:#DCA8D9;border-radius:4px;padding-left:10px;padding-right:10px;margin:0 -10px 0;border-bottom-color:#c491c1;}
-.autodel{font-size:11px;color:var(--rust);font-weight:600;margin-left:auto;}
+.logrow{padding:16px 0;border-bottom:1px solid var(--line);transition:background-color .2s;}
+.logrow-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.logrow-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.logrow-meta{margin-top:5px;font-size:12px;color:var(--muted);font-weight:600;}
+.logrow-actions{display:flex;gap:6px;flex-shrink:0;}
+.logrow-actions .delbtn{padding:7px 12px;font-size:11px;flex:none;}
+.logrow.paid-real{background:#A8D9DC;border-radius:6px;padding-left:12px;padding-right:12px;margin:0 -12px 0;border-bottom-color:#8fc4c7;}
+.logrow.paid-final{background:#DCA8D9;border-radius:6px;padding-left:12px;padding-right:12px;margin:0 -12px 0;border-bottom-color:#c491c1;}
+.autodel{font-size:11px;color:var(--rust);font-weight:600;}
 @keyframes conn-pulse{ 0%,100%{opacity:1;} 50%{opacity:.5;} }
 .conn-online{ animation:conn-pulse 2s ease-in-out infinite; }
 .logrow:last-child{border-bottom:none;}
-.lognum{font-weight:700;font-size:14px;}
-.logsite{font-size:13px;color:var(--moss);font-weight:600;text-transform:uppercase;}
-.logtruck{font-size:12px;color:var(--muted);}
+.lognum{font-weight:800;font-size:15px;letter-spacing:.01em;}
+.logsite{color:var(--moss);font-weight:700;}
+.logtruck{color:var(--muted);}
 
-.claimrow{padding:12px;margin:8px 0;background:var(--paper);border-left:3px solid var(--amber);border-radius:0 4px 4px 0;font-size:13px;transition:background-color .2s;}
+.claimrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;margin:8px 0;background:var(--paper);border-left:3px solid var(--amber);border-radius:0 6px 6px 0;font-size:13px;transition:background-color .2s;}
 .claimrow.paid-real{background:#A8D9DC;border-left-color:#8fc4c7;}
 .claimrow.paid-final{background:#DCA8D9;border-left-color:#c491c1;}
-.claimrow-top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
-.claimrow .claimtime{font-weight:700;color:var(--amber);font-size:15px;}
-.claimrow .claimkind{flex:1;color:var(--ink);font-weight:600;min-width:80px;}
-.claimrow .claimref{color:var(--muted);font-size:13px;font-weight:700;}
+.claimrow-info{min-width:0;}
+.claimrow-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+.claimrow .claimtime{font-weight:800;color:var(--amber);font-size:15px;}
+.claimrow.paid-real .claimtime,.claimrow.paid-final .claimtime{color:var(--ink);}
+.claimrow .claimkind{color:var(--ink);font-weight:600;}
+.claimrow .claimref{display:block;margin-top:2px;color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;}
 
-.refpay{display:flex;gap:8px;margin-bottom:8px;}
-.refpay .paystat-field{flex:1;}
-.refpay-actions{display:flex;gap:8px;}
-.refpay-actions .delbtn{flex:1;}
+.refpay-actions{display:flex;gap:6px;flex-shrink:0;}
+.refpay-actions .delbtn{padding:7px 10px;font-size:11px;flex:none;}
+
+.paycell{display:flex;gap:12px;flex-shrink:0;align-items:center;}
+.paycell .pcell{display:flex;align-items:center;gap:4px;}
+.paycell .pcell span{font-size:9px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:800;}
+.paycell select{padding:5px 6px;border:1px solid var(--line);border-radius:4px;font-size:12px;font-weight:700;background:#fff;color:var(--ink);cursor:pointer;min-width:52px;}
 .comment-btn{width:100%;background:var(--paper);border:1px dashed var(--line);color:var(--muted);font-weight:600;text-align:left;justify-content:flex-start;padding:9px 12px;}
 .comment-btn.has-comment{background:#fdf6e3;border:1px solid #e8d8a8;color:var(--ink);}
 
 .paystatus{display:flex;gap:10px;margin:0 0 4px;}
-.paystat-field{flex:1;display:flex;flex-direction:column;gap:4px;}
-.paystat-field label{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;}
-.paystat-field select{width:100%;padding:11px 10px;border:1px solid var(--line);border-radius:4px;font-size:14px;background:var(--paper);color:var(--ink);font-weight:600;min-height:44px;-webkit-appearance:none;appearance:none;}
-.refpay select{padding:10px 10px;border:1px solid var(--line);border-radius:4px;font-size:13px;background:#fff;color:var(--muted);font-weight:600;min-height:42px;-webkit-appearance:none;appearance:none;}
 
 .ratehint{font-size:11px;color:var(--moss);margin:-6px 0 12px;padding:4px 8px;background:#eaf1ea;border-left:2px solid var(--moss);border-radius:0 3px 3px 0;}
 .num-flag{font-size:11px;color:var(--rust);margin:-6px 0 12px;padding:4px 8px;background:#fbeee8;border-left:2px solid var(--rust);border-radius:0 3px 3px 0;font-weight:600;}
@@ -213,10 +216,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   .logtruck{margin-left:0;margin-right:0;}
   .delbtn{margin-left:auto;}
 
-  .claimrow{flex-wrap:wrap;row-gap:6px;}
-  .refpay{margin-left:0;width:100%;flex-direction:column;gap:8px;}
-  .refpay .delbtn{width:100%;}
-  .refpay select{width:100%;min-height:38px;font-size:12px;}
+  .claimrow{flex-wrap:wrap;row-gap:8px;}
   .statusbar{gap:8px;}
   .statcard{min-width:calc(33% - 6px);padding:10px;}
   table{font-size:12px;}
@@ -741,8 +741,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-08-03 12:00';
-  const APP_VERSION = '3.10';
+  const BUILD_TIME_MST = '2026-08-03 17:10';
+  const APP_VERSION = '3.22';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -816,7 +816,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     return { kind:'', comments:'', start:'', end:'', claimed:'', ref:'', realPay:'No', finalPaid:'No' };
   }
 
-  function loadIntoForm(entry){
+  function loadIntoForm(entry, inline){
     editingId = entry.id;
     form = {
       date: entry.date,
@@ -834,9 +834,13 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           }
         : { number:'', site:'', anyWaiting:null, waitings:[] }
     };
-    view = 'entry';
-    render();
-    window.scrollTo({top:0, behavior:'smooth'});
+    if(!inline){
+      view = 'entry';
+      render();
+      window.scrollTo({top:0, behavior:'smooth'});
+    } else {
+      render();
+    }
   }
 
   function toast(msg){
@@ -869,76 +873,38 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     };
   }
 
-  function showDemurrageModal(){
-    const existing = document.getElementById('demurrage-overlay');
-    if(existing) existing.remove();
-
-    const overlay = document.createElement('div');
-    overlay.id = 'demurrage-overlay';
-    overlay.className = 'confirm-overlay';
-
+  function demurrageFormHtml(){
     const autoClaimed = calcClaimedDecimal(demurrageForm.start, demurrageForm.end);
     if(autoClaimed) demurrageForm.claimed = autoClaimed;
-
-    overlay.innerHTML = `
-      <div class="confirm-box" style="max-width:400px;">
-        <h2 style="font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 14px;border-bottom:1px solid var(--line);padding-bottom:8px;">${demurrageForm.editIdx!==null?'Edit Demurrage':'Add Demurrage'}</h2>
+    return `<div class="claimrow" style="display:block;border-left-color:var(--amber);">
+        <div style="font-weight:800;font-size:13px;color:var(--ink);margin-bottom:12px;">${demurrageForm.editIdx!==null?'Edit Demurrage':'Add Demurrage'}</div>
         <div class="row single field"><label>Reason</label><input id="dm_reason" type="text" placeholder="e.g. Waiting at dock" value="${esc(demurrageForm.reason||'')}"></div>
         <div class="row"><div class="field"><label>Start Time (24hr)</label><input id="dm_start" type="text" value="${esc(demurrageForm.start||'')}" placeholder="HH:MM" maxlength="5" inputmode="numeric" autocomplete="off" style="letter-spacing:.08em;"></div>
         <div class="field"><label>End Time (24hr)</label><input id="dm_end" type="text" value="${esc(demurrageForm.end||'')}" placeholder="HH:MM" maxlength="5" inputmode="numeric" autocomplete="off" style="letter-spacing:.08em;"></div></div>
         <div class="field" style="margin-bottom:12px;"><label>Claimed Time (auto-calculated)</label><div class="claimed-auto" id="dm_claimed_display">${autoClaimed||'Enter times above'}</div></div>
         <div class="row single field"><label>Reference Number</label><input id="dm_ref" type="text" value="${esc(demurrageForm.ref||'')}" maxlength="6" inputmode="numeric"></div>
         <div id="dm_ref_flag"></div>
-        <div class="confirm-btns" style="margin-top:14px;">
+        <div class="btnrow" style="margin-top:10px;">
+          <button class="btn primary" id="dm_save" style="flex:none;padding:10px 18px;">Save</button>
           <button class="btn ghost" id="dm_cancel">Cancel</button>
-          <button class="btn primary" id="dm_save">Save</button>
         </div>
       </div>`;
+  }
 
-    document.body.appendChild(overlay);
-    requestAnimationFrame(()=>overlay.classList.add('show'));
-
-    const updateCalc = ()=>{
-      const s = overlay.querySelector('#dm_start').value;
-      const e2 = overlay.querySelector('#dm_end').value;
-      demurrageForm.start = s;
-      demurrageForm.end = e2;
-      const calc = calcClaimedDecimal(s, e2);
-      demurrageForm.claimed = calc;
-      const disp = overlay.querySelector('#dm_claimed_display');
-      if(disp) disp.textContent = calc || 'Enter times above';
-    };
-
-    attach24hrInputs(overlay);
-    overlay.querySelector('#dm_start').oninput = updateCalc;
-    overlay.querySelector('#dm_end').oninput = updateCalc;
-    overlay.querySelector('#dm_reason').oninput = e2=> demurrageForm.reason = e2.target.value;
-    overlay.querySelector('#dm_ref').oninput = e2=>{
-      demurrageForm.ref = e2.target.value;
-      const flagHolder = overlay.querySelector('#dm_ref_flag');
-      const bad = e2.target.value && !/^\d{6}$/.test(e2.target.value.trim());
-      flagHolder.innerHTML = bad ? `<div class="ref-flag">⚠ Must be exactly 6 digits</div>` : '';
-    };
-
-    overlay.querySelector('#dm_cancel').onclick = ()=>{ overlay.classList.remove('show'); setTimeout(()=>overlay.remove(),200); demurrageForm=null; };
-
-    overlay.querySelector('#dm_save').onclick = ()=>{
-      if(!demurrageForm.ref && !demurrageForm.reason){ toast('Enter at least a reason or reference'); return; }
-      if(demurrageForm.ref && !/^\d{6}$/.test(demurrageForm.ref.trim())){ toast('Reference number must be exactly 6 digits'); return; }
-      const entry = entries.find(en=>en.id===demurrageForm.entryId);
-      if(!entry) return;
-      if(!entry.dh.demurrages) entry.dh.demurrages = [];
-      const d = { ref: demurrageForm.ref, start: demurrageForm.start, end: demurrageForm.end, claimed: demurrageForm.claimed, reason: demurrageForm.reason, realPay: demurrageForm.realPay||'No', finalPaid: demurrageForm.finalPaid||'No' };
-      const wasEdit = demurrageForm.editIdx !== null;
-      if(demurrageForm.editIdx !== null) entry.dh.demurrages[demurrageForm.editIdx] = d;
-      else entry.dh.demurrages.push(d);
-      saveEntries();
-      overlay.classList.remove('show');
-      setTimeout(()=>overlay.remove(),200);
-      demurrageForm = null;
-      render();
-      toast(wasEdit ? 'Demurrage updated' : 'Demurrage saved');
-    };
+  function onSaveDemurrage(){
+    if(!demurrageForm.ref && !demurrageForm.reason){ toast('Enter at least a reason or reference'); return; }
+    if(demurrageForm.ref && !/^\d{6}$/.test(demurrageForm.ref.trim())){ toast('Reference number must be exactly 6 digits'); return; }
+    const entry = entries.find(en=>en.id===demurrageForm.entryId);
+    if(!entry) return;
+    if(!entry.dh.demurrages) entry.dh.demurrages = [];
+    const d = { ref: demurrageForm.ref, start: demurrageForm.start, end: demurrageForm.end, claimed: demurrageForm.claimed, reason: demurrageForm.reason, realPay: demurrageForm.realPay||'No', finalPaid: demurrageForm.finalPaid||'No' };
+    const wasEdit = demurrageForm.editIdx !== null;
+    if(demurrageForm.editIdx !== null) entry.dh.demurrages[demurrageForm.editIdx] = d;
+    else entry.dh.demurrages.push(d);
+    saveEntries();
+    demurrageForm = null;
+    render();
+    toast(wasEdit ? 'Demurrage updated' : 'Demurrage saved');
   }
 
   function showCommentModal(){
@@ -1444,17 +1410,22 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     return `<div class="field"><label>${label}</label>${html}</div>`;
   }
 
-  function renderEntryForm(){
-    let html = `<div class="card"><h2>${editingId ? 'Edit Entry' : 'New Entry'}</h2>`;
+  function renderEntryForm(inline){
+    let html = inline
+      ? `<div class="claimrow" style="display:block;border-left-color:var(--amber);">
+          <div style="font-weight:800;font-size:13px;color:var(--ink);margin-bottom:12px;">Edit Entry</div>`
+      : `<div class="card"><h2>${editingId ? 'Edit Entry' : 'New Entry'}</h2>`;
     html += `<div class="row">`;
     html += field('Date', `<input type="date" id="f_date" value="${esc(form.date)}">`);
     html += field('Truck Number', `<input type="text" id="f_truck" placeholder="e.g. 4521" value="${esc(form.truck)}">`);
     html += `</div>`;
 
-    html += `<div class="typepick">
-      <button class="typebtn dh ${form.type==='DH'?'active':''}" id="pick_dh">Deadhead</button>
-      <button class="typebtn tmw ${form.type==='TMW'?'active':''}" id="pick_tmw">TMW</button>
-    </div>`;
+    if(!inline){
+      html += `<div class="typepick">
+        <button class="typebtn dh ${form.type==='DH'?'active':''}" id="pick_dh">Deadhead</button>
+        <button class="typebtn tmw ${form.type==='TMW'?'active':''}" id="pick_tmw">TMW</button>
+      </div>`;
+    }
 
     if(form.type === 'DH'){
       const dhNumWarn = form.dh.number && !/^\d{7}$/.test(form.dh.number.trim());
@@ -1535,12 +1506,12 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     }
 
     html += `<div class="btnrow">
-      <button class="btn primary" id="save_entry">${editingId ? 'Update Entry' : (form.type ? 'Add to Queue' : 'Save Entry')}</button>
+      <button class="btn primary" id="save_entry" style="${inline?'flex:none;padding:10px 18px;':''}">${editingId ? 'Update Entry' : (form.type ? 'Add to Queue' : 'Save Entry')}</button>
       <button class="btn ghost" id="reset_entry">${editingId ? 'Cancel' : 'Reset'}</button>
     </div>`;
 
-    // Pending queue
-    if(pendingLoads.length > 0){
+    // Pending queue (only relevant on the full New Entry page, not an inline edit)
+    if(!inline && pendingLoads.length > 0){
       html += `<div style="margin-top:18px;border-top:2px solid var(--line);padding-top:14px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
           <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);">Queue — ${pendingLoads.length} entr${pendingLoads.length===1?'y':'ies'}</span>
@@ -1622,6 +1593,10 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       return Number.isInteger(decimal) ? String(decimal) : decimal.toFixed(2);
     }
     return String(val).replace(/\s*\(next day \+\)/g, '');
+  }
+  function timeRangeLabel(start, end){
+    if(!start || !end) return '';
+    return ` &middot; ${esc(start)}&ndash;${esc(end)}`;
   }
 
   function claimedTimeOptions(selected){
@@ -1787,19 +1762,24 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
             const allReal  = allClaims.every(c=> c.realPay==='Yes');
             return allFinal ? 'paid-final' : (allReal ? 'paid-real' : '');
           })();
+          if(editingId === e.id){
+            html += `<div class="logrow ${statusClass}">${renderEntryForm(true)}</div>`;
+          } else {
           html += `<div class="logrow ${statusClass}">
-            <div class="logrow-head">
-              <span class="badge dh">DH</span> <span class="lognum">${esc(num)}</span>
-              <span class="logtruck">Truck ${esc(e.truck)}</span>
-              ${e.restored ? '<span class="badge restored">Restored</span>' : ''}
+            <div class="logrow-top">
+              <div class="logrow-title">
+                <span class="badge dh">DH</span> <span class="lognum">${esc(num)}</span>
+                ${e.restored ? '<span class="badge restored">Restored</span>' : ''}
+              </div>
+              ${!e.restored && dhAllFinalPaid(e) && e.finalPaidAt ? `<span class="autodel">Auto-deletes ${esc(daysLeftLabel(e.finalPaidAt))}</span>` : ''}
             </div>
-            ${!e.restored && dhAllFinalPaid(e) && e.finalPaidAt ? `<div class="paystatus"><span class="autodel">Auto-deletes ${esc(daysLeftLabel(e.finalPaidAt))}</span></div>` : ''}`;
+            <div class="logrow-meta">Truck ${esc(e.truck)}</div>`;
           const claimed = e.dh.claimed || calcClaimedValue(e.dh.start, e.dh.end);
           const hasDemurrages = e.dh.demurrages && e.dh.demurrages.length;
           if(!claimed && !hasDemurrages){
             html += `<div class="logrow-actions">
               <button class="delbtn editbtn" data-edit="${e.id}">Edit</button>
-              <button class="delbtn" data-del="${e.id}">Delete</button>
+              <button class="delbtn" data-del="${e.id}">Del</button>
             </div>`;
           }
           if(claimed){
@@ -1807,88 +1787,127 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
             const dhClaimFinal = e.dh.finalPaid || 'No';
             const dhStatus = dhClaimFinal==='Yes'?'paid-final':(dhClaimReal==='Yes'?'paid-real':'');
             html += `<div class="claimrow ${dhStatus}">
-              <div class="claimrow-top">
-                <span class="claimtime">${esc(claimedDisplay(claimed))}</span>
-                <span class="claimkind">${esc(e.dh.reason)||'Deadhead'}</span>
-                <span class="claimref">Ref: ${esc(e.dh.ref)||'&mdash;'}</span>
+              <div class="claimrow-info">
+                <div class="claimrow-top">
+                  <span class="claimtime">${esc(claimedDisplay(claimed))}</span>
+                  <span class="claimkind">${esc(e.dh.reason)||'Deadhead'}</span>
+                </div>
+                <span class="claimref">Ref: ${esc(e.dh.ref)||'&mdash;'}${timeRangeLabel(e.dh.start, e.dh.end)}</span>
               </div>
               <div class="refpay-actions">
                 <button class="delbtn editbtn" data-edit="${e.id}">Edit</button>
-                <button class="delbtn" data-del="${e.id}">Delete</button>
+                <button class="delbtn" data-del="${e.id}">Del</button>
               </div>
             </div>`;
           }
           if(e.dh.demurrages && e.dh.demurrages.length){
             e.dh.demurrages.forEach((d,di)=>{
+              if(demurrageForm && demurrageForm.entryId===e.id && demurrageForm.editIdx===di){
+                html += demurrageFormHtml();
+                return;
+              }
               const dStatus = (d.finalPaid||'No')==='Yes'?'paid-final':((d.realPay||'No')==='Yes'?'paid-real':'');
               html += `<div class="claimrow ${dStatus}">
-                <div class="claimrow-top">
-                  <span class="claimtime">${esc(claimedDisplay(d.claimed))||'&mdash;'}</span>
-                  <span class="claimkind">${esc(d.reason)||'Demurrage'}</span>
-                  <span class="claimref">Ref: ${esc(d.ref)||'&mdash;'}</span>
+                <div class="claimrow-info">
+                  <div class="claimrow-top">
+                    <span class="claimtime">${esc(claimedDisplay(d.claimed))||'&mdash;'}</span>
+                    <span class="claimkind">${esc(d.reason)||'Demurrage'}</span>
+                  </div>
+                  <span class="claimref">Ref: ${esc(d.ref)||'&mdash;'}${timeRangeLabel(d.start, d.end)}</span>
                 </div>
                 <div class="refpay-actions">
                   <button class="delbtn editbtn" data-edit-demurrage="${e.id}" data-edit-demurrage-idx="${di}">Edit</button>
-                  <button class="delbtn" data-del-demurrage="${e.id}" data-del-demurrage-idx="${di}">Delete</button>
+                  <button class="delbtn" data-del-demurrage="${e.id}" data-del-demurrage-idx="${di}">Del</button>
                 </div>
               </div>`;
             });
           }
-          html += `<button class="btn add" style="margin-top:8px;font-size:11px;padding:6px 10px;" data-add-demurrage="${e.id}">+ Add Demurrage</button>`;
-          html += `</div>`;
-        } else {
-          const groupAllFinal = group.every(e=> (e.dh.finalPaid||e.finalPaid||'No')==='Yes');
-          const groupAllReal  = group.every(e=> (e.dh.realPay||e.realPay||'No')==='Yes');
-          const groupStatus   = groupAllFinal ? 'paid-final' : (groupAllReal ? 'paid-real' : '');
-          const totalRefs = group.reduce((sum,e)=> sum + 1 + (e.dh.demurrages||[]).length, 0);
-          html += `<div class="logrow ${groupStatus}">
-            <div class="logrow-head">
-              <span class="badge dh">DH</span> <span class="lognum">${esc(num)}</span>
-              <span class="logsite">${totalRefs} ${totalRefs===1?'reference':'references'}</span>
-              ${group.some(e=>e.restored) ? '<span class="badge restored">Restored</span>' : ''}
-            </div>`;
-          const groupSoonest = group.filter(e=>!e.restored && dhAllFinalPaid(e) && e.finalPaidAt).sort((a,b)=>a.finalPaidAt-b.finalPaidAt)[0];
-          if(groupAllFinal && groupSoonest){
-            html += `<div class="paystatus"><span class="autodel">Auto-deletes ${esc(daysLeftLabel(groupSoonest.finalPaidAt))}</span></div>`;
+          if(demurrageForm && demurrageForm.entryId===e.id && demurrageForm.editIdx===null){
+            html += demurrageFormHtml();
+          } else {
+            html += `<button class="btn add" style="margin-top:8px;font-size:11px;padding:6px 10px;" data-add-demurrage="${e.id}">+ Add Demurrage</button>`;
           }
+          html += `</div>`;
+          }
+        } else {
+          const groupClaims = [];
           group.forEach(e=>{
+            const hasClaim = !!(e.dh.claimed || calcClaimedValue(e.dh.start, e.dh.end));
+            if(hasClaim) groupClaims.push({ realPay: e.dh.realPay||'No', finalPaid: e.dh.finalPaid||'No' });
+            (e.dh.demurrages||[]).forEach(d=> groupClaims.push({ realPay: d.realPay||'No', finalPaid: d.finalPaid||'No' }));
+          });
+          const groupAllFinal = groupClaims.length>0 && groupClaims.every(c=>c.finalPaid==='Yes');
+          const groupAllReal  = groupClaims.length>0 && groupClaims.every(c=>c.realPay==='Yes');
+          const groupStatus   = groupAllFinal ? 'paid-final' : (groupAllReal ? 'paid-real' : '');
+          const totalRefs = groupClaims.length;
+          const groupSoonest = group.filter(e=>!e.restored && dhAllFinalPaid(e) && e.finalPaidAt).sort((a,b)=>a.finalPaidAt-b.finalPaidAt)[0];
+          html += `<div class="logrow ${groupStatus}">
+            <div class="logrow-top">
+              <div class="logrow-title">
+                <span class="badge dh">DH</span> <span class="lognum">${esc(num)}</span>
+                ${group.some(e=>e.restored) ? '<span class="badge restored">Restored</span>' : ''}
+              </div>
+              ${groupAllFinal && groupSoonest ? `<span class="autodel">Auto-deletes ${esc(daysLeftLabel(groupSoonest.finalPaidAt))}</span>` : ''}
+            </div>
+            <div class="logrow-meta">${totalRefs} ${totalRefs===1?'reference':'references'}</div>`;
+          group.forEach(e=>{
+            if(editingId === e.id){
+              html += renderEntryForm(true);
+              return;
+            }
             const dhR = e.dh.realPay||e.realPay||'No';
             const dhF = e.dh.finalPaid||e.finalPaid||'No';
             const rowStatus = dhF==='Yes' ? 'paid-final' : (dhR==='Yes' ? 'paid-real' : '');
             html += `<div class="claimrow ${rowStatus}">
-              <div class="claimrow-top">
-                <span class="claimtime">${esc(claimedDisplay(e.dh.claimed))||'&mdash;'}</span>
-                <span class="claimkind">${esc(e.dh.reason)||'Deadhead'} &middot; Truck ${esc(e.truck)}</span>
-                <span class="claimref">Ref: ${esc(e.dh.ref)||'&mdash;'}</span>
+              <div class="claimrow-info">
+                <div class="claimrow-top">
+                  <span class="claimtime">${esc(claimedDisplay(e.dh.claimed))||'&mdash;'}</span>
+                  <span class="claimkind">${esc(e.dh.reason)||'Deadhead'} &middot; Truck ${esc(e.truck)}</span>
+                </div>
+                <span class="claimref">Ref: ${esc(e.dh.ref)||'&mdash;'}${timeRangeLabel(e.dh.start, e.dh.end)}</span>
               </div>
               <div class="refpay-actions">
                 <button class="delbtn editbtn" data-edit="${e.id}">Edit</button>
-                <button class="delbtn" data-del="${e.id}">Delete</button>
+                <button class="delbtn" data-del="${e.id}">Del</button>
               </div>
             </div>`;
             if(e.dh.demurrages && e.dh.demurrages.length){
               e.dh.demurrages.forEach((d,di)=>{
+                if(demurrageForm && demurrageForm.entryId===e.id && demurrageForm.editIdx===di){
+                  html += demurrageFormHtml();
+                  return;
+                }
                 const dStatus = (d.finalPaid||'No')==='Yes'?'paid-final':((d.realPay||'No')==='Yes'?'paid-real':'');
                 html += `<div class="claimrow ${dStatus}">
-                  <div class="claimrow-top">
-                    <span class="claimtime">${esc(claimedDisplay(d.claimed))||'&mdash;'}</span>
-                    <span class="claimkind">${esc(d.reason)||'Demurrage'}</span>
-                    <span class="claimref">Ref: ${esc(d.ref)||'&mdash;'}</span>
+                  <div class="claimrow-info">
+                    <div class="claimrow-top">
+                      <span class="claimtime">${esc(claimedDisplay(d.claimed))||'&mdash;'}</span>
+                      <span class="claimkind">${esc(d.reason)||'Demurrage'}</span>
+                    </div>
+                    <span class="claimref">Ref: ${esc(d.ref)||'&mdash;'}${timeRangeLabel(d.start, d.end)}</span>
                   </div>
                   <div class="refpay-actions">
                     <button class="delbtn editbtn" data-edit-demurrage="${e.id}" data-edit-demurrage-idx="${di}">Edit</button>
-                    <button class="delbtn" data-del-demurrage="${e.id}" data-del-demurrage-idx="${di}">Delete</button>
+                    <button class="delbtn" data-del-demurrage="${e.id}" data-del-demurrage-idx="${di}">Del</button>
                   </div>
                 </div>`;
               });
             }
           });
-          html += `<button class="btn add" style="margin-top:8px;font-size:11px;padding:6px 10px;" data-add-demurrage="${group[group.length-1].id}">+ Add Demurrage</button>`;
+          if(demurrageForm && demurrageForm.entryId===group[group.length-1].id && demurrageForm.editIdx===null){
+            html += demurrageFormHtml();
+          } else {
+            html += `<button class="btn add" style="margin-top:8px;font-size:11px;padding:6px 10px;" data-add-demurrage="${group[group.length-1].id}">+ Add Demurrage</button>`;
+          }
           html += `</div>`;
         }
       });
 
       tmwEntries.forEach(e=>{
+        if(editingId === e.id){
+          html += `<div class="logrow">${renderEntryForm(true)}</div>`;
+          return;
+        }
         const badge = `<span class="badge tmw">TMW</span>`;
         const number = e.tmw.number;
         const siteRate = findRate(e.tmw.site);
@@ -1897,16 +1916,17 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         const allWaitReal  = e.tmw.waitings.every(w=>(w.realPay||'No')==='Yes');
         const statusClass = (e.finalPaid==='Yes' && allWaitFinal) ? 'paid-final' : ((e.realPay==='Yes' && allWaitReal) ? 'paid-real' : '');
         html += `<div class="logrow ${statusClass}">
-          <div class="logrow-head">
-            ${badge} <span class="lognum">${esc(number)}</span>
-            ${siteLabel}
-            <span class="logtruck">Truck ${esc(e.truck)}</span>
-            ${e.restored ? '<span class="badge restored">Restored</span>' : ''}
+          <div class="logrow-top">
+            <div class="logrow-title">
+              ${badge} <span class="lognum">${esc(number)}</span>
+              ${e.restored ? '<span class="badge restored">Restored</span>' : ''}
+            </div>
+            <div class="logrow-actions">
+              <button class="delbtn editbtn" data-edit="${e.id}">Edit</button>
+              <button class="delbtn" data-del="${e.id}">Del</button>
+            </div>
           </div>
-          <div class="logrow-actions">
-            <button class="delbtn editbtn" data-edit="${e.id}">Edit</button>
-            <button class="delbtn" data-del="${e.id}">Delete</button>
-          </div>
+          <div class="logrow-meta">${siteLabel} &middot; Truck ${esc(e.truck)}</div>
           ${!e.restored && tmwAllFinalPaid(e) && e.finalPaidAt ? `<div class="paystatus"><span class="autodel">Auto-deletes ${esc(daysLeftLabel(e.finalPaidAt))}</span></div>` : ''}`;
 
         if(e.tmw.waitings.length){
@@ -1915,10 +1935,12 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
             if(w.finalPaid === undefined) w.finalPaid = 'No';
             const wStatus = w.finalPaid==='Yes' ? 'paid-final' : (w.realPay==='Yes' ? 'paid-real' : '');
             html += `<div class="claimrow ${wStatus}">
-              <div class="claimrow-top">
-                <span class="claimtime">${esc(claimedDisplay(w.claimed))||'&mdash;'}</span>
-                <span class="claimkind">${esc(w.kind)||'&mdash;'}</span>
-                <span class="claimref">Ref: ${esc(w.ref)||'&mdash;'}</span>
+              <div class="claimrow-info">
+                <div class="claimrow-top">
+                  <span class="claimtime">${esc(claimedDisplay(w.claimed))||'&mdash;'}</span>
+                  <span class="claimkind">${esc(w.kind)||'&mdash;'}</span>
+                </div>
+                <span class="claimref">Ref: ${esc(w.ref)||'&mdash;'}${timeRangeLabel(w.start, w.end)}</span>
               </div>
             </div>`;
           });
@@ -2133,69 +2155,61 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       const dhEntries = dayEntries.filter(e=>e.type==='DH');
 
       dhEntries.forEach(e=>{
-        html += `<div class="logrow">
-          <div class="logrow-head">
-            <span class="badge dh">DH</span> <span class="lognum">${esc(e.dh.number)}</span>
-            <span class="logtruck">Truck ${esc(e.truck)}</span>
-            ${e.restored ? '<span class="badge restored">Restored</span>' : ''}
-          </div>`;
         const claimed = e.dh.claimed || calcClaimedValue(e.dh.start, e.dh.end);
+        const dhClaimReal = e.dh.realPay || 'No';
+        const dhClaimFinal = e.dh.finalPaid || 'No';
+        html += `<div class="logrow">
+          <div class="logrow-top">
+            <div class="logrow-title">
+              <span class="badge dh">DH</span> <span class="lognum">${esc(e.dh.number)}</span>
+              ${e.restored ? '<span class="badge restored">Restored</span>' : ''}
+            </div>
+            ${claimed && !e.restored && dhAllFinalPaid(e) && e.finalPaidAt ? `<span class="autodel">Auto-deletes ${esc(daysLeftLabel(e.finalPaidAt))}</span>` : ''}
+          </div>
+          <div class="logrow-meta">Truck ${esc(e.truck)}</div>`;
         if(claimed){
-          const dhClaimReal = e.dh.realPay || 'No';
-          const dhClaimFinal = e.dh.finalPaid || 'No';
           const dhStatus = dhClaimFinal==='Yes'?'paid-final':(dhClaimReal==='Yes'?'paid-real':'');
-          html += `<div class="claimrow ${dhStatus}">
-            <div class="claimrow-top">
-              <span class="claimtime">${esc(claimedDisplay(claimed))}</span>
-              <span class="claimkind">${esc(e.dh.reason)||'Deadhead'}</span>
-              <span class="claimref">Ref: ${esc(e.dh.ref)||'&mdash;'}</span>
-            </div>
-            <div class="refpay">
-              <div class="paystat-field">
-                <label>Real Pay</label>
-                <select data-dh-pay="${e.id}" data-dh-key="realPay">
-                  <option value="No" ${dhClaimReal==='No'?'selected':''}>No</option>
-                  <option value="Yes" ${dhClaimReal==='Yes'?'selected':''}>Yes</option>
-                </select>
+          html += `<div class="claimrow ${dhStatus}" style="flex-wrap:wrap;">
+            <div class="claimrow-info">
+              <div class="claimrow-top">
+                <span class="claimtime">${esc(claimedDisplay(claimed))}</span>
+                <span class="claimkind">${esc(e.dh.reason)||'Deadhead'}</span>
               </div>
-              <div class="paystat-field">
-                <label>Final Paid</label>
-                <select data-dh-pay="${e.id}" data-dh-key="finalPaid">
-                  <option value="No" ${dhClaimFinal==='No'?'selected':''}>No</option>
-                  <option value="Yes" ${dhClaimFinal==='Yes'?'selected':''}>Yes</option>
-                </select>
-              </div>
-              ${!e.restored && dhAllFinalPaid(e) && e.finalPaidAt ? `<span class="autodel">Auto-deletes ${esc(daysLeftLabel(e.finalPaidAt))}</span>` : ''}
+              <span class="claimref">Ref: ${esc(e.dh.ref)||'&mdash;'}${timeRangeLabel(e.dh.start, e.dh.end)}</span>
             </div>
-            <button class="delbtn comment-btn ${e.dh.comment&&e.dh.comment.trim()?'has-comment':''}" data-comment-id="${e.id}" data-comment-scope="dh">${e.dh.comment&&e.dh.comment.trim() ? '💬 '+esc(e.dh.comment.length>40?e.dh.comment.slice(0,40)+'&hellip;':e.dh.comment) : '+ Add Comment'}</button>
+            <div class="paycell">
+              <label class="pcell"><span>R</span><select data-dh-pay="${e.id}" data-dh-key="realPay">
+                <option value="No" ${dhClaimReal==='No'?'selected':''}>No</option>
+                <option value="Yes" ${dhClaimReal==='Yes'?'selected':''}>Yes</option>
+              </select></label>
+              <label class="pcell"><span>F</span><select data-dh-pay="${e.id}" data-dh-key="finalPaid">
+                <option value="No" ${dhClaimFinal==='No'?'selected':''}>No</option>
+                <option value="Yes" ${dhClaimFinal==='Yes'?'selected':''}>Yes</option>
+              </select></label>
+            </div>
           </div>`;
         }
         if(e.dh.demurrages && e.dh.demurrages.length){
           e.dh.demurrages.forEach((d,di)=>{
             const dStatus = (d.finalPaid||'No')==='Yes'?'paid-final':((d.realPay||'No')==='Yes'?'paid-real':'');
-            html += `<div class="claimrow ${dStatus}">
-              <div class="claimrow-top">
-                <span class="claimtime">${esc(claimedDisplay(d.claimed))||'&mdash;'}</span>
-                <span class="claimkind">${esc(d.reason)||'Demurrage'}</span>
-                <span class="claimref">Ref: ${esc(d.ref)||'&mdash;'}</span>
-              </div>
-              <div class="refpay">
-                <div class="paystat-field">
-                  <label>Real Pay</label>
-                  <select data-demurrage="${e.id}" data-didx="${di}" data-dkey="realPay">
-                    <option value="No" ${(d.realPay||'No')==='No'?'selected':''}>No</option>
-                    <option value="Yes" ${(d.realPay||'No')==='Yes'?'selected':''}>Yes</option>
-                  </select>
+            html += `<div class="claimrow ${dStatus}" style="flex-wrap:wrap;">
+              <div class="claimrow-info">
+                <div class="claimrow-top">
+                  <span class="claimtime">${esc(claimedDisplay(d.claimed))||'&mdash;'}</span>
+                  <span class="claimkind">${esc(d.reason)||'Demurrage'}</span>
                 </div>
-                <div class="paystat-field">
-                  <label>Final Paid</label>
-                  <select data-demurrage="${e.id}" data-didx="${di}" data-dkey="finalPaid">
-                    <option value="No" ${(d.finalPaid||'No')==='No'?'selected':''}>No</option>
-                    <option value="Yes" ${(d.finalPaid||'No')==='Yes'?'selected':''}>Yes</option>
-                  </select>
-                </div>
+                <span class="claimref">Ref: ${esc(d.ref)||'&mdash;'}${timeRangeLabel(d.start, d.end)}</span>
               </div>
-              <button class="delbtn comment-btn ${d.comment&&d.comment.trim()?'has-comment':''}" data-comment-id="${e.id}" data-comment-scope="demurrage" data-comment-idx="${di}">${d.comment&&d.comment.trim() ? '💬 '+esc(d.comment.length>40?d.comment.slice(0,40)+'&hellip;':d.comment) : '+ Add Comment'}</button>
+              <div class="paycell">
+                <label class="pcell"><span>R</span><select data-demurrage="${e.id}" data-didx="${di}" data-dkey="realPay">
+                  <option value="No" ${(d.realPay||'No')==='No'?'selected':''}>No</option>
+                  <option value="Yes" ${(d.realPay||'No')==='Yes'?'selected':''}>Yes</option>
+                </select></label>
+                <label class="pcell"><span>F</span><select data-demurrage="${e.id}" data-didx="${di}" data-dkey="finalPaid">
+                  <option value="No" ${(d.finalPaid||'No')==='No'?'selected':''}>No</option>
+                  <option value="Yes" ${(d.finalPaid||'No')==='Yes'?'selected':''}>Yes</option>
+                </select></label>
+              </div>
             </div>`;
           });
         }
@@ -2212,59 +2226,50 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         const tmwAllReal  = e.realPay==='Yes' && allWaitReal;
         const tmwStatusClass = tmwAllFinal ? 'paid-final' : (tmwAllReal ? 'paid-real' : '');
         html += `<div class="logrow ${tmwStatusClass}">
-          <div class="logrow-head">
-            ${badge} <span class="lognum">${esc(e.tmw.number)}</span>
-            ${siteLabel}
-            <span class="logtruck">Truck ${esc(e.truck)}</span>
-            ${e.restored ? '<span class="badge restored">Restored</span>' : ''}
-          </div>
-          <div class="paystatus">
-            <div class="paystat-field">
-              <label>Real Pay</label>
-              <select data-pay="${e.id}" data-paykey="realPay">
-                <option value="No" ${e.realPay==='No'?'selected':''}>No</option>
-                <option value="Yes" ${e.realPay==='Yes'?'selected':''}>Yes</option>
-              </select>
-            </div>
-            <div class="paystat-field">
-              <label>Final Paid</label>
-              <select data-pay="${e.id}" data-paykey="finalPaid">
-                <option value="No" ${e.finalPaid==='No'?'selected':''}>No</option>
-                <option value="Yes" ${e.finalPaid==='Yes'?'selected':''}>Yes</option>
-              </select>
+          <div class="logrow-top">
+            <div class="logrow-title">
+              ${badge} <span class="lognum">${esc(e.tmw.number)}</span>
+              ${e.restored ? '<span class="badge restored">Restored</span>' : ''}
             </div>
             ${!e.restored && tmwAllFinal && e.finalPaidAt ? `<span class="autodel">Auto-deletes ${esc(daysLeftLabel(e.finalPaidAt))}</span>` : ''}
           </div>
-          <button class="delbtn comment-btn ${e.comment&&e.comment.trim()?'has-comment':''}" data-comment-id="${e.id}" data-comment-scope="entry">${e.comment&&e.comment.trim() ? '💬 '+esc(e.comment.length>40?e.comment.slice(0,40)+'&hellip;':e.comment) : '+ Add Comment'}</button>`;
+          <div class="logrow-meta">${siteLabel} &middot; Truck ${esc(e.truck)}</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:10px;">
+            <div class="paycell">
+              <label class="pcell"><span>R</span><select data-pay="${e.id}" data-paykey="realPay">
+                <option value="No" ${e.realPay==='No'?'selected':''}>No</option>
+                <option value="Yes" ${e.realPay==='Yes'?'selected':''}>Yes</option>
+              </select></label>
+              <label class="pcell"><span>F</span><select data-pay="${e.id}" data-paykey="finalPaid">
+                <option value="No" ${e.finalPaid==='No'?'selected':''}>No</option>
+                <option value="Yes" ${e.finalPaid==='Yes'?'selected':''}>Yes</option>
+              </select></label>
+            </div>
+          </div>`;
 
         if(e.tmw.waitings.length){
           e.tmw.waitings.forEach((w,wi)=>{
             if(w.realPay === undefined) w.realPay = 'No';
             if(w.finalPaid === undefined) w.finalPaid = 'No';
             const wStatus = w.finalPaid==='Yes' ? 'paid-final' : (w.realPay==='Yes' ? 'paid-real' : '');
-            html += `<div class="claimrow ${wStatus}">
-              <div class="claimrow-top">
-                <span class="claimtime">${esc(claimedDisplay(w.claimed))||'&mdash;'}</span>
-                <span class="claimkind">${esc(w.kind)||'&mdash;'}</span>
-                <span class="claimref">Ref: ${esc(w.ref)||'&mdash;'}</span>
-              </div>
-              <div class="refpay">
-                <div class="paystat-field">
-                  <label>Real Pay</label>
-                  <select data-refpay="${e.id}" data-refscope="tmw" data-refidx="${wi}" data-refkey="realPay">
-                    <option value="No" ${w.realPay==='No'?'selected':''}>No</option>
-                    <option value="Yes" ${w.realPay==='Yes'?'selected':''}>Yes</option>
-                  </select>
+            html += `<div class="claimrow ${wStatus}" style="flex-wrap:wrap;">
+              <div class="claimrow-info">
+                <div class="claimrow-top">
+                  <span class="claimtime">${esc(claimedDisplay(w.claimed))||'&mdash;'}</span>
+                  <span class="claimkind">${esc(w.kind)||'&mdash;'}</span>
                 </div>
-                <div class="paystat-field">
-                  <label>Final Paid</label>
-                  <select data-refpay="${e.id}" data-refscope="tmw" data-refidx="${wi}" data-refkey="finalPaid">
-                    <option value="No" ${w.finalPaid==='No'?'selected':''}>No</option>
-                    <option value="Yes" ${w.finalPaid==='Yes'?'selected':''}>Yes</option>
-                  </select>
-                </div>
+                <span class="claimref">Ref: ${esc(w.ref)||'&mdash;'}${timeRangeLabel(w.start, w.end)}</span>
               </div>
-              <button class="delbtn comment-btn ${w.comment&&w.comment.trim()?'has-comment':''}" data-comment-id="${e.id}" data-comment-scope="waiting" data-comment-idx="${wi}">${w.comment&&w.comment.trim() ? '💬 '+esc(w.comment.length>40?w.comment.slice(0,40)+'&hellip;':w.comment) : '+ Add Comment'}</button>
+              <div class="paycell">
+                <label class="pcell"><span>R</span><select data-refpay="${e.id}" data-refscope="tmw" data-refidx="${wi}" data-refkey="realPay">
+                  <option value="No" ${w.realPay==='No'?'selected':''}>No</option>
+                  <option value="Yes" ${w.realPay==='Yes'?'selected':''}>Yes</option>
+                </select></label>
+                <label class="pcell"><span>F</span><select data-refpay="${e.id}" data-refscope="tmw" data-refidx="${wi}" data-refkey="finalPaid">
+                  <option value="No" ${w.finalPaid==='No'?'selected':''}>No</option>
+                  <option value="Yes" ${w.finalPaid==='Yes'?'selected':''}>Yes</option>
+                </select></label>
+              </div>
             </div>`;
           });
         }
@@ -2359,7 +2364,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     if(tabDeleted) tabDeleted.onclick = ()=>{ view='deleted'; render(); };
     if(tabData) tabData.onclick = ()=>{ view='data'; render(); };
 
-    if(view === 'entry'){
+    if(view === 'entry' || (view === 'log' && editingId)){
       const fDate = $('#f_date'), fTruck = $('#f_truck');
       if(fDate) fDate.oninput = e=>{
         form.date = e.target.value;
@@ -2524,12 +2529,38 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         btn.onclick = e=>{
           const id = e.currentTarget.dataset.edit;
           const entry = entries.find(en=>en.id === id);
-          if(entry) loadIntoForm(entry);
+          if(entry) loadIntoForm(entry, true);
         };
       });
       app.querySelectorAll('[data-del]').forEach(btn=>{
         btn.onclick = e=>{
           const id = e.currentTarget.dataset.del;
+          const target = entries.find(en=>en.id === id);
+          const demurrageCount = (target && target.type==='DH' && target.dh.demurrages) ? target.dh.demurrages.length : 0;
+
+          if(demurrageCount > 0){
+            // This entry's demurrages are stored inside it, but they're shown as
+            // separate cards — deleting the whole entry would silently take the
+            // demurrages down with it. Instead, just clear the claim itself and
+            // keep the entry (and its demurrages) alive. Once the last demurrage
+            // is removed via its own Del button, the normal "delete whole entry"
+            // path below becomes available again for what's left.
+            confirmModal(`Delete this claim? Its ${demurrageCount} attached demurrage${demurrageCount===1?'':'s'} will be kept.`, ()=>{
+              target.dh.start = '';
+              target.dh.end = '';
+              target.dh.claimed = '';
+              target.dh.reason = '';
+              target.dh.ref = '';
+              target.dh.realPay = 'No';
+              target.dh.finalPaid = 'No';
+              delete target.dh.comment;
+              target.finalPaidAt = dhAllFinalPaid(target) ? (target.finalPaidAt || Date.now()) : null;
+              saveEntries();
+              render();
+            });
+            return;
+          }
+
           confirmModal('Move this entry to Trash? It will be permanently deleted after 30 days.', ()=>{
             const idx = entries.findIndex(en=>en.id === id);
             if(idx === -1) return;
@@ -2555,7 +2586,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         btn.onclick = e=>{
           const id = e.currentTarget.dataset.addDemurrage;
           demurrageForm = { entryId:id, editIdx:null, ref:'', start:'', end:'', claimed:'', reason:'', realPay:'No', finalPaid:'No' };
-          showDemurrageModal();
+          render();
         };
       });
       app.querySelectorAll('[data-edit-demurrage]').forEach(btn=>{
@@ -2568,9 +2599,31 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           // reason, times, or reference number should never silently reset a
           // demurrage that was already marked paid back to unpaid.
           demurrageForm = { entryId:id, editIdx:di, ref:d.ref||'', start:d.start||'', end:d.end||'', claimed:d.claimed||'', reason:d.reason||'', realPay:d.realPay||'No', finalPaid:d.finalPaid||'No' };
-          showDemurrageModal();
+          render();
         };
       });
+      if(demurrageForm){
+        const dmReason = $('#dm_reason'), dmStart = $('#dm_start'), dmEnd = $('#dm_end'), dmRef = $('#dm_ref'), dmSave = $('#dm_save'), dmCancel = $('#dm_cancel');
+        const updateCalc = ()=>{
+          demurrageForm.start = dmStart.value;
+          demurrageForm.end = dmEnd.value;
+          const calc = calcClaimedDecimal(dmStart.value, dmEnd.value);
+          demurrageForm.claimed = calc;
+          const disp = $('#dm_claimed_display');
+          if(disp) disp.textContent = calc || 'Enter times above';
+        };
+        if(dmReason) dmReason.oninput = e=> demurrageForm.reason = e.target.value;
+        if(dmStart) dmStart.oninput = updateCalc;
+        if(dmEnd) dmEnd.oninput = updateCalc;
+        if(dmRef) dmRef.oninput = e=>{
+          demurrageForm.ref = e.target.value;
+          const flagHolder = $('#dm_ref_flag');
+          const bad = e.target.value && !/^\d{6}$/.test(e.target.value.trim());
+          if(flagHolder) flagHolder.innerHTML = bad ? `<div class="ref-flag">⚠ Must be exactly 6 digits</div>` : '';
+        };
+        if(dmCancel) dmCancel.onclick = ()=>{ demurrageForm = null; render(); };
+        if(dmSave) dmSave.onclick = onSaveDemurrage;
+      }
       app.querySelectorAll('[data-del-demurrage]').forEach(btn=>{
         btn.onclick = e=>{
           const id = e.currentTarget.dataset.delDemurrage, di = +e.currentTarget.dataset.delDemurrageIdx;
@@ -2655,22 +2708,6 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           }
           saveEntries();
           toast('Updated');
-          render();
-        };
-      });
-      app.querySelectorAll('[data-comment-id]').forEach(btn=>{
-        btn.onclick = e=>{
-          const id = e.currentTarget.dataset.commentId;
-          const scope = e.currentTarget.dataset.commentScope;
-          const idx = e.currentTarget.dataset.commentIdx !== undefined ? +e.currentTarget.dataset.commentIdx : null;
-          const entry = entries.find(en=>en.id===id);
-          if(!entry) return;
-          let current = '';
-          if(scope === 'entry') current = entry.comment || '';
-          else if(scope === 'dh') current = entry.dh.comment || '';
-          else if(scope === 'demurrage') current = (entry.dh.demurrages[idx]||{}).comment || '';
-          else if(scope === 'waiting') current = (entry.tmw.waitings[idx]||{}).comment || '';
-          commentModal = { id, scope, idx, text: current };
           render();
         };
       });
@@ -2929,7 +2966,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
             <div class="claimrow-top">
               <span class="claimtime">${esc(claimedDisplay(e.dh.claimed))}</span>
               <span class="claimkind">${esc(e.dh.reason)||'Deadhead'}</span>
-              <span class="claimref">Ref: ${esc(e.dh.ref)||'&mdash;'}</span>
+              <span class="claimref">Ref: ${esc(e.dh.ref)||'&mdash;'}${timeRangeLabel(e.dh.start, e.dh.end)}</span>
             </div>
           </div>`;
         }
@@ -2939,7 +2976,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
               <div class="claimrow-top">
                 <span class="claimtime">${esc(claimedDisplay(w.claimed))||'&mdash;'}</span>
                 <span class="claimkind">${esc(w.kind)||'&mdash;'}</span>
-                <span class="claimref">Ref: ${esc(w.ref)||'&mdash;'}</span>
+                <span class="claimref">Ref: ${esc(w.ref)||'&mdash;'}${timeRangeLabel(w.start, w.end)}</span>
               </div>
             </div>`;
           });
