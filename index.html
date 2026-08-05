@@ -498,15 +498,27 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         // wipe out the correct baked-in/admin-global + personal merge that
         // loadEntries() already computed for this session. Same protection
         // doLogin() applies via its `if(rates.length)` check on fbLoadFromCloud().
-        const cloudRates = data.rates ? JSON.parse(data.rates) : [];
-        const cloudFuelPins = data.fuelPins ? JSON.parse(data.fuelPins) : [];
-        if(cloudRates.length) rates = cloudRates;
-        if(cloudFuelPins.length) fuelPins = cloudFuelPins;
+        //
+        // Admin accounts skip this branch entirely: an admin's rates/fuelPins
+        // are always the live global defaults (recomputed by loadEntries()),
+        // never a merge with anything stored in their own personal doc. Applying
+        // this admin's own last-saved snapshot here would silently overwrite
+        // whatever a DIFFERENT admin most recently published — which is exactly
+        // why admins were seeing stale pins/rates after another admin's update
+        // while regular users (who have no such snapshot yet) saw it correctly.
+        if(!isAdmin()){
+          const cloudRates = data.rates ? JSON.parse(data.rates) : [];
+          const cloudFuelPins = data.fuelPins ? JSON.parse(data.fuelPins) : [];
+          if(cloudRates.length) rates = cloudRates;
+          if(cloudFuelPins.length) fuelPins = cloudFuelPins;
+          try{
+            if(cloudRates.length) localStorage.setItem('worklog:rates', JSON.stringify(rates));
+            if(cloudFuelPins.length) localStorage.setItem('worklog:fuelpins', JSON.stringify(fuelPins));
+          }catch(e){}
+        }
         deletedEntries = data.deletedEntries ? JSON.parse(data.deletedEntries) : [];
         try{
           localStorage.setItem('worklog:entries', JSON.stringify(entries));
-          if(cloudRates.length) localStorage.setItem('worklog:rates', JSON.stringify(rates));
-          if(cloudFuelPins.length) localStorage.setItem('worklog:fuelpins', JSON.stringify(fuelPins));
           localStorage.setItem('worklog:deleted', JSON.stringify(deletedEntries));
         }catch(e){}
         localStorage.setItem('worklog:last_fb_sync', new Date().toISOString());
@@ -741,8 +753,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-08-03 17:10';
-  const APP_VERSION = '3.22';
+  const BUILD_TIME_MST = '2026-08-03 18:00';
+  const APP_VERSION = '4.0.1';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
