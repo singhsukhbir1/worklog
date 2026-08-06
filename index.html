@@ -103,6 +103,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
 .badge.dh{background:#fbeee8;color:var(--rust);}
 .badge.tmw{background:#eaf1ea;color:var(--moss);}
 .badge.restored{background:#eaf0fb;color:#3a5fa8;}
+.badge.split{background:#fdf1de;color:var(--amber);}
 .empty{text-align:center;padding:40px 10px;color:var(--muted);font-size:14px;}
 .delbtn{
   background:#fbeee8;
@@ -753,8 +754,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-08-03 18:00';
-  const APP_VERSION = '4.0.1';
+  const BUILD_TIME_MST = '2026-08-04 09:35';
+  const APP_VERSION = '4.2';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -821,7 +822,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       truck: lastTruckForDate(date),
       type: '', // 'DH' or 'TMW'
       dh: { number:'', start:'', end:'', reason:'', ref:'', claimed:'', demurrages:[] },
-      tmw: { number:'', site:'', anyWaiting:null, waitings:[] }
+      tmw: { number:'', site:'', anyWaiting:false, waitings:[], split:false }
     };
   }
   function blankWaiting(){
@@ -842,9 +843,10 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
             number: entry.tmw.number,
             site: entry.tmw.site.toUpperCase(),
             anyWaiting: entry.tmw.waitings.length > 0,
-            waitings: entry.tmw.waitings.map(w=>({...w}))
+            waitings: entry.tmw.waitings.map(w=>({...w})),
+            split: entry.tmw.split === true
           }
-        : { number:'', site:'', anyWaiting:null, waitings:[] }
+        : { number:'', site:'', anyWaiting:false, waitings:[], split:false }
     };
     if(!inline){
       view = 'entry';
@@ -1474,6 +1476,15 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         html += `<div class="ratehint">${rateMatch ? `Rate on file: $${esc(rateMatch)}` : 'No rate on file for this site \u2014 add one in the Trip Rates tab'}</div>`;
       }
 
+      html += `<div class="field"><label>Split Load?</label>
+        <div class="yn">
+          <button id="split_no" class="${form.tmw.split!==true?'sel':''}">No</button>
+          <button id="split_yes" class="${form.tmw.split===true?'sel':''}">Yes</button>
+        </div></div>`;
+      if(form.tmw.split === true){
+        html += `<div class="ratehint">Split load &mdash; paid a flat $28</div>`;
+      }
+
       html += `<div class="field"><label>Any Waiting?</label>
         <div class="yn">
           <button id="wait_no" class="${form.tmw.anyWaiting===false?'sel':''}">No</button>
@@ -1538,11 +1549,12 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
               <span>${isDH?'DH':'TMW'}</span>
               ${niceDate ? `<span style="color:var(--muted);font-weight:600;">${esc(niceDate)}${load.truck?' · Truck '+esc(load.truck):''}</span>` : ''}
             </div>
-            <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px;">
+            <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px;display:flex;align-items:center;flex-wrap:wrap;">
               <span style="color:var(--rust);">#${esc(load.number)}</span>
               ${isDH
                 ? (load.reason ? `<span style="margin:0 6px;color:var(--muted);">·</span><span style="font-weight:400;font-size:12px;">${esc(load.reason)}</span>` : '')
                 : `<span style="margin:0 6px;color:var(--muted);">·</span><span>${esc(load.site)}</span>`}
+              ${!isDH && load.split===true ? '<span class="badge split" style="margin-left:6px;">Split</span>' : ''}
             </div>
             ${isDH
               ? (load.start||load.end ? `<div style="font-size:11px;color:var(--muted);">${esc(load.start||'?')} → ${esc(load.end||'?')}${load.ref?' · Ref: '+esc(load.ref):''}</div>` : '')
@@ -1682,7 +1694,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         const bg=fp?'#dca8d9':rp?'#a8d9dc':'';
         html += `<tr style="border-bottom:${(e.tmw.waitings||[]).length?'none':'1px solid var(--line)'};${bg?'background:'+bg+';':''}">
           <td style="padding:8px 14px;color:var(--moss);font-weight:700;white-space:nowrap;">Tmw: ${esc(e.tmw.number)}</td>
-          <td style="padding:8px 14px;color:var(--ink);font-weight:600;width:100%;">${esc((e.tmw.site||'').toUpperCase())}</td>
+          <td style="padding:8px 14px;color:var(--ink);font-weight:600;width:100%;">${esc((e.tmw.site||'').toUpperCase())} ${e.tmw.split===true ? '<span class="badge split" style="margin-left:4px;">Split</span>' : ''}</td>
         </tr>`;
         (e.tmw.waitings||[]).forEach((w,wi)=>{
           const wrp=(w.realPay||'No')==='Yes', wfp=(w.finalPaid||'No')==='Yes';
@@ -1923,7 +1935,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         const badge = `<span class="badge tmw">TMW</span>`;
         const number = e.tmw.number;
         const siteRate = findRate(e.tmw.site);
-        const siteLabel = `<span class="logsite">${esc((e.tmw.site||'').toUpperCase())}${siteRate ? ` &middot; $${esc(siteRate)}` : ''}</span>`;
+        const isSplit = e.tmw.split === true;
+        const siteLabel = `<span class="logsite">${esc((e.tmw.site||'').toUpperCase())}${isSplit ? ' &middot; $28' : (siteRate ? ` &middot; $${esc(siteRate)}` : '')}</span>`;
         const allWaitFinal = e.tmw.waitings.every(w=>(w.finalPaid||'No')==='Yes');
         const allWaitReal  = e.tmw.waitings.every(w=>(w.realPay||'No')==='Yes');
         const statusClass = (e.finalPaid==='Yes' && allWaitFinal) ? 'paid-final' : ((e.realPay==='Yes' && allWaitReal) ? 'paid-real' : '');
@@ -1931,6 +1944,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           <div class="logrow-top">
             <div class="logrow-title">
               ${badge} <span class="lognum">${esc(number)}</span>
+              ${isSplit ? '<span class="badge split">Split</span>' : ''}
               ${e.restored ? '<span class="badge restored">Restored</span>' : ''}
             </div>
             <div class="logrow-actions">
@@ -2035,11 +2049,12 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         const rp = e.realPay||'No', fp = e.finalPaid||'No';
         const bg = fp==='Yes'?'#dca8d9':rp==='Yes'?'#a8d9dc':'';
         const tmwRate = findRate(e.tmw.site);
+        const isSplitList = e.tmw.split === true;
         html += `<tr style="border-bottom:${(e.tmw.waitings||[]).length?'none':'1px solid var(--line)'};${bg?'background:'+bg+';':''}">
           <td style="padding:8px 14px;color:var(--moss);font-weight:700;white-space:nowrap;">Tmw: ${esc(e.tmw.number)}</td>
           <td style="padding:8px 14px;color:var(--ink);width:100%;">
-            <div style="font-weight:600;">${esc((e.tmw.site||'').toUpperCase())}</div>
-            ${tmwRate ? `<div style="font-size:13px;color:var(--moss);font-weight:600;margin-top:2px;">$${esc(tmwRate)}</div>` : ''}
+            <div style="font-weight:600;">${esc((e.tmw.site||'').toUpperCase())} ${isSplitList ? '<span class="badge split" style="margin-left:4px;">Split</span>' : ''}</div>
+            <div style="font-size:13px;color:var(--moss);font-weight:600;margin-top:2px;">${isSplitList ? '$28' : (tmwRate ? `$${esc(tmwRate)}` : '')}</div>
           </td>
           ${payCell(rp, fp,
             `data-pay="${e.id}" data-paykey="realPay"`,
@@ -2231,7 +2246,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       tmwEntries.forEach(e=>{
         const badge = `<span class="badge tmw">TMW</span>`;
         const siteRate = findRate(e.tmw.site);
-        const siteLabel = `<span class="logsite">${esc((e.tmw.site||'').toUpperCase())}${siteRate ? ` &middot; $${esc(siteRate)}` : ''}</span>`;
+        const isSplit = e.tmw.split === true;
+        const siteLabel = `<span class="logsite">${esc((e.tmw.site||'').toUpperCase())}${isSplit ? ' &middot; $28' : (siteRate ? ` &middot; $${esc(siteRate)}` : '')}</span>`;
         const allWaitFinal = e.tmw.waitings.every(w=>(w.finalPaid||'No')==='Yes');
         const allWaitReal  = e.tmw.waitings.every(w=>(w.realPay||'No')==='Yes');
         const tmwAllFinal = e.finalPaid==='Yes' && allWaitFinal;
@@ -2241,6 +2257,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           <div class="logrow-top">
             <div class="logrow-title">
               ${badge} <span class="lognum">${esc(e.tmw.number)}</span>
+              ${isSplit ? '<span class="badge split">Split</span>' : ''}
               ${e.restored ? '<span class="badge restored">Restored</span>' : ''}
             </div>
             ${!e.restored && tmwAllFinal && e.finalPaidAt ? `<span class="autodel">Auto-deletes ${esc(daysLeftLabel(e.finalPaidAt))}</span>` : ''}
@@ -2464,6 +2481,10 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           site.oninput = e=>{ form.tmw.site = e.target.value.toUpperCase(); e.target.value = form.tmw.site; };
           site.onblur = ()=> renderSavingFocus();
         }
+
+        const splitNo = $('#split_no'), splitYes = $('#split_yes');
+        if(splitNo) splitNo.onclick = ()=>{ form.tmw.split = false; render(); };
+        if(splitYes) splitYes.onclick = ()=>{ form.tmw.split = true; render(); };
 
         const wNo = $('#wait_no'), wYes = $('#wait_yes');
         if(wNo) wNo.onclick = ()=>{ form.tmw.anyWaiting = false; form.tmw.waitings = []; render(); };
@@ -3891,7 +3912,6 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     if(form.type !== 'TMW'){ return false; }
     if(!form.tmw.number || !form.tmw.site){ toast('Fill TMW number and site'); return false; }
     if(!/^\d{7}$/.test(form.tmw.number.trim())){ toast('TMW number must be exactly 7 digits — please check it'); return false; }
-    if(form.tmw.anyWaiting === null){ toast('Answer: Any Waiting?'); return false; }
     for(const w of form.tmw.waitings){
       if(w.ref && !/^\d{6}$/.test(w.ref.trim())){ toast('Waiting reference number must be exactly 6 digits'); return false; }
     }
@@ -3943,7 +3963,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       truck: form.truck,
       number: form.tmw.number.trim(),
       site: form.tmw.site.toUpperCase(),
-      waitings: form.tmw.waitings.map(w=>({...w}))
+      waitings: form.tmw.waitings.map(w=>({...w})),
+      split: form.tmw.split === true
     });
     toast(`TMW #${form.tmw.number} added to queue`);
     // Keep date & truck, clear only TMW fields
@@ -3980,7 +4001,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           date: load.date, truck: load.truck,
           type: 'TMW',
           dh: null,
-          tmw: { number: load.number, site: load.site, waitings: load.waitings },
+          tmw: { number: load.number, site: load.site, waitings: load.waitings, split: load.split === true },
           realPay: 'No', finalPaid: 'No'
         });
       }
@@ -4006,7 +4027,6 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     if(form.type === 'TMW'){
       if(!form.tmw.number || !form.tmw.site){ toast('Fill TMW number and site'); return; }
       if(!/^\d{7}$/.test(form.tmw.number.trim())){ toast('TMW number must be exactly 7 digits — please check it'); return; }
-      if(form.tmw.anyWaiting === null){ toast('Answer: Any Waiting?'); return; }
       for(const w of form.tmw.waitings){
         if(w.ref && !/^\d{6}$/.test(w.ref.trim())){ toast('Waiting reference number must be exactly 6 digits'); return; }
       }
@@ -4019,7 +4039,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       truck: form.truck,
       type: form.type,
       dh: form.type==='DH' ? {...form.dh, claimed: calcClaimedValue(form.dh.start, form.dh.end)||form.dh.claimed, demurrages: (form.dh.demurrages||[]).map(d=>({...d}))} : null,
-      tmw: form.type==='TMW' ? { number: form.tmw.number, site: form.tmw.site.toUpperCase(), waitings: form.tmw.waitings.map(w=>({...w})) } : null,
+      tmw: form.type==='TMW' ? { number: form.tmw.number, site: form.tmw.site.toUpperCase(), waitings: form.tmw.waitings.map(w=>({...w})), split: form.tmw.split === true } : null,
       realPay: existing ? existing.realPay : 'No',
       finalPaid: existing ? existing.finalPaid : 'No',
       // Preserve the original Final Paid timestamp across an edit. Without this,
