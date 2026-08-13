@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>try{document.documentElement.setAttribute('data-theme', localStorage.getItem('worklog:theme')==='dark' ? 'dark' : 'light');}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
 <title>Daily Work Log</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -45,10 +46,15 @@ try {
   --amber:#c98a2c;
   --panel:#ffffff;
   --muted:#7a766a;
+  --page-bg:#ffffff;
   font-family:'IBM Plex Sans',system-ui,sans-serif;
 }
+:root[data-theme="dark"]{
+  --panel:#e5e4e2;
+  --page-bg:#e5e4e2;
+}
 *{box-sizing:border-box;}
-body,#app{margin:0;padding:0;background:transparent;color:var(--ink);-webkit-text-size-adjust:100%;}
+body,#app{margin:0;padding:0;background:var(--page-bg);color:var(--ink);-webkit-text-size-adjust:100%;transition:background-color .2s,color .2s;}
 #app{max-width:880px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top)) 16px calc(80px + env(safe-area-inset-bottom));}
 
 .hdr{border-bottom:3px solid var(--ink);padding-bottom:8px;margin-bottom:16px;}
@@ -189,7 +195,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
 .paycell{display:flex;gap:12px;flex-shrink:0;align-items:center;}
 .paycell .pcell{display:flex;align-items:center;gap:4px;}
 .paycell .pcell span{font-size:9px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:800;}
-.paycell select{padding:5px 6px;border:1px solid var(--line);border-radius:4px;font-size:12px;font-weight:700;background:#fff;color:var(--ink);cursor:pointer;min-width:52px;}
+.paycell select{padding:5px 6px;border:1px solid var(--line);border-radius:4px;font-size:12px;font-weight:700;background:var(--panel);color:var(--ink);cursor:pointer;min-width:52px;}
 .comment-btn{width:100%;background:var(--paper);border:1px dashed var(--line);color:var(--muted);font-weight:600;text-align:left;justify-content:flex-start;padding:9px 12px;}
 .comment-btn.has-comment{background:#fdf6e3;border:1px solid #e8d8a8;color:var(--ink);}
 
@@ -231,6 +237,13 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
 <script>
 (function(){
   const app = document.getElementById('app');
+  function toggleDarkMode(){
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const next = isDark ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try{ localStorage.setItem('worklog:theme', next); }catch(e){}
+    render();
+  }
 
   // Permanent baked-in fuel pins (offline fallback / initial defaults — the admin account can
   // override these for all users via the Fuel Pins tab, which publishes to Firestore).
@@ -754,8 +767,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-08-04 09:35';
-  const APP_VERSION = '4.2';
+  const BUILD_TIME_MST = '2026-08-12 22:15';
+  const APP_VERSION = '4.3';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -1985,7 +1998,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     filtered.forEach(e=>{ if(!groups[e.date]) groups[e.date]=[]; groups[e.date].push(e); });
     const dates = Object.keys(groups).sort((a,b)=>b.localeCompare(a));
 
-    const sel = (val, attrs) => `<select ${attrs} style="padding:4px 2px;border:1px solid var(--line);border-radius:3px;font-size:11px;font-weight:700;background:#fff;color:var(--muted);min-width:54px;cursor:pointer;">
+    const sel = (val, attrs) => `<select ${attrs} style="padding:4px 2px;border:1px solid var(--line);border-radius:3px;font-size:11px;font-weight:700;background:var(--panel);color:var(--muted);min-width:54px;cursor:pointer;">
       <option value="No" ${val==='No'?'selected':''}>No</option>
       <option value="Yes" ${val==='Yes'?'selected':''}>Yes</option>
     </select>`;
@@ -2894,6 +2907,9 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       };
     }
     if(view==='data'){
+      const toggleDark = $('#toggle_dark');
+      if(toggleDark) toggleDark.onclick = toggleDarkMode;
+
       const exportAllBtn = $('#export_all');
       if(exportAllBtn) exportAllBtn.onclick = exportAll;
       const importAllFile = $('#import_all_file');
@@ -3383,7 +3399,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
             <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:3px;">Last App Build</div>
             <div style="font-size:14px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:.03em;">v${esc(APP_VERSION)} &middot; ${BUILD_TIME_MST} MST</div>
           </div>
-          <div style="font-size:20px;color:var(--muted);opacity:.4;">🛠</div>
+          <button id="toggle_dark" aria-label="Toggle night mode" style="width:40px;height:40px;border-radius:8px;border:1px solid var(--line);background:var(--panel);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0;">${document.documentElement.getAttribute('data-theme')==='dark' ? '☀️' : '🌙'}</button>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 14px;background:var(--paper);border:1px solid var(--line);border-radius:4px;margin-top:8px;">
           <div>
