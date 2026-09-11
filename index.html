@@ -264,6 +264,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   let payFilter = 'all';
   let payCutoffDate = '';
   let payViewMode = 'list'; // 'detail' | 'list'
+  let searchQuery = ''; // shared between View Logs and Pay Check - matches DH#/TMW#/ref# by partial substring
   let trashSubTab = 'auto';
   let commentModal = null;
   let fuelPins = [];
@@ -767,8 +768,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-08-12 22:15';
-  const APP_VERSION = '4.3';
+  const BUILD_TIME_MST = '2026-09-11 13:32';
+  const APP_VERSION = '4.6';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -1201,6 +1202,21 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   function tmwAllFinalPaid(e){
     if((e.finalPaid||'No') !== 'Yes') return false;
     return (e.tmw.waitings||[]).every(w=>(w.finalPaid||'No') === 'Yes');
+  }
+
+  // Partial-match search across DH#/TMW# and every ref# on the entry (including
+  // demurrage and waiting refs), so searching just the last few digits of any
+  // number finds it. Empty query always matches.
+  function entryMatchesSearch(e, query){
+    const q = (query||'').trim();
+    if(!q) return true;
+    if(e.type === 'DH'){
+      if(String(e.dh.number||'').includes(q)) return true;
+      if(String(e.dh.ref||'').includes(q)) return true;
+      return (e.dh.demurrages||[]).some(d=> String(d.ref||'').includes(q));
+    }
+    if(String(e.tmw.number||'').includes(q)) return true;
+    return (e.tmw.waitings||[]).some(w=> String(w.ref||'').includes(q));
   }
 
   function purgeExpiredEntries(){
@@ -1674,7 +1690,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       const niceDate = dObj.toLocaleDateString('en-CA',{month:'long',day:'numeric',timeZone:'America/Edmonton'});
 
       html += `<tr>
-        <td colspan="2" style="padding:10px 14px 6px;font-weight:800;font-size:14px;color:var(--ink);background:var(--paper);border-bottom:2px solid var(--line);border-top:2px solid var(--line);">${esc(niceDate)}</td>
+        <td colspan="3" style="padding:10px 14px 6px;font-weight:800;font-size:14px;color:var(--ink);background:var(--paper);border-bottom:2px solid var(--line);border-top:2px solid var(--line);">${esc(niceDate)}</td>
       </tr>`;
 
       const dhEntries = dayEntries.filter(e=>e.type==='DH');
@@ -1682,6 +1698,10 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
 
       // DH claims — non-indented
       dhEntries.forEach(e=>{
+        if(editingId === e.id){
+          html += `<tr><td colspan="3" style="padding:12px 14px;">${renderEntryForm(true)}</td></tr>`;
+          return;
+        }
         const claimed = e.dh.claimed || calcClaimedValue(e.dh.start, e.dh.end);
         if(claimed){
           const rp=(e.dh.realPay||'No')==='Yes', fp=(e.dh.finalPaid||'No')==='Yes';
@@ -1689,25 +1709,45 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           html += `<tr style="border-bottom:1px solid var(--line);${bg?'background:'+bg+';':''}">
             <td style="padding:8px 14px;color:var(--muted);font-weight:600;white-space:nowrap;">Ref: ${esc(e.dh.ref||'—')}</td>
             <td style="padding:8px 14px;color:var(--ink);width:100%;">${esc(claimed)} - ${esc(e.dh.reason||'Deadhead')}</td>
+            <td style="padding:6px 10px;white-space:nowrap;text-align:right;">
+              <button class="delbtn editbtn" style="padding:5px 9px;font-size:10px;" data-edit="${e.id}">Edit</button>
+              <button class="delbtn" style="padding:5px 9px;font-size:10px;" data-del="${e.id}">Del</button>
+            </td>
           </tr>`;
         }
-        (e.dh.demurrages||[]).forEach(d=>{
+        (e.dh.demurrages||[]).forEach((d,di)=>{
+          if(demurrageForm && demurrageForm.entryId===e.id && demurrageForm.editIdx===di){
+            html += `<tr><td colspan="3" style="padding:12px 14px;">${demurrageFormHtml()}</td></tr>`;
+            return;
+          }
           const rp=(d.realPay||'No')==='Yes', fp=(d.finalPaid||'No')==='Yes';
           const bg=fp?'#dca8d9':rp?'#a8d9dc':'';
           html += `<tr style="border-bottom:1px solid var(--line);${bg?'background:'+bg+';':''}">
             <td style="padding:8px 14px;color:var(--muted);font-weight:600;white-space:nowrap;">Ref: ${esc(d.ref||'—')}</td>
             <td style="padding:8px 14px;color:var(--ink);width:100%;">${esc(claimedDisplay(d.claimed)||'—')} - ${esc(d.reason||'Demurrage')}</td>
+            <td style="padding:6px 10px;white-space:nowrap;text-align:right;">
+              <button class="delbtn editbtn" style="padding:5px 9px;font-size:10px;" data-edit-demurrage="${e.id}" data-edit-demurrage-idx="${di}">Edit</button>
+              <button class="delbtn" style="padding:5px 9px;font-size:10px;" data-del-demurrage="${e.id}" data-del-demurrage-idx="${di}">Del</button>
+            </td>
           </tr>`;
         });
       });
 
       // TMW loads + waitings indented
       tmwEntries.forEach(e=>{
+        if(editingId === e.id){
+          html += `<tr><td colspan="3" style="padding:12px 14px;">${renderEntryForm(true)}</td></tr>`;
+          return;
+        }
         const rp=(e.realPay||'No')==='Yes', fp=(e.finalPaid||'No')==='Yes';
         const bg=fp?'#dca8d9':rp?'#a8d9dc':'';
         html += `<tr style="border-bottom:${(e.tmw.waitings||[]).length?'none':'1px solid var(--line)'};${bg?'background:'+bg+';':''}">
           <td style="padding:8px 14px;color:var(--moss);font-weight:700;white-space:nowrap;">Tmw: ${esc(e.tmw.number)}</td>
           <td style="padding:8px 14px;color:var(--ink);font-weight:600;width:100%;">${esc((e.tmw.site||'').toUpperCase())} ${e.tmw.split===true ? '<span class="badge split" style="margin-left:4px;">Split</span>' : ''}</td>
+          <td style="padding:6px 10px;white-space:nowrap;text-align:right;">
+            <button class="delbtn editbtn" style="padding:5px 9px;font-size:10px;" data-edit="${e.id}">Edit</button>
+            <button class="delbtn" style="padding:5px 9px;font-size:10px;" data-del="${e.id}">Del</button>
+          </td>
         </tr>`;
         (e.tmw.waitings||[]).forEach((w,wi)=>{
           const wrp=(w.realPay||'No')==='Yes', wfp=(w.finalPaid||'No')==='Yes';
@@ -1715,7 +1755,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           const isLast=wi===(e.tmw.waitings||[]).length-1;
           html += `<tr style="border-bottom:1px solid var(--line);${wBg?'background:'+wBg+';':''}">
             <td style="padding:6px 14px 6px 28px;color:var(--muted);font-style:italic;white-space:nowrap;font-size:12px;"><span style="margin-right:4px;">└</span>Ref: ${esc(w.ref||'—')}</td>
-            <td style="padding:6px 14px;color:var(--muted);font-style:italic;font-size:12px;width:100%;">${esc(claimedDisplay(w.claimed)||'—')} - ${esc(w.kind||'Waiting')}</td>
+            <td style="padding:6px 14px;color:var(--muted);font-style:italic;font-size:12px;width:100%;" colspan="2">${esc(claimedDisplay(w.claimed)||'—')} - ${esc(w.kind||'Waiting')}</td>
           </tr>`;
         });
       });
@@ -1730,11 +1770,23 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       return `<div class="card"><div class="empty">No entries yet. Switch to "New Entry" to log your first day.</div></div>`;
     }
 
-    // filter entries by exact date
+    // A search query looks for a specific DH#/TMW#/ref# across ALL entries,
+    // so it bypasses the date filter entirely rather than combining with it —
+    // otherwise "no matches" would just mean "not on this particular day"
+    // instead of "not found at all", which defeats the point of searching.
     let filtered = entries;
-    if(logDateFilter) filtered = filtered.filter(e=> e.date === logDateFilter);
+    if(searchQuery.trim()){
+      filtered = filtered.filter(e=> entryMatchesSearch(e, searchQuery));
+    } else if(logDateFilter){
+      filtered = filtered.filter(e=> e.date === logDateFilter);
+    }
 
     let html = `<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;">
+      <label style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);white-space:nowrap;">🔍</label>
+      <input id="search_query" type="text" inputmode="numeric" placeholder="DH Ref / TMW" value="${esc(searchQuery)}" style="flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:3px;font-size:14px;background:var(--paper);color:var(--ink);font-family:inherit;min-height:38px;">
+      ${searchQuery ? `<button id="search_clear" style="padding:8px 12px;border:1px solid var(--line);border-radius:3px;background:var(--paper);color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;white-space:nowrap;min-height:38px;">Clear</button>` : ''}
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;${searchQuery?'opacity:.5;pointer-events:none;':''}">
       <label style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);white-space:nowrap;">Date</label>
       <input id="log_date_filter" type="date" value="${logDateFilter}" style="flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:3px;font-size:14px;background:var(--paper);color:var(--ink);font-family:inherit;min-height:38px;">
       <button id="log_date_today" style="padding:8px 12px;border:1px solid var(--line);border-radius:3px;background:var(--paper);color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;white-space:nowrap;min-height:38px;">Today</button>
@@ -2126,19 +2178,25 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     });
 
     let filtered = entries;
-    if(payFilter === 'real_pending'){
-      filtered = entries.filter(e=>{
-        if(e.type === 'DH') return dhRealPending(e);
-        return (e.realPay||'No') !== 'Yes' || e.tmw.waitings.some(w=>(w.realPay||'No') !== 'Yes');
-      });
-    } else if(payFilter === 'final_pending'){
-      filtered = entries.filter(e=>{
-        if(e.type === 'DH') return dhFinalPending(e);
-        return (e.finalPaid||'No') !== 'Yes' || e.tmw.waitings.some(w=>(w.finalPaid||'No') !== 'Yes');
-      });
+    if(searchQuery.trim()){
+      // Same as View Logs: a number search looks across ALL entries, ignoring
+      // the pay-status filter and cutoff date so a match is never hidden by
+      // an unrelated filter that happens to be active.
+      filtered = entries.filter(e=> entryMatchesSearch(e, searchQuery));
+    } else {
+      if(payFilter === 'real_pending'){
+        filtered = entries.filter(e=>{
+          if(e.type === 'DH') return dhRealPending(e);
+          return (e.realPay||'No') !== 'Yes' || e.tmw.waitings.some(w=>(w.realPay||'No') !== 'Yes');
+        });
+      } else if(payFilter === 'final_pending'){
+        filtered = entries.filter(e=>{
+          if(e.type === 'DH') return dhFinalPending(e);
+          return (e.finalPaid||'No') !== 'Yes' || e.tmw.waitings.some(w=>(w.finalPaid||'No') !== 'Yes');
+        });
+      }
+      if(payCutoffDate) filtered = filtered.filter(e=> e.date <= payCutoffDate);
     }
-
-    if(payCutoffDate) filtered = filtered.filter(e=> e.date <= payCutoffDate);
 
     let html = `<div class="statusbar">
       <div class="statcard ${payFilter==='real_pending'?'active-filter':''}" id="pfilter_real">
@@ -2154,7 +2212,12 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         <div class="stat-lab">All Entries</div>
       </div>
     </div>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;">
+      <label style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);white-space:nowrap;">🔍</label>
+      <input id="search_query" type="text" inputmode="numeric" placeholder="DH Ref / TMW" value="${esc(searchQuery)}" style="flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:3px;font-size:14px;background:var(--paper);color:var(--ink);font-family:inherit;min-height:38px;">
+      ${searchQuery ? `<button id="search_clear" style="padding:8px 12px;border:1px solid var(--line);border-radius:3px;background:var(--paper);color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;white-space:nowrap;min-height:38px;">Clear</button>` : ''}
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;${searchQuery?'opacity:.5;pointer-events:none;':''}">
       <label style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);white-space:nowrap;">Show up to</label>
       <input id="pcutoff_date" type="date" value="${payCutoffDate}" style="flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:3px;font-size:14px;background:var(--paper);color:var(--ink);font-family:inherit;min-height:38px;">
       <button id="pcutoff_today" style="padding:8px 12px;border:1px solid var(--line);border-radius:3px;background:var(--paper);color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;white-space:nowrap;min-height:38px;">Today</button>
@@ -2404,6 +2467,15 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     if(tabRates) tabRates.onclick = ()=>{ view='rates'; render(); };
     if(tabFuel) tabFuel.onclick = ()=>{ editingFuelId=null; fuelForm={truck:'',pins:['']}; view='fuel'; render(); };
     if(tabDeleted) tabDeleted.onclick = ()=>{ view='deleted'; render(); };
+
+    // Search box (View Logs + Pay Check) — bound here since it's shared markup
+    // across both views; querySelector safely no-ops on views without it.
+    // Filters live on every keystroke; renderSavingFocus() preserves cursor
+    // position across the re-render the same way other live inputs do.
+    const searchInput = $('#search_query');
+    if(searchInput) searchInput.oninput = e=>{ searchQuery = e.target.value; renderSavingFocus(); };
+    $('#search_clear')?.addEventListener('click', ()=>{ searchQuery=''; render(); });
+
     if(tabData) tabData.onclick = ()=>{ view='data'; render(); };
 
     if(view === 'entry' || (view === 'log' && editingId)){
