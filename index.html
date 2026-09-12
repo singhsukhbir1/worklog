@@ -768,8 +768,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-09-11 13:32';
-  const APP_VERSION = '4.6';
+  const BUILD_TIME_MST = '2026-09-12 03:35';
+  const APP_VERSION = '4.7';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -1709,9 +1709,11 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           html += `<tr style="border-bottom:1px solid var(--line);${bg?'background:'+bg+';':''}">
             <td style="padding:8px 14px;color:var(--muted);font-weight:600;white-space:nowrap;">Ref: ${esc(e.dh.ref||'—')}</td>
             <td style="padding:8px 14px;color:var(--ink);width:100%;">${esc(claimed)} - ${esc(e.dh.reason||'Deadhead')}</td>
-            <td style="padding:6px 10px;white-space:nowrap;text-align:right;">
+            <td style="padding:6px 10px 6px 16px;white-space:nowrap;text-align:right;">
+            <div style="display:inline-flex;gap:8px;">
               <button class="delbtn editbtn" style="padding:5px 9px;font-size:10px;" data-edit="${e.id}">Edit</button>
               <button class="delbtn" style="padding:5px 9px;font-size:10px;" data-del="${e.id}">Del</button>
+            </div>
             </td>
           </tr>`;
         }
@@ -1725,9 +1727,11 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           html += `<tr style="border-bottom:1px solid var(--line);${bg?'background:'+bg+';':''}">
             <td style="padding:8px 14px;color:var(--muted);font-weight:600;white-space:nowrap;">Ref: ${esc(d.ref||'—')}</td>
             <td style="padding:8px 14px;color:var(--ink);width:100%;">${esc(claimedDisplay(d.claimed)||'—')} - ${esc(d.reason||'Demurrage')}</td>
-            <td style="padding:6px 10px;white-space:nowrap;text-align:right;">
+            <td style="padding:6px 10px 6px 16px;white-space:nowrap;text-align:right;">
+            <div style="display:inline-flex;gap:8px;">
               <button class="delbtn editbtn" style="padding:5px 9px;font-size:10px;" data-edit-demurrage="${e.id}" data-edit-demurrage-idx="${di}">Edit</button>
               <button class="delbtn" style="padding:5px 9px;font-size:10px;" data-del-demurrage="${e.id}" data-del-demurrage-idx="${di}">Del</button>
+            </div>
             </td>
           </tr>`;
         });
@@ -1744,10 +1748,12 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         html += `<tr style="border-bottom:${(e.tmw.waitings||[]).length?'none':'1px solid var(--line)'};${bg?'background:'+bg+';':''}">
           <td style="padding:8px 14px;color:var(--moss);font-weight:700;white-space:nowrap;">Tmw: ${esc(e.tmw.number)}</td>
           <td style="padding:8px 14px;color:var(--ink);font-weight:600;width:100%;">${esc((e.tmw.site||'').toUpperCase())} ${e.tmw.split===true ? '<span class="badge split" style="margin-left:4px;">Split</span>' : ''}</td>
-          <td style="padding:6px 10px;white-space:nowrap;text-align:right;">
+          <td style="padding:6px 10px 6px 16px;white-space:nowrap;text-align:right;">
+            <div style="display:inline-flex;gap:8px;">
             <button class="delbtn editbtn" style="padding:5px 9px;font-size:10px;" data-edit="${e.id}">Edit</button>
             <button class="delbtn" style="padding:5px 9px;font-size:10px;" data-del="${e.id}">Del</button>
-          </td>
+          </div>
+            </td>
         </tr>`;
         (e.tmw.waitings||[]).forEach((w,wi)=>{
           const wrp=(w.realPay||'No')==='Yes', wfp=(w.finalPaid||'No')==='Yes';
