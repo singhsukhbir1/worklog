@@ -768,8 +768,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-09-12 03:35';
-  const APP_VERSION = '4.7';
+  const BUILD_TIME_MST = '2026-09-13 03:10';
+  const APP_VERSION = '4.9';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -1703,12 +1703,12 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           return;
         }
         const claimed = e.dh.claimed || calcClaimedValue(e.dh.start, e.dh.end);
-        if(claimed){
+        {
           const rp=(e.dh.realPay||'No')==='Yes', fp=(e.dh.finalPaid||'No')==='Yes';
           const bg=fp?'#dca8d9':rp?'#a8d9dc':'';
           html += `<tr style="border-bottom:1px solid var(--line);${bg?'background:'+bg+';':''}">
             <td style="padding:8px 14px;color:var(--muted);font-weight:600;white-space:nowrap;">Ref: ${esc(e.dh.ref||'—')}</td>
-            <td style="padding:8px 14px;color:var(--ink);width:100%;">${esc(claimed)} - ${esc(e.dh.reason||'Deadhead')}</td>
+            <td style="padding:8px 14px;color:var(--ink);width:100%;">${esc(claimedDisplay(claimed)||'—')} - ${esc(e.dh.reason||'Deadhead')}</td>
             <td style="padding:6px 10px 6px 16px;white-space:nowrap;text-align:right;">
             <div style="display:inline-flex;gap:8px;">
               <button class="delbtn editbtn" style="padding:5px 9px;font-size:10px;" data-edit="${e.id}">Edit</button>
@@ -1871,7 +1871,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
             <div class="logrow-meta">Truck ${esc(e.truck)}</div>`;
           const claimed = e.dh.claimed || calcClaimedValue(e.dh.start, e.dh.end);
           const hasDemurrages = e.dh.demurrages && e.dh.demurrages.length;
-          if(!claimed && !hasDemurrages){
+          if(!claimed){
             html += `<div class="logrow-actions">
               <button class="delbtn editbtn" data-edit="${e.id}">Edit</button>
               <button class="delbtn" data-del="${e.id}">Del</button>
@@ -2091,12 +2091,12 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       // ── DH claims — non-indented ──────────────────────────────────────────
       dhEntries.forEach(e=>{
         const claimed = e.dh.claimed || calcClaimedValue(e.dh.start, e.dh.end);
-        if(claimed){
+        {
           const rp = e.dh.realPay||'No', fp = e.dh.finalPaid||'No';
           const bg = fp==='Yes'?'#dca8d9':rp==='Yes'?'#a8d9dc':'';
           html += `<tr style="border-bottom:1px solid var(--line);${bg?'background:'+bg+';':''}">
             <td style="padding:8px 14px;color:var(--muted);font-weight:600;white-space:nowrap;">Ref: ${esc(e.dh.ref||'—')}</td>
-            <td style="padding:8px 14px;color:var(--ink);width:100%;">${esc(claimed)} - ${esc(e.dh.reason||'Deadhead')}</td>
+            <td style="padding:8px 14px;color:var(--ink);width:100%;">${esc(claimedDisplay(claimed)||'—')} - ${esc(e.dh.reason||'Deadhead')}</td>
             ${payCell(rp, fp,
               `data-dh-pay="${e.id}" data-dh-key="realPay"`,
               `data-dh-pay="${e.id}" data-dh-key="finalPaid"`)}
