@@ -60,7 +60,7 @@ body,#app{margin:0;padding:0;background:var(--page-bg);color:var(--ink);-webkit-
 .hdr{border-bottom:3px solid var(--ink);padding-bottom:8px;margin-bottom:16px;}
 .hdr-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 10px;}
 .hdr h1{flex-shrink:0;font-size:17px;letter-spacing:.03em;text-transform:uppercase;margin:0;font-weight:800;white-space:nowrap;}
-.hdr-sync{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--ink);letter-spacing:.02em;white-space:nowrap;flex-shrink:0;}
+.hdr-sync{font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--ink);letter-spacing:.02em;white-space:nowrap;flex-shrink:0;}
 .hdr-status{display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap;margin-top:6px;}
 .hdr-status .who{font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;}
 .hdr-status button{font-size:10px;color:var(--muted);background:none;border:1px solid var(--line);border-radius:4px;padding:4px 7px;cursor:pointer;font-weight:700;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;flex-shrink:0;}
@@ -768,8 +768,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-09-13 03:10';
-  const APP_VERSION = '4.9';
+  const BUILD_TIME_MST = '2026-10-26 12:37';
+  const APP_VERSION = '5.0';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -789,14 +789,13 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     if(hasPendingSync) return 'Sync: pending…';
     const ts = localStorage.getItem('worklog:last_fb_sync');
     if(!ts) return 'Sync: not yet';
-    const d = new Date(ts);
-    const datePart = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'America/Edmonton', month: 'short', day: '2-digit'
-    }).format(d); // e.g. "Jul 08"
-    const timePart = new Intl.DateTimeFormat('en-GB', {
-      timeZone: 'America/Edmonton', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-    }).format(d); // e.g. "14:32:07"
-    return `Sync: ${datePart}, ${timePart} MST`;
+    const t = new Date(ts).getTime();
+    if(isNaN(t)) return 'Sync: not yet';
+    // Elapsed time since the last confirmed sync, as HH:MM:SS (hours keep counting past 24)
+    const secs = Math.max(0, Math.floor((Date.now() - t) / 1000));
+    const pad = n => String(n).padStart(2,'0');
+    const h = Math.floor(secs / 3600), m = Math.floor((secs % 3600) / 60), sec = secs % 60;
+    return `Synced : ${pad(h)}:${pad(m)}:${pad(sec)} ago`;
   }
 
   function connIndicatorState(){
@@ -1370,6 +1369,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     _clockInterval = setInterval(()=>{
       const clockEl = document.getElementById('live_clock');
       if(clockEl) clockEl.textContent = nowMSTTime();
+      const syncEl = document.getElementById('hdr_sync_label');
+      if(syncEl) syncEl.textContent = headerSyncLabel();
     }, 1000);
   }
   function saveEntries(){
