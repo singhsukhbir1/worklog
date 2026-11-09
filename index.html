@@ -768,8 +768,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-11-09 12:45';
-  const APP_VERSION = '5.4';
+  const BUILD_TIME_MST = '2026-11-09 13:11';
+  const APP_VERSION = '5.5';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -2247,24 +2247,16 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     }
 
     const lw = lastWorkedDayPay();
-    const chip = (lab, amt, sub) => `<div style="flex:1;min-width:90px;text-align:center;padding:6px 4px;border-left:1px solid var(--line);">
-        <div style="font-size:14px;font-weight:700;color:var(--ink);">${amt}</div>
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);">${lab}</div>
-        ${sub ? `<div style="font-size:10px;color:var(--muted);">${sub}</div>` : ''}</div>`;
-    const lwHtml = lw ? `<div style="background:var(--panel);border:2px solid var(--ink);border-radius:4px;padding:12px 14px;margin-bottom:12px;">
+    const lwHtml = lw ? `<div style="background:var(--panel);border:2px solid var(--ink);border-left:6px solid var(--moss);border-radius:4px;padding:10px 12px;margin-bottom:12px;">
       <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);">Last worked day &middot; ${esc(new Date(lw.date+'T00:00:00').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}))}</div>
-        <div style="text-align:right;">
-          <div style="font-size:26px;font-weight:800;color:var(--moss);line-height:1.1;">${fmtMoney(lw.total)}</div>
-          <div style="font-size:11px;font-weight:700;color:var(--rust);margin-top:2px;">Pending: ${fmtMoney(lw.pending)}</div>
-        </div>
+        <span style="font-size:12px;color:var(--muted);font-weight:600;">${esc(new Date(lw.date+'T00:00:00').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}))}</span>
+        <span style="font-size:20px;font-weight:800;color:var(--moss);">${fmtMoney(lw.total)}</span>
       </div>
-      <div style="display:flex;margin-top:8px;border-top:1px solid var(--line);padding-top:8px;">
-        ${chip('Trips', fmtMoney(lw.tripPay), lw.tripCount+' TMW')}
-        ${chip('Night', fmtMoney(lw.nightPay), fmtH(lw.nightH)+' h &times; '+PAY_RATE_NIGHT)}
-        ${chip('Other', fmtMoney(lw.otherPay), fmtH(lw.otherH)+' h &times; '+PAY_RATE_OTHER)}
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:11px;color:var(--muted);margin-top:4px;">
+        <span>T ${fmtMoney(lw.tripPay).replace('.00','')} &middot; N ${fmtMoney(lw.nightPay).replace('.00','')} &middot; O ${fmtMoney(lw.otherPay).replace('.00','')}</span>
+        <span style="color:var(--rust);font-weight:700;white-space:nowrap;">Pending: ${fmtMoney(lw.pending)}</span>
       </div>
-      ${lw.tripMissing.length ? `<div style="font-size:11px;color:var(--rust);margin-top:6px;">No rate found for: ${esc(lw.tripMissing.join(', '))}</div>` : ''}
+      ${lw.tripMissing.length ? `<div style="font-size:11px;color:var(--rust);margin-top:4px;">No rate found for: ${esc(lw.tripMissing.join(', '))}</div>` : ''}
     </div>` : '';
 
     let html = `${lwHtml}<div class="statusbar">
