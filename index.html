@@ -768,8 +768,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-11-09 04:52';
-  const APP_VERSION = '5.3';
+  const BUILD_TIME_MST = '2026-11-09 12:45';
+  const APP_VERSION = '5.4';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -2159,27 +2159,37 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     const n = parseFloat(claimedDisplay(val));
     return isNaN(n) ? 0 : n;
   }
-  function lastWorkedDayPay(){
-    if(!entries.length) return null;
-    const date = entries.map(e=>e.date).filter(Boolean).sort().pop();
-    if(!date) return null;
+  // Sums pay for a list of entries. pendingOnly=true counts only items whose Final Paid is not "Yes".
+  function calcPay(list, pendingOnly){
     let nightH=0, otherH=0, tripPay=0, tripCount=0, tripMissing=[];
+    const want = x => !pendingOnly || (x.finalPaid||'No') !== 'Yes';
     function add(hours, reason){
       if(!hours) return;
       if(/night/i.test(String(reason||''))) nightH += hours; else otherH += hours;
     }
-    entries.filter(e=>e.date===date).forEach(e=>{
-      if(e.type==='DH'){
-        add(claimHours(e.dh.claimed || calcClaimedValue(e.dh.start, e.dh.end)), e.dh.reason);
-        (e.dh.demurrages||[]).forEach(d=> add(claimHours(d.claimed || calcClaimedValue(d.start, d.end)), d.reason));
-      } else if(e.type==='TMW'){
-        const tr = e.tmw.split === true ? 28 : parseFloat(String(findRate(e.tmw.site)||'').replace(/[^0-9.\-]/g,''));
-        if(!isNaN(tr) && tr){ tripPay += tr; tripCount++; } else { tripMissing.push(e.tmw.number||e.tmw.site||'?'); }
-        ((e.tmw&&e.tmw.waitings)||[]).forEach(w=> add(claimHours(w.claimed), 'tmw'));
+    list.forEach(e=>{
+      if(e.type==='DH' && e.dh){
+        if(want(e.dh)) add(claimHours(e.dh.claimed || calcClaimedValue(e.dh.start, e.dh.end)), e.dh.reason);
+        (e.dh.demurrages||[]).forEach(d=>{ if(want(d)) add(claimHours(d.claimed || calcClaimedValue(d.start, d.end)), d.reason); });
+      } else if(e.type==='TMW' && e.tmw){
+        if(want(e)){
+          const tr = e.tmw.split === true ? 28 : parseFloat(String(findRate(e.tmw.site)||'').replace(/[^0-9.\-]/g,''));
+          if(!isNaN(tr) && tr){ tripPay += tr; tripCount++; } else { tripMissing.push(e.tmw.number||e.tmw.site||'?'); }
+        }
+        (e.tmw.waitings||[]).forEach(w=>{ if(want(w)) add(claimHours(w.claimed), 'tmw'); });
       }
     });
     const nightPay = nightH*PAY_RATE_NIGHT, otherPay = otherH*PAY_RATE_OTHER;
-    return { date, nightH, otherH, nightPay, otherPay, tripPay, tripCount, tripMissing, total: tripPay+nightPay+otherPay };
+    return { nightH, otherH, nightPay, otherPay, tripPay, tripCount, tripMissing, total: tripPay+nightPay+otherPay };
+  }
+  function lastWorkedDayPay(){
+    if(!entries.length) return null;
+    const date = entries.map(e=>e.date).filter(Boolean).sort().pop();
+    if(!date) return null;
+    const r = calcPay(entries.filter(e=>e.date===date), false);
+    r.date = date;
+    r.pending = calcPay(entries, true).total;
+    return r;
   }
   function fmtH(n){ return Number.isInteger(n) ? String(n) : n.toFixed(2); }
   function fmtMoney(n){ return '$' + n.toFixed(2); }
@@ -2244,7 +2254,10 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     const lwHtml = lw ? `<div style="background:var(--panel);border:2px solid var(--ink);border-radius:4px;padding:12px 14px;margin-bottom:12px;">
       <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;">
         <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);">Last worked day &middot; ${esc(new Date(lw.date+'T00:00:00').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}))}</div>
-        <div style="font-size:26px;font-weight:800;color:var(--moss);">${fmtMoney(lw.total)}</div>
+        <div style="text-align:right;">
+          <div style="font-size:26px;font-weight:800;color:var(--moss);line-height:1.1;">${fmtMoney(lw.total)}</div>
+          <div style="font-size:11px;font-weight:700;color:var(--rust);margin-top:2px;">Pending: ${fmtMoney(lw.pending)}</div>
+        </div>
       </div>
       <div style="display:flex;margin-top:8px;border-top:1px solid var(--line);padding-top:8px;">
         ${chip('Trips', fmtMoney(lw.tripPay), lw.tripCount+' TMW')}
