@@ -49,9 +49,18 @@ try {
   --page-bg:#ffffff;
   font-family:'IBM Plex Sans',system-ui,sans-serif;
 }
-:root[data-theme="dark"]{
-  --panel:#e5e4e2;
-  --page-bg:#e5e4e2;
+/* Dark mode = "smart invert": the whole page is inverted, then images/media are inverted back.
+   hue-rotate(180deg) keeps the brand colours (green / rust) close to their original hues. */
+html[data-theme="dark"]{
+  filter:invert(.9) hue-rotate(180deg) sepia(.3) hue-rotate(170deg) saturate(.9) contrast(1.05);
+  background:#fff;
+}
+html[data-theme="dark"] img,
+html[data-theme="dark"] video,
+html[data-theme="dark"] canvas,
+html[data-theme="dark"] iframe,
+html[data-theme="dark"] svg image{
+  filter:invert(1) hue-rotate(180deg);
 }
 *{box-sizing:border-box;}
 body,#app{margin:0;padding:0;background:var(--page-bg);color:var(--ink);-webkit-text-size-adjust:100%;transition:background-color .2s,color .2s;}
@@ -242,6 +251,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     const next = isDark ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
     try{ localStorage.setItem('worklog:theme', next); }catch(e){}
+    try{ const tc=document.querySelector('meta[name="theme-color"]'); if(tc) tc.setAttribute('content', next==='dark' ? '#e3e1d9' : '#1c2b2d'); }catch(e){}
     render();
   }
 
@@ -768,8 +778,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-11-09 13:11';
-  const APP_VERSION = '5.5';
+  const BUILD_TIME_MST = '2026-11-09 15:01';
+  const APP_VERSION = '5.8';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -2247,15 +2257,18 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     }
 
     const lw = lastWorkedDayPay();
-    const lwHtml = lw ? `<div style="background:var(--panel);border:2px solid var(--ink);border-left:6px solid var(--moss);border-radius:4px;padding:10px 12px;margin-bottom:12px;">
-      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;">
-        <span style="font-size:12px;color:var(--muted);font-weight:600;">${esc(new Date(lw.date+'T00:00:00').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}))}</span>
-        <span style="font-size:20px;font-weight:800;color:var(--moss);">${fmtMoney(lw.total)}</span>
+    const lwHtml = lw ? `<div style="background:linear-gradient(135deg,rgba(70,98,79,.16),rgba(181,80,47,.14)),var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+        <div>
+          <div style="font-size:11px;color:var(--muted);">${esc(new Date(lw.date+'T00:00:00').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}))}</div>
+          <div style="font-size:26px;font-weight:800;color:var(--moss);line-height:1.15;">${fmtMoney(lw.total)}</div>
+        </div>
+        <div style="background:var(--panel);border-radius:10px;padding:6px 12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.15);">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);">Pending</div>
+          <div style="font-size:16px;font-weight:800;color:var(--rust);">${fmtMoney(lw.pending)}</div>
+        </div>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:11px;color:var(--muted);margin-top:4px;">
-        <span>T ${fmtMoney(lw.tripPay).replace('.00','')} &middot; N ${fmtMoney(lw.nightPay).replace('.00','')} &middot; O ${fmtMoney(lw.otherPay).replace('.00','')}</span>
-        <span style="color:var(--rust);font-weight:700;white-space:nowrap;">Pending: ${fmtMoney(lw.pending)}</span>
-      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px;">Trips ${fmtMoney(lw.tripPay).replace('.00','')} &middot; Night ${fmtMoney(lw.nightPay).replace('.00','')} &middot; Other ${fmtMoney(lw.otherPay).replace('.00','')}</div>
       ${lw.tripMissing.length ? `<div style="font-size:11px;color:var(--rust);margin-top:4px;">No rate found for: ${esc(lw.tripMissing.join(', '))}</div>` : ''}
     </div>` : '';
 
@@ -3532,7 +3545,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
             <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:3px;">Last App Build</div>
             <div style="font-size:14px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:.03em;">v${esc(APP_VERSION)} &middot; ${BUILD_TIME_MST} MST</div>
           </div>
-          <button id="toggle_dark" aria-label="Toggle night mode" style="width:40px;height:40px;border-radius:8px;border:1px solid var(--line);background:var(--panel);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0;">${document.documentElement.getAttribute('data-theme')==='dark' ? '☀️' : '🌙'}</button>
+          <button id="toggle_dark" aria-label="Toggle dark mode" style="width:40px;height:40px;border-radius:8px;border:1px solid var(--line);background:var(--panel);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0;">${document.documentElement.getAttribute('data-theme')==='dark' ? '☀️' : '🌙'}</button>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 14px;background:var(--paper);border:1px solid var(--line);border-radius:4px;margin-top:8px;">
           <div>
