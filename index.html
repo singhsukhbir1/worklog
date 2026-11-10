@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<script>try{document.documentElement.setAttribute('data-theme', localStorage.getItem('worklog:theme')==='dark' ? 'dark' : 'light');}catch(e){}</script>
+<script>try{var _t=localStorage.getItem('worklog:theme');document.documentElement.setAttribute('data-theme', ['dark','black','amber','cocoa','charcoal'].indexOf(_t)>=0 ? _t : 'light');}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
 <title>Daily Work Log</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -49,17 +49,18 @@ try {
   --page-bg:#ffffff;
   font-family:'IBM Plex Sans',system-ui,sans-serif;
 }
-/* Dark mode = "smart invert": the whole page is inverted, then images/media are inverted back.
-   hue-rotate(180deg) keeps the brand colours (green / rust) close to their original hues. */
-html[data-theme="dark"]{
-  filter:invert(.9) hue-rotate(180deg) sepia(.3) hue-rotate(170deg) saturate(.9) contrast(1.05);
-  background:#fff;
-}
-html[data-theme="dark"] img,
-html[data-theme="dark"] video,
-html[data-theme="dark"] canvas,
-html[data-theme="dark"] iframe,
-html[data-theme="dark"] svg image{
+/* Dark modes = "smart invert" variants: the whole page is inverted, then images/media are inverted back.
+   hue-rotate(180deg) keeps the brand colours close to their original hues. Pick one in Data > Theme. */
+html[data-theme="dark"]    { filter:invert(.9) hue-rotate(180deg) sepia(.3) hue-rotate(170deg) saturate(.9) contrast(1.05); }  /* Slate */
+html[data-theme="black"]   { filter:invert(1) hue-rotate(180deg) brightness(.85); }                                             /* True black */
+html[data-theme="amber"]   { filter:invert(.9) hue-rotate(180deg) sepia(.85) saturate(1.3) brightness(.8); }                     /* Night amber */
+html[data-theme="cocoa"]   { filter:invert(.9) hue-rotate(180deg) sepia(.8) hue-rotate(-12deg) saturate(1.1) brightness(.68); }   /* Cocoa */
+html[data-theme="charcoal"]{ filter:invert(.9) hue-rotate(180deg) saturate(.8) brightness(.78) contrast(.95); }                  /* Soft charcoal */
+html[data-theme="dark"],html[data-theme="black"],html[data-theme="amber"],html[data-theme="cocoa"],html[data-theme="charcoal"]{ background:#fff; }
+html[data-theme="dark"] img,html[data-theme="black"] img,html[data-theme="amber"] img,html[data-theme="cocoa"] img,html[data-theme="charcoal"] img,
+html[data-theme="dark"] video,html[data-theme="black"] video,html[data-theme="amber"] video,html[data-theme="cocoa"] video,html[data-theme="charcoal"] video,
+html[data-theme="dark"] canvas,html[data-theme="black"] canvas,html[data-theme="amber"] canvas,html[data-theme="cocoa"] canvas,html[data-theme="charcoal"] canvas,
+html[data-theme="dark"] iframe,html[data-theme="black"] iframe,html[data-theme="amber"] iframe,html[data-theme="cocoa"] iframe,html[data-theme="charcoal"] iframe{
   filter:invert(1) hue-rotate(180deg);
 }
 *{box-sizing:border-box;}
@@ -246,12 +247,14 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
 <script>
 (function(){
   const app = document.getElementById('app');
-  function toggleDarkMode(){
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    const next = isDark ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    try{ localStorage.setItem('worklog:theme', next); }catch(e){}
-    try{ const tc=document.querySelector('meta[name="theme-color"]'); if(tc) tc.setAttribute('content', next==='dark' ? '#e3e1d9' : '#1c2b2d'); }catch(e){}
+  const THEMES = [
+    ['light','Day'],['dark','Slate'],['black','Black'],['amber','Amber'],['cocoa','Cocoa'],['charcoal','Charcoal']
+  ];
+  function setTheme(name){
+    if(!THEMES.some(t=>t[0]===name)) name = 'light';
+    document.documentElement.setAttribute('data-theme', name);
+    try{ localStorage.setItem('worklog:theme', name); }catch(e){}
+    try{ const tc=document.querySelector('meta[name="theme-color"]'); if(tc) tc.setAttribute('content', name==='light' ? '#1c2b2d' : '#111111'); }catch(e){}
     render();
   }
 
@@ -298,6 +301,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   let authLoading = false;
   let firebaseReady = false;
   let hasPendingSync = localStorage.getItem('worklog:pending_sync') === '1';
+  let _prevLastSyncMs = 0; // last confirmed sync BEFORE the current cloud pull stamped a new one
   // The baked-in/admin-global baseline in effect for the CURRENT session, captured once
   // in loadEntries(). saveRates()/saveFuelPins() diff against this so that saving one
   // personal rate doesn't freeze every untouched site into this user's local storage.
@@ -448,6 +452,37 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     await fbSyncToCloud();
   }
 
+  // Merges entries that exist ONLY on this device into the freshly loaded cloud copy.
+  // A device that has been offline / closed for a long time still holds old entries
+  // that were since deleted, auto-deleted or purged elsewhere. Re-adding every
+  // "missing from cloud" entry resurrects them and pushes the stale data back to
+  // every device. So a local-only entry is kept ONLY when it is genuinely new work:
+  //   - this device has unsynced changes flagged (pending_sync), AND
+  //   - it was created after the last time this device confirmed sync with the server, AND
+  //   - it is not already in the cloud Trash.
+  // Also cleans up the damage an older version could do: any active entry whose id is
+  // already in Trash is removed from the active list, and Trash duplicates are dropped.
+  function mergeLocalOnlyEntries(localEntries){
+    let changed = false;
+    const trashedIds = new Set(deletedEntries.map(d=>d.id));
+    const seenTrash = new Set();
+    const dedupedTrash = deletedEntries.filter(d=>{ if(seenTrash.has(d.id)) return false; seenTrash.add(d.id); return true; });
+    if(dedupedTrash.length !== deletedEntries.length){ deletedEntries = dedupedTrash; changed = true; }
+    const before = entries.length;
+    entries = entries.filter(e=>!trashedIds.has(e.id));
+    if(entries.length !== before) changed = true;
+    const lastSyncMs = _prevLastSyncMs;
+    const pending = localStorage.getItem('worklog:pending_sync') === '1';
+    if(pending){
+      (localEntries||[]).forEach(le=>{
+        if(!le || trashedIds.has(le.id)) return;
+        if(entries.some(e=>e.id===le.id)) return;
+        if((le.created||0) > lastSyncMs){ entries.push(le); changed = true; }
+      });
+    }
+    return changed;
+  }
+
   async function fbLoadFromCloud(){
     if(!currentUser) return false;
     try {
@@ -467,6 +502,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         // (fbSyncToCloud). Without this, a device that only ever receives
         // updates from another device would show a stale/never-updated
         // timestamp even though its data is fully current.
+        _prevLastSyncMs = Date.parse(localStorage.getItem('worklog:last_fb_sync') || '') || 0;
         localStorage.setItem('worklog:last_fb_sync', new Date().toISOString());
         return true;
       }
@@ -669,10 +705,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         const hasCloud = await fbLoadFromCloud();
         if(hasCloud){
           const localEntries = (() => { try{ return JSON.parse(localStorage.getItem('worklog:entries')||'[]'); }catch(e){ return []; } })();
-          let entriesChanged = false;
-          localEntries.forEach(le => {
-            if(!entries.some(e=>e.id===le.id)){ entries.push(le); entriesChanged = true; }
-          });
+          const entriesChanged = mergeLocalOnlyEntries(localEntries);
           try{ localStorage.setItem('worklog:entries', JSON.stringify(entries)); }catch(e){}
           try{ if(rates.length) localStorage.setItem('worklog:rates', JSON.stringify(rates)); }catch(e){}
           try{ if(fuelPins.length) localStorage.setItem('worklog:fuelpins', JSON.stringify(fuelPins)); }catch(e){}
@@ -778,8 +811,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-11-09 15:01';
-  const APP_VERSION = '5.8';
+  const BUILD_TIME_MST = '2026-11-09 19:50';
+  const APP_VERSION = '6.0';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -1242,7 +1275,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
         expired = tmwAllFinalPaid(e) && e.finalPaidAt && (Date.now() - e.finalPaidAt) >= SEVEN_DAYS_MS;
       }
       if(expired){
-        deletedEntries.unshift({...e, deletedAt: Date.now(), deleteReason: 'auto'});
+        if(!deletedEntries.some(d=>d.id===e.id)) deletedEntries.unshift({...e, deletedAt: Date.now(), deleteReason: 'auto'});
         movedToTrash = true;
       } else {
         stillActive.push(e);
@@ -3053,8 +3086,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       };
     }
     if(view==='data'){
-      const toggleDark = $('#toggle_dark');
-      if(toggleDark) toggleDark.onclick = toggleDarkMode;
+      app.querySelectorAll('.theme_btn').forEach(b=>{ b.onclick = ()=> setTheme(b.getAttribute('data-theme-name')); });
 
       const exportAllBtn = $('#export_all');
       if(exportAllBtn) exportAllBtn.onclick = exportAll;
@@ -3545,7 +3577,14 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
             <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:3px;">Last App Build</div>
             <div style="font-size:14px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:.03em;">v${esc(APP_VERSION)} &middot; ${BUILD_TIME_MST} MST</div>
           </div>
-          <button id="toggle_dark" aria-label="Toggle dark mode" style="width:40px;height:40px;border-radius:8px;border:1px solid var(--line);background:var(--panel);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0;">${document.documentElement.getAttribute('data-theme')==='dark' ? '☀️' : '🌙'}</button>
+
+        </div>
+        <div style="padding:10px 14px;background:var(--paper);border:1px solid var(--line);border-radius:4px;margin-top:8px;">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;">Theme</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            ${THEMES.map(t=>{ const on = (document.documentElement.getAttribute('data-theme')||'light')===t[0];
+              return `<button class="theme_btn" data-theme-name="${t[0]}" style="flex:1 1 30%;min-width:84px;padding:9px 6px;border-radius:6px;border:2px solid ${on?'var(--ink)':'var(--line)'};background:${on?'var(--ink)':'var(--panel)'};color:${on?'var(--panel)':'var(--ink)'};font-weight:700;font-size:12px;cursor:pointer;">${t[1]}</button>`; }).join('')}
+          </div>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 14px;background:var(--paper);border:1px solid var(--line);border-radius:4px;margin-top:8px;">
           <div>
@@ -4268,10 +4307,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       const hasCloud = await fbLoadFromCloud();
       if(hasCloud){
         const localEntries = (() => { try{ return JSON.parse(localStorage.getItem('worklog:entries')||'[]'); }catch(e){ return []; } })();
-        let entriesChanged = false;
-        localEntries.forEach(le => {
-          if(!entries.some(e=>e.id===le.id)){ entries.push(le); entriesChanged = true; }
-        });
+        const entriesChanged = mergeLocalOnlyEntries(localEntries);
         try{ localStorage.setItem('worklog:entries', JSON.stringify(entries)); }catch(e){}
         try{ if(rates.length) localStorage.setItem('worklog:rates', JSON.stringify(rates)); }catch(e){}
         try{ if(fuelPins.length) localStorage.setItem('worklog:fuelpins', JSON.stringify(fuelPins)); }catch(e){}
