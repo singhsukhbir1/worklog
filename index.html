@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<script>try{var _t=localStorage.getItem('worklog:theme');document.documentElement.setAttribute('data-theme', ['dark','black','amber','cocoa','charcoal'].indexOf(_t)>=0 ? _t : 'light');}catch(e){}</script>
+<script>try{var _bg=localStorage.getItem('worklog:bg');if(/^#[0-9a-fA-F]{6}$/.test(_bg||''))document.documentElement.style.setProperty('--page-bg',_bg);}catch(e){}</script>
+<script>try{var _t=localStorage.getItem('worklog:theme');document.documentElement.setAttribute('data-theme', ['dark','black','amber','cocoa','charcoal'].indexOf(_t)>=0 ? 'dark' : 'light');}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
 <title>Daily Work Log</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -49,18 +50,19 @@ try {
   --page-bg:#ffffff;
   font-family:'IBM Plex Sans',system-ui,sans-serif;
 }
-/* Dark modes = "smart invert" variants: the whole page is inverted, then images/media are inverted back.
-   hue-rotate(180deg) keeps the brand colours close to their original hues. Pick one in Data > Theme. */
-html[data-theme="dark"]    { filter:invert(.9) hue-rotate(180deg) sepia(.3) hue-rotate(170deg) saturate(.9) contrast(1.05); }  /* Slate */
-html[data-theme="black"]   { filter:invert(1) hue-rotate(180deg) brightness(.85); }                                             /* True black */
-html[data-theme="amber"]   { filter:invert(.9) hue-rotate(180deg) sepia(.85) saturate(1.3) brightness(.8); }                     /* Night amber */
-html[data-theme="cocoa"]   { filter:invert(.9) hue-rotate(180deg) sepia(.8) hue-rotate(-12deg) saturate(1.1) brightness(.68); }   /* Cocoa */
-html[data-theme="charcoal"]{ filter:invert(.9) hue-rotate(180deg) saturate(.8) brightness(.78) contrast(.95); }                  /* Soft charcoal */
-html[data-theme="dark"],html[data-theme="black"],html[data-theme="amber"],html[data-theme="cocoa"],html[data-theme="charcoal"]{ background:#fff; }
-html[data-theme="dark"] img,html[data-theme="black"] img,html[data-theme="amber"] img,html[data-theme="cocoa"] img,html[data-theme="charcoal"] img,
-html[data-theme="dark"] video,html[data-theme="black"] video,html[data-theme="amber"] video,html[data-theme="cocoa"] video,html[data-theme="charcoal"] video,
-html[data-theme="dark"] canvas,html[data-theme="black"] canvas,html[data-theme="amber"] canvas,html[data-theme="cocoa"] canvas,html[data-theme="charcoal"] canvas,
-html[data-theme="dark"] iframe,html[data-theme="black"] iframe,html[data-theme="amber"] iframe,html[data-theme="cocoa"] iframe,html[data-theme="charcoal"] iframe{
+/* Two themes only: Day (default) and Night. Night = "smart invert": the whole page is inverted
+   to a near-black background, images/media are inverted back. --ink is pre-compensated for the
+   filter so text, borders and filled buttons come out as Floral White (#FFFAF0). */
+html[data-theme="dark"]{
+  --page-bg:#e6e6e6 !important; /* pre-filter value: inverts to the Night background #191919; custom Day background is ignored here */
+  --ink:#090400;
+  filter:invert(1) hue-rotate(180deg);
+  background:#e6e6e6; /* -> #191919 after the filter, so the area below short pages matches */
+}
+html[data-theme="dark"] img,
+html[data-theme="dark"] video,
+html[data-theme="dark"] canvas,
+html[data-theme="dark"] iframe{
   filter:invert(1) hue-rotate(180deg);
 }
 *{box-sizing:border-box;}
@@ -162,6 +164,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
 
 .confirm-overlay{position:fixed;inset:0;background:rgba(28,43,45,0);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;transition:background-color .2s;pointer-events:none;}
 .confirm-overlay.show{background:rgba(28,43,45,.55);pointer-events:auto;}
+html[data-theme="dark"] .confirm-overlay.show{background:rgba(230,230,230,.75);} /* pre-filter: inverts to a dark backdrop in Night mode */
 .confirm-box{background:var(--panel);border-radius:8px;padding:22px;max-width:340px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,.3);transform:translateY(10px);opacity:0;transition:transform .2s,opacity .2s;}
 .confirm-overlay.show .confirm-box{transform:translateY(0);opacity:1;}
 .confirm-msg{font-size:15px;color:var(--ink);margin-bottom:18px;line-height:1.4;}
@@ -247,14 +250,27 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
 <script>
 (function(){
   const app = document.getElementById('app');
-  const THEMES = [
-    ['light','Day'],['dark','Slate'],['black','Black'],['amber','Amber'],['cocoa','Cocoa'],['charcoal','Charcoal']
-  ];
+  const THEMES = [['light','Day'],['dark','Night']];
+  // Custom page background (Day mode only). Stored as #rrggbb in worklog:bg; changes ONLY the page
+  // background colour - cards, text and buttons stay exactly as in Day mode.
+  function normalizeHex(v){
+    v = String(v||'').trim().replace(/^#/,'');
+    if(/^[0-9a-fA-F]{3}$/.test(v)) v = v.split('').map(c=>c+c).join('');
+    return /^[0-9a-fA-F]{6}$/.test(v) ? '#'+v.toLowerCase() : null;
+  }
+  function applyCustomBg(hex){
+    try{
+      if(hex){ document.documentElement.style.setProperty('--page-bg', hex); localStorage.setItem('worklog:bg', hex); }
+      else { document.documentElement.style.removeProperty('--page-bg'); localStorage.removeItem('worklog:bg'); }
+    }catch(e){}
+  }
+  function currentCustomBg(){ try{ return normalizeHex(localStorage.getItem('worklog:bg')); }catch(e){ return null; } }
+
   function setTheme(name){
     if(!THEMES.some(t=>t[0]===name)) name = 'light';
     document.documentElement.setAttribute('data-theme', name);
     try{ localStorage.setItem('worklog:theme', name); }catch(e){}
-    try{ const tc=document.querySelector('meta[name="theme-color"]'); if(tc) tc.setAttribute('content', name==='light' ? '#1c2b2d' : '#111111'); }catch(e){}
+    try{ const tc=document.querySelector('meta[name="theme-color"]'); if(tc) tc.setAttribute('content', name==='light' ? '#1c2b2d' : '#000000'); }catch(e){}
     render();
   }
 
@@ -274,6 +290,9 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   let rateForm = { site:'', rate:'' };
   let logDateFilter = '';
   let logViewMode = 'list'; // 'detail' | 'list'
+  let selectMode = false;            // View Logs multi-select (bulk delete)
+  const selectedIds = new Set();
+  let visibleLogIds = [];            // ids currently shown in View Logs (for Select All)
   let payFilter = 'all';
   let payCutoffDate = '';
   let payViewMode = 'list'; // 'detail' | 'list'
@@ -811,8 +830,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-11-09 19:50';
-  const APP_VERSION = '6.0';
+  const BUILD_TIME_MST = '2026-11-09 20:18';
+  const APP_VERSION = '6.4';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
@@ -1832,13 +1851,14 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     }
 
     let html = `<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;">
+      <button id="sel_toggle" class="delbtn" aria-pressed="${selectMode}" style="padding:8px 10px;font-size:11px;white-space:nowrap;text-transform:uppercase;letter-spacing:.03em;flex:none;${selectMode?'background:var(--rust);color:#fff;border-color:var(--rust);':''}">Del Mode</button>
       <label style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);white-space:nowrap;">🔍</label>
-      <input id="search_query" type="text" inputmode="numeric" placeholder="DH Ref / TMW" value="${esc(searchQuery)}" style="flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:3px;font-size:14px;background:var(--paper);color:var(--ink);font-family:inherit;min-height:38px;">
+      <input id="search_query" type="text" inputmode="numeric" placeholder="DH Ref / TMW" value="${esc(searchQuery)}" style="flex:1;min-width:0;padding:8px 10px;border:1px solid var(--line);border-radius:3px;font-size:14px;background:var(--paper);color:var(--ink);font-family:inherit;min-height:38px;">
       ${searchQuery ? `<button id="search_clear" style="padding:8px 12px;border:1px solid var(--line);border-radius:3px;background:var(--paper);color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;white-space:nowrap;min-height:38px;">Clear</button>` : ''}
     </div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;${searchQuery?'opacity:.5;pointer-events:none;':''}">
       <label style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);white-space:nowrap;">Date</label>
-      <input id="log_date_filter" type="date" value="${logDateFilter}" style="flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:3px;font-size:14px;background:var(--paper);color:var(--ink);font-family:inherit;min-height:38px;">
+      <input id="log_date_filter" type="date" value="${logDateFilter}" style="flex:1;min-width:0;padding:8px 10px;border:1px solid var(--line);border-radius:3px;font-size:14px;background:var(--paper);color:var(--ink);font-family:inherit;min-height:38px;">
       <button id="log_date_today" style="padding:8px 12px;border:1px solid var(--line);border-radius:3px;background:var(--paper);color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;white-space:nowrap;min-height:38px;">Today</button>
       <button id="log_date_clear" style="padding:8px 12px;border:1px solid var(--line);border-radius:3px;background:var(--paper);color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;white-space:nowrap;min-height:38px;">Clear</button>
     </div>
@@ -1846,6 +1866,14 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       <button id="log_view_detail" style="flex:1;padding:9px;border:2px solid var(--ink);border-radius:4px;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;background:${logViewMode==='detail'?'var(--ink)':'var(--panel)'};color:${logViewMode==='detail'?'var(--paper)':'var(--ink)'};">Detail View</button>
       <button id="log_view_list" style="flex:1;padding:9px;border:2px solid var(--ink);border-radius:4px;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;background:${logViewMode==='list'?'var(--ink)':'var(--panel)'};color:${logViewMode==='list'?'var(--paper)':'var(--ink)'};">List View</button>
     </div>`;
+
+    visibleLogIds = filtered.map(e=>e.id);
+    if(selectMode){
+      html += `<div id="sel_bar" style="position:sticky;top:0;z-index:5;display:flex;gap:8px;align-items:center;margin-bottom:12px;background:var(--panel);border:2px solid var(--rust);border-radius:4px;padding:8px 10px;">
+        <span id="sel_count" style="flex:1;font-size:13px;font-weight:700;color:var(--ink);"></span>
+        <button id="sel_delete" class="delbtn" style="padding:8px 14px;font-size:12px;min-height:36px;">Delete</button>
+      </div>`;
+    }
 
     if(filtered.length === 0){
       html += `<div class="card"><div class="empty">No entries match this filter.</div></div>`;
@@ -2321,12 +2349,12 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     </div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;">
       <label style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);white-space:nowrap;">🔍</label>
-      <input id="search_query" type="text" inputmode="numeric" placeholder="DH Ref / TMW" value="${esc(searchQuery)}" style="flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:3px;font-size:14px;background:var(--paper);color:var(--ink);font-family:inherit;min-height:38px;">
+      <input id="search_query" type="text" inputmode="numeric" placeholder="DH Ref / TMW" value="${esc(searchQuery)}" style="flex:1;min-width:0;padding:8px 10px;border:1px solid var(--line);border-radius:3px;font-size:14px;background:var(--paper);color:var(--ink);font-family:inherit;min-height:38px;">
       ${searchQuery ? `<button id="search_clear" style="padding:8px 12px;border:1px solid var(--line);border-radius:3px;background:var(--paper);color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;white-space:nowrap;min-height:38px;">Clear</button>` : ''}
     </div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;${searchQuery?'opacity:.5;pointer-events:none;':''}">
       <label style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);white-space:nowrap;">Show up to</label>
-      <input id="pcutoff_date" type="date" value="${payCutoffDate}" style="flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:3px;font-size:14px;background:var(--paper);color:var(--ink);font-family:inherit;min-height:38px;">
+      <input id="pcutoff_date" type="date" value="${payCutoffDate}" style="flex:1;min-width:0;padding:8px 10px;border:1px solid var(--line);border-radius:3px;font-size:14px;background:var(--paper);color:var(--ink);font-family:inherit;min-height:38px;">
       <button id="pcutoff_today" style="padding:8px 12px;border:1px solid var(--line);border-radius:3px;background:var(--paper);color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;white-space:nowrap;min-height:38px;">Today</button>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:16px;">
@@ -2519,6 +2547,7 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
       app.innerHTML = `<div class="empty" style="padding:40px;text-align:center;">Loading&hellip;</div>`;
       return;
     }
+    if(view !== 'log' && (selectMode || selectedIds.size)){ selectMode = false; selectedIds.clear(); } // leaving View Logs cancels select mode
     app.innerHTML = `
       <div class="hdr">
         <div class="hdr-top">
@@ -2757,6 +2786,36 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           if(entry) loadIntoForm(entry, true);
         };
       });
+      // ---- multi-select bulk delete ----
+      function refreshSelBar(){
+        const c = app.querySelector('#sel_count'); if(c) c.textContent = selectedIds.size + ' selected';
+        const d = app.querySelector('#sel_delete'); if(d){ d.disabled = selectedIds.size===0; d.style.opacity = selectedIds.size===0 ? '.5' : '1'; }
+      }
+      app.querySelector('#sel_toggle')?.addEventListener('click', ()=>{ selectMode = !selectMode; selectedIds.clear(); render(); });
+      app.querySelector('#sel_delete')?.addEventListener('click', ()=>{
+        const ids = [...selectedIds].filter(id=>entries.some(e=>e.id===id));
+        if(!ids.length) return;
+        const demCount = entries.filter(e=>ids.includes(e.id) && e.type==='DH' && e.dh && e.dh.demurrages).reduce((n,e)=>n+e.dh.demurrages.length,0);
+        const msg = `Move ${ids.length} selected entr${ids.length===1?'y':'ies'} to Trash?` + (demCount ? ` This includes ${demCount} attached demurrage${demCount===1?'':'s'}.` : '') + ' They are permanently deleted after 30 days.';
+        confirmModal(msg, ()=>{
+          const removed = entries.filter(e=>ids.includes(e.id)).map(e=>({...e, deletedAt: Date.now(), deleteReason: 'user'}));
+          entries = entries.filter(e=>!ids.includes(e.id));
+          deletedEntries = removed.concat(deletedEntries.filter(d=>!ids.includes(d.id)));
+          selectedIds.clear(); selectMode = false;
+          saveEntries();
+          saveDeletedEntries();
+          render();
+          undoToast(`Moved ${removed.length} to Trash`, ()=>{
+            const back = removed.map(r=>{ const c={...r}; delete c.deletedAt; delete c.deleteReason; return c; });
+            deletedEntries = deletedEntries.filter(d=>!ids.includes(d.id));
+            entries = entries.concat(back);
+            saveEntries();
+            saveDeletedEntries();
+            render();
+          });
+        });
+      });
+
       app.querySelectorAll('[data-del]').forEach(btn=>{
         btn.onclick = e=>{
           const id = e.currentTarget.dataset.del;
@@ -2805,6 +2864,20 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           });
         };
       });
+
+      if(selectMode){
+        // In select mode each entry's Del button becomes a checkbox.
+        app.querySelectorAll('[data-del]').forEach(btn=>{
+          const id = btn.getAttribute('data-del');
+          const cb = document.createElement('input');
+          cb.type = 'checkbox'; cb.className = 'sel_cb'; cb.checked = selectedIds.has(id);
+          cb.setAttribute('aria-label','Select entry');
+          cb.style.cssText = 'width:26px;height:26px;accent-color:var(--rust);cursor:pointer;flex:none;margin:0 6px;';
+          cb.onchange = ()=>{ if(cb.checked) selectedIds.add(id); else selectedIds.delete(id); refreshSelBar(); };
+          btn.replaceWith(cb);
+        });
+        refreshSelBar();
+      }
 
       // demurrage bindings (Add/Edit/Delete still live in View Logs; pay status moved to Pay Check)
       app.querySelectorAll('[data-add-demurrage]').forEach(btn=>{
@@ -3087,6 +3160,22 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
     }
     if(view==='data'){
       app.querySelectorAll('.theme_btn').forEach(b=>{ b.onclick = ()=> setTheme(b.getAttribute('data-theme-name')); });
+      (function(){
+        const picker = app.querySelector('#bg_picker'), hexIn = app.querySelector('#bg_hex'), msg = app.querySelector('#bg_msg');
+        if(!picker || !hexIn) return;
+        picker.oninput = ()=>{ hexIn.value = picker.value; msg.textContent=''; applyCustomBg(picker.value); };
+        const apply = ()=>{
+          const hex = normalizeHex(hexIn.value);
+          if(!hex){ msg.textContent = 'Enter a hex color like #f6f4ee'; return; }
+          msg.textContent = '';
+          hexIn.value = hex; picker.value = hex;
+          applyCustomBg(hex);
+          if(document.documentElement.getAttribute('data-theme')==='dark') msg.textContent = 'Saved. It shows in Day mode (Night mode keeps its own look).';
+        };
+        app.querySelector('#bg_apply').onclick = apply;
+        hexIn.onkeydown = e=>{ if(e.key==='Enter'){ e.preventDefault(); apply(); } };
+        app.querySelector('#bg_reset').onclick = ()=>{ applyCustomBg(null); hexIn.value=''; picker.value='#ffffff'; msg.textContent=''; };
+      })();
 
       const exportAllBtn = $('#export_all');
       if(exportAllBtn) exportAllBtn.onclick = exportAll;
@@ -3583,7 +3672,17 @@ td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
           <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;">Theme</div>
           <div style="display:flex;flex-wrap:wrap;gap:6px;">
             ${THEMES.map(t=>{ const on = (document.documentElement.getAttribute('data-theme')||'light')===t[0];
-              return `<button class="theme_btn" data-theme-name="${t[0]}" style="flex:1 1 30%;min-width:84px;padding:9px 6px;border-radius:6px;border:2px solid ${on?'var(--ink)':'var(--line)'};background:${on?'var(--ink)':'var(--panel)'};color:${on?'var(--panel)':'var(--ink)'};font-weight:700;font-size:12px;cursor:pointer;">${t[1]}</button>`; }).join('')}
+              return `<button class="theme_btn" data-theme-name="${t[0]}" style="flex:1 1 40%;min-width:84px;padding:9px 6px;border-radius:6px;border:2px solid ${on?'var(--ink)':'var(--line)'};background:${on?'var(--ink)':'var(--panel)'};color:${on?'var(--panel)':'var(--ink)'};font-weight:700;font-size:12px;cursor:pointer;">${t[1]}</button>`; }).join('')}
+          </div>
+          <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line);">
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;">Day background color <span style="text-transform:none;letter-spacing:0;">(Day mode only)</span></div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input id="bg_picker" type="color" value="${currentCustomBg()||'#ffffff'}" aria-label="Pick background color" style="width:44px;height:40px;padding:2px;border:1px solid var(--line);border-radius:4px;background:var(--panel);flex:none;">
+              <input id="bg_hex" type="text" inputmode="text" autocapitalize="off" autocomplete="off" spellcheck="false" maxlength="7" placeholder="#f6f4ee" value="${currentCustomBg()||''}" style="flex:1;min-width:0;padding:8px 10px;border:1px solid var(--line);border-radius:3px;font-size:14px;background:var(--paper);color:var(--ink);font-family:inherit;min-height:40px;">
+              <button id="bg_apply" class="btn primary" style="padding:9px 12px;font-size:12px;flex:none;">Apply</button>
+              <button id="bg_reset" class="btn ghost" style="padding:9px 12px;font-size:12px;flex:none;">Reset</button>
+            </div>
+            <div id="bg_msg" style="font-size:11px;color:var(--rust);min-height:14px;margin-top:4px;"></div>
           </div>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 14px;background:var(--paper);border:1px solid var(--line);border-radius:4px;margin-top:8px;">
