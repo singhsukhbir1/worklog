@@ -54,11 +54,17 @@ try {
    to a near-black background, images/media are inverted back. --ink is pre-compensated for the
    filter so text, borders and filled buttons come out as Floral White (#FFFAF0). */
 html[data-theme="dark"]{
-  --page-bg:#e6e6e6 !important; /* pre-filter value: inverts to the Night background #191919; custom Day background is ignored here */
+  /* Night palette = graphite greys. Values are pre-filter (greys invert to 255-x):
+     page #1f1f1f, cards #2b2b2b, inner boxes/inputs #353535, text Floral White. */
+  --page-bg:#e0e0e0 !important; /* custom Day background is ignored in Night */
+  --panel:#d4d4d4;
+  --paper:#cacaca;
   --ink:#090400;
   filter:invert(1) hue-rotate(180deg);
-  background:#e6e6e6; /* -> #191919 after the filter, so the area below short pages matches */
+  background:#e0e0e0; /* -> #1f1f1f after the filter, so the area below short pages matches */
 }
+html[data-theme="dark"] .auth-wrap{ background:#f0f0f0 !important; } /* login backdrop: inverts to #0f0f0f (not Floral White) in Night */
+html[data-theme="dark"] .sel_cb{ outline:2px solid #090400; outline-offset:-1px; border-radius:4px; } /* visible outline for DEL Mode checkboxes */
 html[data-theme="dark"] img,
 html[data-theme="dark"] video,
 html[data-theme="dark"] canvas,
@@ -748,7 +754,7 @@ html[data-theme="dark"] .confirm-overlay.show{background:rgba(230,230,230,.75);}
 
   function renderAuthScreen(){
     const isReg = authScreen === 'register';
-    return `<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--ink);">
+    return `<div class="auth-wrap" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--ink);">
       <div style="background:var(--paper);border-radius:16px;padding:28px 24px;width:100%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.35);">
         <div style="text-align:center;margin-bottom:24px;">
           <div style="font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--ink);">Daily Work Log</div>
@@ -830,8 +836,8 @@ html[data-theme="dark"] .confirm-overlay.show{background:rgba(230,230,230,.75);}
   // ---- MST/MDT-aware date helper ----
   // Uses America/Edmonton (Alberta) which correctly handles MST (winter) / MDT (summer) daylight savings
   // Build timestamp — update this string whenever the file is regenerated
-  const BUILD_TIME_MST = '2026-11-09 20:18';
-  const APP_VERSION = '6.4';
+  const BUILD_TIME_MST = '2026-11-10 22:46';
+  const APP_VERSION = '6.5';
 
   function todayMST(){
     return new Intl.DateTimeFormat('en-CA', {
